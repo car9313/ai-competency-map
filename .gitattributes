@@ -1,0 +1,6 @@
+# CI corre en Linux y el desarrollo en Windows: se normaliza a LF en el repositorio.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
