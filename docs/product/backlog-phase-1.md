@@ -68,11 +68,13 @@ S5 puede ir en paralelo con S3–S4: no comparten archivos.
 
 **Criterio de hecho**
 
-- [ ] 12 tests, uno por regla, dirigidos por tabla.
-- [ ] Tests de acotación en ambos extremos.
-- [ ] Secuencia aleatoria larga que verifica I12, I13 e I14 sin romperse.
-- [ ] `scheduleNext` es pura: mismo input, mismo output, sin reloj ambiente.
-- [ ] El archivo de reglas se lee como la tabla del documento, fila a fila.
+- [x] 12 tests, uno por regla, dirigidos por tabla. *(La tabla del test es una copia independiente del documento, no se genera desde `RULES`.)*
+- [x] Tests de acotación en ambos extremos.
+- [x] Secuencia aleatoria larga que verifica I12, I13 e I14 sin romperse. *(200 secuencias × 60 intentos, generador determinista.)*
+- [x] `scheduleNext` es pura: mismo input, mismo output, sin reloj ambiente.
+- [x] El archivo de reglas se lee como la tabla del documento, fila a fila.
+
+**Lo que encontró el test de propiedades:** I14 («un acierto con confianza nunca acorta el intervalo») **solo es cierto sobre estados alcanzables**. Al generar `learning` con intervalo 7 días, R4 lo bajaba a 3. No era un bug del código: era un estado imposible, porque las reglas solo producen 1 o 2 días en `learning`. De ahí nace el invariante **I17** (intervalos acotados por fase), que ahora está documentado porque de él depende I14.
 
 ---
 

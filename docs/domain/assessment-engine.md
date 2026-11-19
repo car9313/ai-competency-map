@@ -116,6 +116,7 @@ Cada una de estas es un test, no un comentario.
 | I14  | Tras un acierto con confianza, `intervalDays` nunca disminuye.                                    |
 | I15  | `ItemSchedule` nunca se persiste: se recalcula plegando los intentos del ítem.                    |
 | I16  | `foldSchedule(itemId, attempts)` coincide exactamente con aplicar `scheduleNext` de forma incremental. |
+| I17  | Los intervalos son acotados por fase: `new` = 1 · `learning` ∈ {1, 2} · `relearning` = 1 · `review` ∈ [3, 180]. **De aquí depende I14.** |
 
 ---
 
