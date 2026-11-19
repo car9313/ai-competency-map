@@ -91,10 +91,14 @@ S5 puede ir en paralelo con S3–S4: no comparten archivos.
 
 **Criterio de hecho**
 
-- [ ] Un test por regla de estado, incluida `consolidated → at_risk`.
-- [ ] Equivalencia I16: plegar todo == aplicar uno a uno.
-- [ ] Un test que prueba que una competencia **no vuelve a bloquearse** al fallar un repaso.
-- [ ] Orden topológico detecta un ciclo en un fixture roto.
+- [x] Un test por regla de estado, incluida `consolidated → at_risk`.
+- [x] Equivalencia I16: plegar todo == aplicar uno a uno.
+- [x] Un test que prueba que una competencia **no vuelve a bloquearse** al fallar un repaso.
+- [x] Orden topológico detecta un ciclo en un fixture roto.
+
+**Matiz que apareció al implementarlo:** «último intento correcto» **no** es lo mismo que `phase === 'review'`. Un acierto dudoso (R2, R5, R11) deja el ítem en `learning` y sigue siendo evidencia válida, así que la competencia puede consolidarse con ítems en fase `learning`. La condición correcta es «último intento correcto y el ítem no está en `relearning`», y tiene su test propio.
+
+**Ampliación del puerto `Clock`:** ahora expone `dateOf(timestamp)`. Convertir un instante en una fecha de calendario es una decisión de zona horaria y no podía vivir en el dominio. `fixedClock` fecha en UTC a propósito, para que ningún test dependa de la zona de la máquina.
 
 ---
 

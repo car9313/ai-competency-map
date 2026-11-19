@@ -171,24 +171,34 @@ Léelo como la historia que cuenta la demo: un fallo degrada el ítem, dos respu
 
 ### 4.4 API del módulo
 
-El motor expone tres funciones puras:
+El motor expone cinco funciones puras:
 
 ```ts
 // una transición
-scheduleNext(schedule: ItemSchedule, attempt: Attempt, clock: Clock): ItemSchedule
+scheduleNext(schedule: ItemSchedule, attempt: Attempt, today: IsoDate): ItemSchedule
 
 // todas las transiciones de un ítem, en orden cronológico
-foldSchedule(itemId: string, attempts: Attempt[]): ItemSchedule
+foldSchedule(itemId: string, attempts: readonly Attempt[], clock: Clock): ItemSchedule
 
-// la cola del día, a partir de las programaciones derivadas
-buildReviewQueue(items: Item[], attempts: Attempt[], clock: Clock): ReviewQueueItem[]
+// las dos proyecciones
+projectState(items: readonly Item[], attempts: readonly Attempt[], clock: Clock): CompetencyState
+projectUnlocked(
+  competencyId: string,
+  prerequisites: readonly Prerequisite[],
+  states: ReadonlyMap<string, CompetencyState>,
+): boolean
+
+// la cola del día
+buildReviewQueue(items: readonly Item[], attempts: readonly Attempt[], clock: Clock): ReviewQueueItem[]
 ```
 
-`foldSchedule` es la fuente de verdad: parte de la programación inicial (`phase: 'new'`, `ease: 2.5`, `intervalDays: 1`) y aplica `scheduleNext` a cada intento del ítem ordenado por `answeredAt`. **No hay estado de planificación almacenado en ninguna parte** (invariante I15).
+**Por qué `scheduleNext` recibe una fecha y no el reloj.** Una transición solo necesita saber *qué día es*; convertir un instante en fecha es una decisión de zona horaria, y el dominio no la toma. El puerto `Clock` expone `today()`, `now()` y **`dateOf(timestamp)`**, y son `foldSchedule` y `buildReviewQueue` quienes lo usan.
+
+`foldSchedule` es la fuente de verdad: parte de la programación inicial (`phase: 'new'`, `ease: 2.5`, `intervalDays: 1`) y aplica `scheduleNext` a cada intento del ítem ordenado por `answeredAt` (con desempate por `id`, para que dos intentos del mismo instante no dependan del orden de llegada). **No hay estado de planificación almacenado en ninguna parte** (invariante I15).
 
 Con 120 ítems y unos miles de intentos, plegar todo cuesta microsegundos. Si algún día dejara de serlo, se añade una caché en memoria, no una tabla.
 
-`buildReviewQueue` devuelve los ítems con `dueAt <= clock.today()`, ordenados por `dueAt` ascendente y después por `difficulty` ascendente. Sin aleatoriedad y sin heurísticas de priorización en la v1.
+`buildReviewQueue` devuelve los ítems con `dueAt <= clock.today()` **que además tengan algún intento** — un ítem sin estrenar no está vencido, está disponible, y su sitio es el mapa. Orden: `dueAt` ascendente, después `difficulty` ascendente y por último `id`. Sin aleatoriedad y sin heurísticas de priorización en la v1.
 
 ---
 
