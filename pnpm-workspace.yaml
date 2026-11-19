@@ -1,0 +1,8 @@
+# Configuración de pnpm para el repositorio.
+#
+# esbuild (dependencia de tsx) necesita ejecutar su script de instalación para
+# enlazar el binario de la plataforma. pnpm 12 bloquea los scripts por defecto y
+# exige autorizarlos aquí: sin esto, `pnpm install` falla con ERR_PNPM_IGNORED_BUILDS
+# y `pnpm validate:content` no arranca.
+allowBuilds:
+  esbuild: true

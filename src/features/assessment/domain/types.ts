@@ -4,19 +4,21 @@
  * Todo lo de este módulo es puro: sin React, sin DOM, sin red y sin tiempo ambiente.
  * El tiempo entra como argumento (`today: IsoDate`), nunca se lee del sistema (regla D8).
  *
+ * `Item` y `Option` viven en `shared/types` porque también los produce el contenido:
+ * son el contrato entre ambas features, no propiedad de una sola.
+ *
  * Especificación: docs/domain/assessment-engine.md
  */
 import type { IsoDate, IsoTimestamp } from '@/shared/time/clock';
 
 export type { IsoDate, IsoTimestamp };
+export type { Difficulty, Item, Option } from '@/shared/types/domain';
 
 /** Fases del planificador. Tipo cerrado: no existen estados imposibles. */
 export type Phase = 'new' | 'learning' | 'review' | 'relearning';
 
 /** Dimensión de confianza declarada por el alumno. */
 export type Confidence = 'confident' | 'doubtful';
-
-export type Difficulty = 1 | 2 | 3;
 
 /**
  * Un intento. Hecho inmutable: nunca se modifica ni se borra (invariante I8).
@@ -49,24 +51,4 @@ export interface ItemSchedule {
   lapses: number;
   dueAt: IsoDate;
   lastReviewedAt: IsoTimestamp | null;
-}
-
-export interface Option {
-  id: string;
-  text: string;
-  correct: boolean;
-  /** Por qué esta opción es correcta, o por qué es un error tentador. */
-  rationale: string;
-}
-
-export interface Item {
-  id: string;
-  competencyId: string;
-  difficulty: Difficulty;
-  prompt: string;
-  /** 3–4 opciones, exactamente una correcta. */
-  options: readonly Option[];
-  /** Se muestra tras cualquier respuesta. Explica el concepto, no el error. */
-  explanation: string;
-  referenceId: string;
 }

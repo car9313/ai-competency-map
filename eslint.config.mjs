@@ -44,7 +44,7 @@ export default tseslint.config(
   },
   {
     // Scripts y configuración: corren en Node.
-    files: ['scripts/**/*.mjs', '*.config.mjs', '*.config.ts'],
+    files: ['scripts/**/*.{mjs,ts}', '*.config.mjs', '*.config.ts'],
     languageOptions: {
       globals: {
         process: 'readonly',

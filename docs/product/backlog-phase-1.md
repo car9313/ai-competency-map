@@ -115,10 +115,14 @@ S5 puede ir en paralelo con S3–S4: no comparten archivos.
 
 **Criterio de hecho**
 
-- [ ] `pnpm validate:content` pasa con el contenido real.
-- [ ] Cada fixture negativo es rechazado (o avisado) por la regla que le corresponde.
-- [ ] Un ítem con dos respuestas correctas rompe el build.
-- [ ] Los identificadores son estables y coinciden con el grafo.
+- [x] `pnpm validate:content` pasa con el contenido real. *(3 competencias · 3 lecciones · 12 ítems · 0 errores · 0 avisos.)*
+- [x] Cada fixture negativo es rechazado (o avisado) por la regla que le corresponde. *(13 fixtures: R1–R5 y R7 rompen, R6 avisa.)*
+- [x] Un ítem con dos respuestas correctas rompe el build. *(R1 es error; `validate:content` sale con código 1 y detiene `pnpm check`.)*
+- [x] Los identificadores son estables y coinciden con el grafo.
+
+**Desviación consciente del plan:** las tres competencias no caben en un área. La cadena real del grafo es `ai-ml-dl-boundaries` → `tokens-and-context-window` → `system-instructions-contract`, y cruza tres áreas porque así están definidos los prerrequisitos. Se prefirió una cadena verdadera a una cadena dentro de un área.
+
+**Lo que hizo falta añadir:** `zod` (esquemas) y `tsx` (ejecutar el CLI en TypeScript). `tsx` arrastra `esbuild`, cuyo script de instalación pnpm 12 bloquea por defecto: hay que autorizarlo en `pnpm-workspace.yaml` con `allowBuilds`, o `pnpm install` falla con `ERR_PNPM_IGNORED_BUILDS` y se cae todo el CI.
 
 ---
 
