@@ -27,6 +27,8 @@ export interface MapNode {
   title: string;
   claim: string;
   areaId: string;
+  /** Orden de recorrido dentro del grafo. La lista lo respeta: no es alfabético. */
+  order: number;
   layer: Layer;
   level: Difficulty;
   published: boolean;
@@ -99,6 +101,7 @@ export function buildCompetencyMap(input: MapInput): CompetencyMap {
       title: competency.title,
       claim: competency.claim,
       areaId: competency.areaId,
+      order: competency.order,
       layer: competency.layer,
       level: competency.level,
       published: competency.published,
@@ -117,4 +120,73 @@ export function nodesOfLevel(map: CompetencyMap, level: number): MapNode[] {
   const ids = map.levels[level] ?? [];
 
   return ids.map((id) => map.nodes.get(id)).filter((node): node is MapNode => node !== undefined);
+}
+
+/**
+ * El camino activo: por dónde vas.
+ *
+ * Se calcula como la cadena de prerrequisitos hasta el **foco**, que es la primera
+ * competencia publicada que está disponible (o en curso). Con historial vacío el foco
+ * es la raíz, y por eso el camino resalta un solo nodo: es honesto, no un error.
+ *
+ * Este es el equivalente funcional al camino de Duolingo: no decora, informa de dónde
+ * estás y de lo que ya recorriste.
+ */
+export interface ActiveTrail {
+  /** La siguiente competencia por hacer, o `null` si no hay ninguna disponible. */
+  focusId: string | null;
+  /** Nodos que forman el camino, incluido el foco. */
+  nodeIds: string[];
+  /** Aristas del camino, como pares `[desde, hasta]`. */
+  links: Array<[string, string]>;
+}
+
+const IN_PROGRESS: readonly NodeVisibility[] = ['available', 'learning', 'at_risk'];
+
+export function activeTrail(map: CompetencyMap): ActiveTrail {
+  const ordered = map.levels
+    .flat()
+    .map((id) => map.nodes.get(id))
+    .filter((node): node is MapNode => node !== undefined);
+
+  const focus =
+    ordered.find((node) => node.published && IN_PROGRESS.includes(node.visibility)) ?? null;
+
+  if (!focus) {
+    return { focusId: null, nodeIds: [], links: [] };
+  }
+
+  const trail = new Set<string>([focus.id]);
+  const queue: string[] = [focus.id];
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+
+    if (current === undefined) {
+      break;
+    }
+
+    const node = map.nodes.get(current);
+
+    for (const prerequisiteId of node?.prerequisiteIds ?? []) {
+      if (!trail.has(prerequisiteId)) {
+        trail.add(prerequisiteId);
+        queue.push(prerequisiteId);
+      }
+    }
+  }
+
+  const links: Array<[string, string]> = [];
+
+  for (const id of trail) {
+    const node = map.nodes.get(id);
+
+    for (const prerequisiteId of node?.prerequisiteIds ?? []) {
+      if (trail.has(prerequisiteId)) {
+        links.push([prerequisiteId, id]);
+      }
+    }
+  }
+
+  return { focusId: focus.id, nodeIds: [...trail], links };
 }

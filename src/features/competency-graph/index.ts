@@ -9,6 +9,8 @@ export {
   buildCompetencyMap,
   prerequisitesOf,
   nodesOfLevel,
+  activeTrail,
+  type ActiveTrail,
   type CompetencyMap,
   type MapNode,
   type NodeVisibility,

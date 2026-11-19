@@ -10,9 +10,10 @@
  */
 import type { Item } from '@/shared/types/domain';
 import { parseCatalog } from '../domain/schema';
-import type { Catalog, CompetencyRecord, Lesson, Reference } from '../domain/types';
+import type { Catalog, Area, CompetencyRecord, Lesson, Reference } from '../domain/types';
 
 export interface ContentIndex {
+  areas: readonly Area[];
   competencies: readonly CompetencyRecord[];
   competencyById: ReadonlyMap<string, CompetencyRecord>;
   lessonByCompetency: ReadonlyMap<string, Lesson>;
@@ -51,6 +52,7 @@ export function buildCatalog(catalog: Catalog): ContentIndex {
   }
 
   return {
+    areas: catalog.areas,
     competencies: catalog.competencies,
     competencyById,
     lessonByCompetency,
