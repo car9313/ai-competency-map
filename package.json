@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@12.18.0",
   "description": "Mapa de competencias de AI Engineering donde el progreso se deriva de evidencia.",
   "engines": {
     "node": ">=22"
