@@ -14,13 +14,13 @@ jobs:
     name: Puertas de calidad
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 12
+      # Sin "version": la versión de pnpm sale de package.json (campo "packageManager").
+      # Declararla en los dos sitios provoca "Multiple versions of pnpm specified".
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
