@@ -1,6 +1,6 @@
 # Grafo de competencias
 
-El mapa del producto. 37 competencias en 8 áreas, con su capa y sus prerrequisitos. Es el insumo del linter (reglas R4 y R5) y de la autoría de contenido.
+El mapa del producto. 39 competencias en 8 áreas, con su capa y sus prerrequisitos. Es el insumo del linter (reglas R4 y R5) y de la autoría de contenido.
 
 ---
 
@@ -85,6 +85,7 @@ Vender lo contrario —"aprende a hacer RAG en el navegador"— llenaría el map
 | `attention-and-transformers`| Atención y transformer autorregresivo          | Explicar cómo se genera el siguiente token y qué implica "atención"               | núcleo  | `tokens-and-context-window` |
 | `embeddings-and-vectors`    | Embeddings y similitud vectorial               | Medir similitud y saber cuándo la distancia semántica engaña                      | servicio| `tokens-and-context-window` |
 | `inference-latency-cost`    | Inferencia: latencia, coste y no-determinismo  | Estimar coste y latencia, y explicar por qué la misma entrada no da la misma salida | núcleo  | `tokens-and-context-window`, `attention-and-transformers` |
+| `generation-controls`       | Temperatura, top-p y criterios de parada      | Elegir parámetros de muestreo y explicar por qué la misma entrada da salidas distintas | núcleo  | `tokens-and-context-window` |
 
 **Nivel:** 1–2 · **Error típico:** asumir que 1 palabra = 1 token; ignorar la degradación de la atención en el centro del contexto.
 
@@ -99,6 +100,7 @@ Vender lo contrario —"aprende a hacer RAG en el navegador"— llenaría el map
 | `context-budgeting`           | Presupuesto de contexto                   | Repartir contexto entre instrucciones, recuperación y salida reservada           | núcleo   | `tokens-and-context-window` |
 | `structured-outputs`          | Salidas estructuradas y validación       | Forzar formato y validarlo en lugar de confiar en el prompt                      | servicio | `system-instructions-contract` |
 | `prompt-evaluation`           | Evaluar un prompt y detectar regresiones | Medir si un cambio de prompt mejora o empeora, con casos fijos                   | servicio | `structured-outputs` |
+| `finetuning-vs-prompting`     | Cuándo ajustar un modelo y cuándo basta el prompt | Decidir entre prompt, ejemplos y ajuste fino según coste, datos y estabilidad | servicio | `system-instructions-contract` |
 
 **Nivel:** 1–3 · **Error típico:** "ha funcionado tres veces, luego funciona siempre"; validar la salida como si el prompt la garantizara.
 
@@ -207,13 +209,13 @@ No son requisito del producto (el grafo ya define el orden), pero sirven de guí
 
 | Concepto                  | Cifra                    |
 | ------------------------- | ------------------------ |
-| Competencias              | 37                       |
-| Lecciones                 | 37 (una por competencia) |
-| Ítems mínimos (regla R4)  | 3 por competencia = 111  |
-| Ítems objetivo            | 4 por competencia = 148  |
+| Competencias              | 39                       |
+| Lecciones                 | 39 (una por competencia) |
+| Ítems mínimos (regla R4)  | 3 por competencia = 117  |
+| Ítems objetivo            | 4 por competencia = 156  |
 | Ítems por ruta completa   | ~40                      |
 
-Con 148 ítems el producto es útil de verdad; con los 111 mínimos, funcional pero repetitivo. El techo razonable son 6 por competencia: más suele indicar que la competencia debería dividirse.
+Con 156 ítems el producto es útil de verdad; con los 117 mínimos, funcional pero repetitivo. El techo razonable son 6 por competencia: más suele indicar que la competencia debería dividirse.
 
 ---
 

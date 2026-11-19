@@ -143,8 +143,9 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
             <div>
               <p className="text-sm font-semibold">Comprobación con preguntas</p>
               <p className="text-xs text-muted">
-                Llega en la rebanada S6: opción múltiple, confianza declarada y feedback por
-                distractor.
+                Llega en la rebanada S6. Una vez disponible, podrás reintentarla siempre —también
+                con la competencia consolidada—: cada intento se añade al historial y el estado se
+                recalcula.
               </p>
             </div>
             <span className="rounded-lg border border-border px-3 py-1.5 font-mono text-[11px] text-muted">

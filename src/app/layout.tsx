@@ -21,7 +21,15 @@ const NAV = [
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es" className="dark">
+    /**
+     * `suppressHydrationWarning` es necesario aquí y solo aquí.
+     *
+     * El script de abajo aplica el tema guardado ANTES de que React hidrate, así que el
+     * atributo `class` de `<html>` puede diferir del que envió el servidor. Ese desajuste
+     * es intencionado (evita el parpadeo), pero React lo reporta como error de hidratación
+     * a menos que se le diga que en este elemento se espera. No silencia nada más.
+     */
+    <html lang="es" className="dark" suppressHydrationWarning>
       <head>
         {/* Aplica el tema guardado antes del primer pintado: evita el parpadeo. */}
         <script

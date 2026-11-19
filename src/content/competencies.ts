@@ -113,6 +113,19 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     prerequisites: ['tokens-and-context-window', 'attention-and-transformers'],
     published: false,
   },
+  {
+    // Detectada como hueco comparando con roadmap.sh/ai-agents ("Generation Controls").
+    id: 'generation-controls',
+    areaId: 'generative-llms',
+    order: 38,
+    layer: 'nucleo',
+    level: 2,
+    title: 'Temperatura, top-p y criterios de parada',
+    claim:
+      'Elegir parámetros de muestreo y explicar por qué la misma entrada da salidas distintas.',
+    prerequisites: ['tokens-and-context-window'],
+    published: false,
+  },
 
   // ── 03 · Prompt y context engineering ───────────────────────────────────────
   {
@@ -168,6 +181,19 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Evaluar un prompt y detectar regresiones',
     claim: 'Medir si un cambio de prompt mejora o empeora, con casos fijos y repetibles.',
     prerequisites: ['structured-outputs'],
+    published: false,
+  },
+  {
+    // roadmap.sh la plantea como técnica; aquí es una DECISIÓN, que es lo que no caduca.
+    id: 'finetuning-vs-prompting',
+    areaId: 'prompt-context',
+    order: 39,
+    layer: 'servicio',
+    level: 3,
+    title: 'Cuándo ajustar un modelo y cuándo basta el prompt',
+    claim:
+      'Decidir entre prompt, ejemplos y ajuste fino según coste, datos disponibles y estabilidad exigida.',
+    prerequisites: ['system-instructions-contract'],
     published: false,
   },
 

@@ -37,8 +37,8 @@ La regla organizadora: **cada fase tiene que ser demostrable por sí sola**. Una
 
 | Se construye                                                          | Por qué                                                          |
 | --------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Grafo de competencias: 37 competencias repartidas en 8 áreas, con eje de capa (`núcleo` / `servicio` / `interfaz`) | Es el mapa por el que navega el alumno |          | Es el mapa por el que navega el alumno                            |
-| ~148 ítems con justificación por distractor                            | Es el suministro de evidencia                                     |
+| Grafo de competencias: 39 competencias repartidas en 8 áreas, con eje de capa (`núcleo` / `servicio` / `interfaz`) | Es el mapa por el que navega el alumno |          | Es el mapa por el que navega el alumno                            |
+| ~156 ítems con justificación por distractor                            | Es el suministro de evidencia                                     |
 | Linter de contenido (R1–R7) conectado a CI                             | Evita que la calidad decaiga según crece el contenido             |
 | UI completa del grafo con cuatro estados, filtros y URLs compartibles  | Navegación y capacidad de compartir                               |
 | SEO: metadatos por competencia, generación estática                    | Descubribilidad, y argumento de portfolio                         |
@@ -82,7 +82,7 @@ Estas son las cosas con más probabilidad de matar el proyecto. No son "más ade
 
 | Diferido                    | Condición para reconsiderarlo                                       |
 | --------------------------- | ------------------------------------------------------------------- |
-| Generación de ítems con IA  | Que existan los 148 ítems escritos a mano y el pipeline de fixtures esté probado |
+| Generación de ítems con IA  | Que existan los 156 ítems escritos a mano y el pipeline de fixtures esté probado |
 | Contenido en inglés         | Fase 3 cerrada, y una razón más allá de la simetría                  |
 | Cuentas y sincronización    | Que alguien que no sea el autor lo use más de una semana             |
 | Labs con ejecución de código| Nunca, en este producto. Otro producto, otra amenaza                 |

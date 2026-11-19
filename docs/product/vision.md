@@ -40,7 +40,7 @@ Es el **criterio de aceptación de la v1**. Si una escena no está en esta lista
 
 | Momento   | Escena                                                                                                                    | Qué demuestra                                         |
 | --------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| 0:00–0:30 | El mapa: ~37 competencias con cuatro estados visibles (bloqueada, disponible, en aprendizaje, consolidada).               | Esto es un mapa, no un catálogo.                      |
+| 0:00–0:30 | El mapa: ~39 competencias con cuatro estados visibles (bloqueada, disponible, en aprendizaje, consolidada).               | Esto es un mapa, no un catálogo.                      |
 | 0:30–1:30 | Abrir una competencia disponible, leer una lección corta, empezar la comprobación.                                        | El contenido alimenta la evaluación.                  |
 | 1:30–3:00 | Fallar un ítem y ver por qué **ese** distractor era tentador. Acertar otro con **mucha** confianza y otro con **poca**.    | El feedback es por distractor; la confianza cambia la calidad de la evidencia. |
 | 3:00–3:30 | Comparar los dos aciertos: el seguro se reprograma a semanas, el dudoso a días.                                            | El planificador es real y explicable.                 |

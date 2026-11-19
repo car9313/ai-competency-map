@@ -219,6 +219,15 @@ unlocked(competencia) = todos sus prerrequisitos p cumplen state(p) !== 'no_evid
 
 > **Por qué están separados.** `consolidated` es un estado vivo que decae: puedes perderlo fallando un repaso. Si el desbloqueo dependiera de él, una competencia ya alcanzada podría volver a bloquearse, lo cual es hostil y confuso. El desbloqueo es permanente una vez ganado; lo que se mueve es el dominio.
 
+### Regla de revisión: lo terminado no se cierra
+
+Un desbloqueo decide **por dónde se puede entrar**, nunca **qué se puede volver a hacer**. En consecuencia:
+
+- Una competencia consolidada se puede **volver a intentar en cualquier momento**. No hay estado final.
+- Cada repaso añade un intento nuevo al registro (append-only) y el estado se **recalcula**; no hay operación de "reabrir".
+- Si el repaso sale mal, la competencia pasa a `at_risk` y sus ítems vuelven a la cola cuando vencen. Eso no es un castigo: es información.
+- Nada en el modelo impide revisar. El único bloqueo del sistema está en la **entrada** (prerrequisitos sin evidencia), jamás en la salida.
+
 ---
 
 ## 6. Testeabilidad

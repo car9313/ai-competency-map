@@ -53,6 +53,8 @@ Todo estado que merece ser compartido vive en la URL ([regla de estado](../archi
 
 Los parámetros son aditivos y combinables. Un enlace como `/mapa?capa=nucleo&area=generative-llms` es válido y se puede pegar en cualquier sitio.
 
+> **Nota de implementación.** Con exportación estática, `searchParams` no existe en build, así que los filtros se aplican **al diagrama**, que es una isla cliente. El listado completo por áreas se sirve como HTML estático: es lo que hace que cada competencia sea indexable y compartible, y es la razón de haber elegido Next.js. Si todo fuera cliente, el HTML del mapa saldría vacío.
+
 **Lo que nunca va en la URL:** el progreso, el ítem actual, la sesión de repaso. No es compartible ni tiene sentido recargarlo.
 
 ---
