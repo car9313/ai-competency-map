@@ -7,14 +7,14 @@ import { cn } from '@/shared/utils/cn';
 import type { NodeVisibility } from '../application/map';
 
 /**
- * Diagrama del grafo con filtros.
+ * Diagrama vertical del grafo.
  *
- * Es una isla cliente a propósito: `useSearchParams` no existe durante la exportación
- * estática, así que si esto se renderizara en el servidor el HTML saldría vacío. El
- * contenido del mapa (el listado completo) se sirve estático desde el servidor; esto es
- * solo la representación visual, que además es `aria-hidden` y decorativa.
+ * Vertical a propósito: los niveles topológicos son filas, de arriba abajo, así que el
+ * grafo aprovecha todo el ancho y se lee como un camino. Con columnas necesitaba 1548 px
+ * y scroll horizontal; con filas cabe en pantalla.
  *
- * Los filtros afectan **al diagrama**. El listado completo siempre está visible.
+ * Los nodos son enlaces: si la competencia tiene contenido, se puede abrir. El SVG **no**
+ * es `aria-hidden`, para que esos enlaces también sean alcanzables con teclado.
  */
 
 const VISUAL: Record<NodeVisibility, { fill: string; stroke: string; label: string }> = {
@@ -27,10 +27,15 @@ const VISUAL: Record<NodeVisibility, { fill: string; stroke: string; label: stri
   no_evidence: { fill: 'transparent', stroke: 'var(--border)', label: 'sin evidencia' },
 };
 
-const COLUMN_WIDTH = 172;
-const ROW_HEIGHT = 66;
+/**
+ * Anchos medidos sobre el grafo real: 10 niveles y la fila más ancha tiene 8 nodos.
+ * 8 × 124 + 120 = 1112 px, que cabe en el área de contenido sin scroll horizontal.
+ */
+const SLOT_WIDTH = 124;
+const ROW_HEIGHT = 100;
 const NODE_RADIUS = 11;
-const LABEL_MAX_LENGTH = 20;
+const LABEL_MAX_LENGTH = 16;
+const SIDE_PADDING = 60;
 
 export interface DiagramNode {
   id: string;
@@ -38,6 +43,7 @@ export interface DiagramNode {
   areaId: string;
   layer: string;
   visibility: NodeVisibility;
+  published: boolean;
   prerequisiteIds: readonly string[];
 }
 
@@ -62,12 +68,24 @@ export function MapDiagram({
   const layerFilter = params.get('capa');
   const stateFilter = params.get('estado');
 
+  const maxRowWidth = Math.max(...levels.map((ids) => ids.length * SLOT_WIDTH), SLOT_WIDTH);
+  const width = maxRowWidth + SIDE_PADDING * 2;
+  const height = 60 + levels.length * ROW_HEIGHT + 40;
+
   const positions = useMemo(() => {
     const result = new Map<string, { x: number; y: number }>();
+    const widest = Math.max(...levels.map((ids) => ids.length * SLOT_WIDTH), SLOT_WIDTH);
 
-    levels.forEach((ids, levelIndex) => {
-      ids.forEach((id, rowIndex) => {
-        result.set(id, { x: 80 + levelIndex * COLUMN_WIDTH, y: 44 + rowIndex * ROW_HEIGHT });
+    levels.forEach((ids, rowIndex) => {
+      // Cada fila se centra sobre el ancho TOTAL, no sobre el suyo: si no, las columnas
+      // de una fila no caen bajo las de la anterior y las aristas cruzan sin sentido.
+      const offset = (widest - ids.length * SLOT_WIDTH) / 2;
+
+      ids.forEach((id, columnIndex) => {
+        result.set(id, {
+          x: SIDE_PADDING + offset + columnIndex * SLOT_WIDTH + SLOT_WIDTH / 2,
+          y: 60 + rowIndex * ROW_HEIGHT,
+        });
       });
     });
 
@@ -80,10 +98,6 @@ export function MapDiagram({
     [trailLinks],
   );
 
-  const maxRows = Math.max(...levels.map((ids) => ids.length), 1);
-  const width = 80 + levels.length * COLUMN_WIDTH + 60;
-  const height = 44 + maxRows * ROW_HEIGHT + 24;
-
   const matches = (node: DiagramNode): boolean => {
     if (areaFilter && node.areaId !== areaFilter) return false;
     if (layerFilter && node.layer !== layerFilter) return false;
@@ -92,8 +106,8 @@ export function MapDiagram({
   };
 
   return (
-    <section className="space-y-3">
-      <div className="flex flex-col gap-2.5 rounded-xl border border-border bg-surface p-4">
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2.5 rounded-xl border border-border bg-surface p-4">
         <FilterGroup
           label="Área"
           current={areaFilter}
@@ -120,10 +134,39 @@ export function MapDiagram({
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-surface p-4">
-        <p className="mb-2 font-mono text-[10px] text-muted">
-          El grafo se lee de izquierda a derecha y se desplaza en horizontal.
-        </p>
-        <svg width={width} height={height} aria-hidden="true" className="max-w-none">
+        <svg
+          width={width}
+          height={height}
+          viewBox={`0 0 ${width} ${height}`}
+          className="mx-auto block max-w-full"
+          role="group"
+          aria-label="Grafo de competencias"
+        >
+          <defs>
+            <marker
+              id="arrow"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="5"
+              markerHeight="5"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--border)" />
+            </marker>
+            <marker
+              id="arrow-trail"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="5"
+              markerHeight="5"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
+            </marker>
+          </defs>
+
           {nodes.flatMap((node) =>
             node.prerequisiteIds.map((fromId) => {
               const from = positions.get(fromId);
@@ -133,15 +176,17 @@ export function MapDiagram({
 
               const onTrail = trailLinkSet.has(`${fromId}->${node.id}`);
               const dimmed = !matches(node);
+              const midY = (from.y + to.y) / 2;
 
               return (
                 <path
                   key={`${fromId}-${node.id}`}
-                  d={`M ${from.x + NODE_RADIUS} ${from.y} C ${from.x + 60} ${from.y}, ${to.x - 60} ${to.y}, ${to.x - NODE_RADIUS} ${to.y}`}
+                  d={`M ${from.x} ${from.y + NODE_RADIUS + 14} C ${from.x} ${midY}, ${to.x} ${midY}, ${to.x} ${to.y - NODE_RADIUS - 4}`}
                   fill="none"
                   stroke={onTrail ? 'var(--accent)' : 'var(--border)'}
                   strokeWidth={onTrail ? 2.5 : 1.5}
-                  opacity={dimmed ? 0.15 : onTrail ? 0.9 : 0.55}
+                  opacity={dimmed ? 0.12 : onTrail ? 0.9 : 0.5}
+                  markerEnd={onTrail ? 'url(#arrow-trail)' : 'url(#arrow)'}
                 />
               );
             }),
@@ -156,14 +201,14 @@ export function MapDiagram({
             const dimmed = !matches(node);
             const onTrail = trailNodeSet.has(node.id);
             const isFocus = node.id === focusId;
+            const canOpen = node.published;
             const short =
               node.title.length > LABEL_MAX_LENGTH
                 ? `${node.title.slice(0, LABEL_MAX_LENGTH - 1)}…`
                 : node.title;
 
-            return (
-              <g key={node.id} opacity={dimmed ? 0.18 : 1}>
-                <title>{`${node.title} — ${visual.label}`}</title>
+            const shape = (
+              <>
                 {isFocus && (
                   <circle
                     cx={position.x}
@@ -194,7 +239,7 @@ export function MapDiagram({
                 )}
                 <text
                   x={position.x}
-                  y={position.y + NODE_RADIUS + 15}
+                  y={position.y + NODE_RADIUS + 16}
                   textAnchor="middle"
                   fill={onTrail ? 'var(--text)' : 'var(--text-muted)'}
                   fontSize={10}
@@ -202,6 +247,24 @@ export function MapDiagram({
                 >
                   {short}
                 </text>
+              </>
+            );
+
+            return (
+              <g key={node.id} opacity={dimmed ? 0.18 : 1}>
+                {canOpen ? (
+                  <Link
+                    href={`/c/${node.id}`}
+                    className="cursor-pointer"
+                    aria-label={`${node.title} — ${visual.label}`}
+                  >
+                    {shape}
+                  </Link>
+                ) : (
+                  <g role="img" aria-label={`${node.title} — ${visual.label} (sin contenido)`}>
+                    {shape}
+                  </g>
+                )}
               </g>
             );
           })}
@@ -224,8 +287,13 @@ export function MapDiagram({
             ),
           )}
         </ul>
+
+        <p className="mt-2 text-[11px] text-muted">
+          Los nodos con contenido son enlaces: pulsa uno para abrir su lección. Los nodos sin
+          contenido aparecen como próximos.
+        </p>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -256,7 +324,7 @@ function FilterGroup({
   };
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
       <span className="font-mono text-[11px] tracking-wide text-muted uppercase">{label}</span>
       <div className="flex flex-wrap items-center gap-1.5">
         <Link

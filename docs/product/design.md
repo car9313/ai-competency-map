@@ -81,10 +81,10 @@ Cargadas desde Google Fonts con `display=swap`. Escala: `h1` 2rem, `h2` 1.125rem
 
 Es la pantalla que justifica el producto, y la más difícil.
 
-- **Disposición:** columnas por nivel topológico (el nivel 0 a la izquierda), nodos centrados verticalmente dentro de cada columna. Nada de fuerzas ni física: posiciones deterministas y calculadas.
+- **Disposición:** **vertical**. Cada nivel topológico es una fila (el nivel 0 arriba) y las filas se centran sobre el ancho total del grafo, no sobre el suyo, para que las columnas de una fila caigan bajo las de la anterior. Nada de fuerzas ni física: posiciones deterministas y calculadas.`n- **Ancho:** medido sobre el grafo real (10 niveles, fila más ancha de 8 nodos): 8 × 124 + 120 = 1112 px. Cabe sin scroll horizontal en escritorio. Se descartó la disposición en columnas porque necesitaba 1548 px de ancho y obligaba a desplazarse en horizontal para leer un camino que se piensa de arriba abajo.
 - **Aristas:** curvas suaves del prerrequisito al dependiente, con un trazo más tenue que los nodos.
 - **Nodo:** círculo de 28 px con la forma del estado y etiqueta a la derecha en escritorio; en móvil, lista.
-- **Accesibilidad:** el SVG es la representación visual, **la fuente de verdad de interacción es una lista** con los mismos nodos, navegable con teclado. El SVG tiene `aria-hidden="true"`.
+- **Accesibilidad:** el SVG **no** es `aria-hidden`: los nodos con contenido son enlaces reales (`<a>` dentro del SVG) con nombre accesible, así que también se recorren con teclado. Los nodos sin contenido se anuncian como «sin contenido» y no son enlaces. La lista de tarjetas (`/mapa/tarjetas`) sigue siendo el camino equivalente completo.
 - **Filtros:** área, capa y estado, siempre en la URL (`?area=`, `?capa=`, `?estado=`).
 
 ---

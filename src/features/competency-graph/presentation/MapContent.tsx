@@ -8,19 +8,19 @@ import { activeTrail, buildCompetencyMap, type NodeVisibility } from '../applica
 import { MapDiagram } from './MapDiagram';
 
 /**
- * Contenido del mapa, renderizado en el servidor.
+ * Contenido del mapa en dos vistas.
  *
- * Aquí está la decisión importante de esta pantalla: **el listado completo se sirve como
- * HTML estático**. Solo el diagrama interactivo es una isla cliente, porque necesita los
- * filtros de la URL y `useSearchParams` no existe durante la exportación estática.
+ * Las pestañas son **rutas reales** (`/mapa` y `/mapa/tarjetas`), no estado en cliente.
+ * Motivo: `useSearchParams` no existe durante la exportación estática, así que resolver
+ * la pestaña con la URL habría vaciado el HTML del servidor. Con rutas, cada vista se
+ * sirve completa y la navegación entre ellas es instantánea (es un enlace de Next).
  *
- * Si todo fuera cliente, el HTML del mapa saldría vacío y se perdería justo lo que
- * justificó elegir Next.js: que cada competencia sea indexable y compartible.
- *
- * Las etiquetas de estado son fiables aunque se calculen en build: `projectState` no
- * depende de la fecha, solo de los intentos. Cuando S5 añada persistencia, el estado por
- * usuario pasará a hidratarse en cliente sin cambiar esta estructura.
+ * Las etiquetas de estado se calculan en build, y es correcto: `projectState` no depende
+ * de la fecha, solo de los intentos. Cuando S5 añada persistencia, el estado por usuario
+ * pasará a hidratarse en cliente sin cambiar esta estructura.
  */
+
+export type MapView = 'mapa' | 'tarjetas';
 
 const VISUAL: Record<NodeVisibility, { fill: string; stroke: string; label: string }> = {
   pending: { fill: 'transparent', stroke: 'var(--border)', label: 'próximamente' },
@@ -32,7 +32,12 @@ const VISUAL: Record<NodeVisibility, { fill: string; stroke: string; label: stri
   no_evidence: { fill: 'transparent', stroke: 'var(--border)', label: 'sin evidencia' },
 };
 
-export function MapContent() {
+const TABS: Array<{ id: MapView; href: string; label: string }> = [
+  { id: 'mapa', href: '/mapa', label: 'Mapa' },
+  { id: 'tarjetas', href: '/mapa/tarjetas', label: 'Tarjetas' },
+];
+
+export function MapContent({ view }: { view: MapView }) {
   const map = buildCompetencyMap({
     areas: CATALOG.areas,
     competencies: CATALOG.competencies,
@@ -48,13 +53,34 @@ export function MapContent() {
   const published = [...map.nodes.values()].filter((node) => node.published);
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-2">
+    <div className="space-y-6">
+      <header className="space-y-3">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Mapa de competencias</h1>
         <p className="max-w-2xl text-sm text-muted sm:text-base">
           {map.nodes.size} competencias y sus prerrequisitos. {published.length} tienen contenido;
           las demás aparecen como próximas para que el mapa no mienta por omisión.
         </p>
+
+        <nav aria-label="Vista del mapa">
+          <ul className="inline-flex gap-1 rounded-lg border border-border bg-surface p-1">
+            {TABS.map((tab) => (
+              <li key={tab.id}>
+                <Link
+                  href={tab.href}
+                  aria-current={view === tab.id ? 'page' : undefined}
+                  className={cn(
+                    'block rounded-md px-4 py-1.5 text-sm font-medium transition-colors',
+                    view === tab.id
+                      ? 'bg-accent text-white'
+                      : 'text-muted hover:bg-surface-2 hover:text-fg',
+                  )}
+                >
+                  {tab.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </header>
 
       {focus && (
@@ -87,8 +113,7 @@ export function MapContent() {
         </section>
       )}
 
-      {/* Solo el diagrama necesita cliente; el listado de abajo es HTML estático. */}
-      <div className="hidden md:block">
+      {view === 'mapa' ? (
         <Suspense fallback={<p className="text-sm text-muted">Cargando diagrama…</p>}>
           <MapDiagram
             levels={map.levels}
@@ -98,84 +123,84 @@ export function MapContent() {
               areaId: node.areaId,
               layer: node.layer,
               visibility: node.visibility,
+              published: node.published,
               prerequisiteIds: node.prerequisiteIds,
             }))}
             focusId={trail.focusId}
             trailIds={trail.nodeIds}
             trailLinks={trail.links}
-            areas={map.areas.map((area) => ({
-              id: area.id,
-              index: area.index,
-              name: area.name,
-            }))}
+            areas={map.areas.map((area) => ({ id: area.id, index: area.index, name: area.name }))}
           />
         </Suspense>
-      </div>
+      ) : (
+        <section aria-label="Competencias por área" className="grid gap-4 md:grid-cols-2">
+          {map.areas.map((area) => {
+            const nodes = [...map.nodes.values()]
+              .filter((node) => node.areaId === area.id)
+              .sort((a, b) => a.order - b.order);
 
-      <section aria-label="Competencias por área" className="grid gap-4 md:grid-cols-2">
-        {map.areas.map((area) => {
-          const nodes = [...map.nodes.values()]
-            .filter((node) => node.areaId === area.id)
-            .sort((a, b) => a.order - b.order);
+            if (nodes.length === 0) return null;
 
-          if (nodes.length === 0) return null;
+            return (
+              <div
+                key={area.id}
+                className="flex flex-col rounded-xl border border-border bg-surface"
+              >
+                <div className="flex items-baseline justify-between gap-3 border-b border-border px-4 py-3">
+                  <h2 className="text-sm font-semibold tracking-tight">
+                    <span className="font-mono text-xs text-muted">{area.index}</span> · {area.name}
+                  </h2>
+                  <span className="font-mono text-[11px] text-muted">{nodes.length}</span>
+                </div>
 
-          return (
-            <div key={area.id} className="flex flex-col rounded-xl border border-border bg-surface">
-              <div className="flex items-baseline justify-between gap-3 border-b border-border px-4 py-3">
-                <h2 className="text-sm font-semibold tracking-tight">
-                  <span className="font-mono text-xs text-muted">{area.index}</span> · {area.name}
-                </h2>
-                <span className="font-mono text-[11px] text-muted">{nodes.length}</span>
-              </div>
+                <ul className="divide-y divide-border">
+                  {nodes.map((node) => {
+                    const visual = VISUAL[node.visibility];
+                    const onTrail = trailIds.has(node.id);
+                    const clickable = node.published;
 
-              <ul className="divide-y divide-border">
-                {nodes.map((node) => {
-                  const visual = VISUAL[node.visibility];
-                  const onTrail = trailIds.has(node.id);
-                  const clickable = node.visibility !== 'pending';
-
-                  return (
-                    <li key={node.id}>
-                      <Link
-                        href={clickable ? `/c/${node.id}` : '/mapa'}
-                        aria-disabled={!clickable}
-                        className={cn(
-                          'flex items-start justify-between gap-3 px-4 py-3 transition-colors',
-                          clickable ? 'hover:bg-surface-2' : 'cursor-default opacity-60',
-                          onTrail && 'border-l-2 border-l-accent',
-                        )}
-                      >
-                        <span className="min-w-0">
-                          <span className="block text-sm font-medium">{node.title}</span>
-                          <span className="mt-0.5 block text-xs leading-snug text-muted">
-                            {node.claim}
-                          </span>
-                        </span>
-                        <span className="mt-0.5 flex shrink-0 items-center gap-1.5 font-mono text-[10px] whitespace-nowrap text-muted">
-                          {node.visibility === 'locked' ? (
-                            <Lock className="h-3 w-3" aria-hidden="true" />
-                          ) : (
-                            <span
-                              aria-hidden="true"
-                              className="inline-block h-2 w-2 rounded-full"
-                              style={{
-                                backgroundColor: visual.fill,
-                                border: `1px solid ${visual.stroke}`,
-                              }}
-                            />
+                    return (
+                      <li key={node.id}>
+                        <Link
+                          href={clickable ? `/c/${node.id}` : '/mapa/tarjetas'}
+                          aria-disabled={!clickable}
+                          className={cn(
+                            'flex items-start justify-between gap-3 px-4 py-3 transition-colors',
+                            clickable ? 'hover:bg-surface-2' : 'cursor-default opacity-60',
+                            onTrail && 'border-l-2 border-l-accent',
                           )}
-                          {visual.label}
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          );
-        })}
-      </section>
+                        >
+                          <span className="min-w-0">
+                            <span className="block text-sm font-medium">{node.title}</span>
+                            <span className="mt-0.5 block text-xs leading-snug text-muted">
+                              {node.claim}
+                            </span>
+                          </span>
+                          <span className="mt-0.5 flex shrink-0 items-center gap-1.5 font-mono text-[10px] whitespace-nowrap text-muted">
+                            {node.visibility === 'locked' ? (
+                              <Lock className="h-3 w-3" aria-hidden="true" />
+                            ) : (
+                              <span
+                                aria-hidden="true"
+                                className="inline-block h-2 w-2 rounded-full"
+                                style={{
+                                  backgroundColor: visual.fill,
+                                  border: `1px solid ${visual.stroke}`,
+                                }}
+                              />
+                            )}
+                            {visual.label}
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
+        </section>
+      )}
     </div>
   );
 }

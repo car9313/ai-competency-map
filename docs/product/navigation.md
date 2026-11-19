@@ -9,7 +9,8 @@ Las rutas del producto, su modo de renderizado y por qué. Con exportación est�
 | Ruta                   | Pantalla                            | Modo                              | Datos que necesita                    |
 | ---------------------- | ----------------------------------- | --------------------------------- | ------------------------------------- |
 | `/`                    | **Hoy**: cola de repaso y estado    | Client Component                  | Intentos del almacenamiento local      |
-| `/mapa`                | Mapa de competencias                | Client Component                  | Grafo estático + intentos locales      |
+| `/mapa`                | Mapa (grafo vertical)               | Servidor + isla cliente           | Grafo estático + intentos locales      |
+| `/mapa/tarjetas`       | Roadmap en tarjetas                 | Servidor (HTML estático)          | Tarjetas por área, indexable           |
 | `/c/[competencyId]`    | Lección y comprobación              | Estática + isla cliente           | Contenido en build + intentos locales  |
 | `/acerca`              | Qué es esto y por qué               | Estática                          | Contenido en build                     |
 | `not-found`            | 404                                 | Estática                          | —                                      |
@@ -53,7 +54,9 @@ Todo estado que merece ser compartido vive en la URL ([regla de estado](../archi
 
 Los parámetros son aditivos y combinables. Un enlace como `/mapa?capa=nucleo&area=generative-llms` es válido y se puede pegar en cualquier sitio.
 
-> **Nota de implementación.** Con exportación estática, `searchParams` no existe en build, así que los filtros se aplican **al diagrama**, que es una isla cliente. El listado completo por áreas se sirve como HTML estático: es lo que hace que cada competencia sea indexable y compartible, y es la razón de haber elegido Next.js. Si todo fuera cliente, el HTML del mapa saldría vacío.
+> **Nota de implementación.** Las dos vistas del mapa son **rutas**, no pestañas con estado: `/mapa` (grafo) y `/mapa/tarjetas` (listado). Se hace así porque con exportación estática `searchParams` no existe en build y resolver la vista por la URL habría dejado el HTML vacío. Cada vista se sirve completa y la navegación entre ellas la resuelve Next sin recargar.
+>
+> Los filtros sí usan la URL, pero se aplican **solo al diagrama** (isla cliente). El listado de tarjetas es HTML estático completo: es lo que hace indexable y compartible cada competencia, y es la razón de haber elegido Next.js.
 
 **Lo que nunca va en la URL:** el progreso, el ítem actual, la sesión de repaso. No es compartible ni tiene sentido recargarlo.
 
