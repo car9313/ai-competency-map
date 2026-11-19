@@ -29,6 +29,7 @@ export const CompetencyRecordSchema = z.object({
   title: z.string().min(5),
   claim: z.string().min(20),
   prerequisites: z.array(z.string().min(1)),
+  published: z.boolean(),
 });
 
 export const ReferenceSchema = z.object({

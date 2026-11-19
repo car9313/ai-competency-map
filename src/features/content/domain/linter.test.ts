@@ -82,6 +82,7 @@ function validCatalog(): Catalog {
       title: 'Competencia base',
       claim: 'Demuestra la competencia base del catálogo de prueba.',
       prerequisites: [],
+      published: true,
     },
     {
       id: 'avanzada',
@@ -92,6 +93,7 @@ function validCatalog(): Catalog {
       title: 'Competencia avanzada',
       claim: 'Demuestra la competencia avanzada, que depende de la base.',
       prerequisites: ['base'],
+      published: true,
     },
   ];
 

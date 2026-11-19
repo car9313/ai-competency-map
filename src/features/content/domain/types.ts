@@ -31,6 +31,12 @@ export interface CompetencyRecord {
   claim: string;
   /** Identificadores de las competencias que deben tener evidencia antes. */
   prerequisites: readonly string[];
+  /**
+   * Si es `false`, el nodo aparece en el mapa como "próximamente" y el linter no le
+   * exige lección ni ítems. Permite publicar el grafo completo mientras el contenido
+   * se escribe por rebanadas.
+   */
+  published: boolean;
 }
 
 /** Referencia externa. `reviewedAt` es lo que permite caducarla con criterio. */

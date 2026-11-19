@@ -202,6 +202,11 @@ function checkCoverage(catalog: Catalog): LintIssue[] {
   const competencyIds = new Set(catalog.competencies.map((competency) => competency.id));
 
   for (const competency of catalog.competencies) {
+    // Una competencia no publicada se dibuja como "próximamente": no se le exige contenido.
+    if (!competency.published) {
+      continue;
+    }
+
     const itemCount = catalog.items.filter((item) => item.competencyId === competency.id).length;
     const lessonCount = catalog.lessons.filter(
       (lesson) => lesson.competencyId === competency.id,
