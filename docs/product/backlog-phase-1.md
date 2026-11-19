@@ -38,7 +38,7 @@ S5 puede ir en paralelo con S3–S4: no comparten archivos.
 **Criterio de hecho**
 
 - [x] `pnpm check` pasa en un repo sin código de producto.
-- [ ] CI en verde sobre el primer commit. *(Pendiente: requiere subir el repo a GitHub.)*
+- [x] CI en verde sobre el primer commit. *(Verificado en GitHub Actions.)*
 - [x] `pnpm build` genera `out/` y se sirve estático sin servidor.
 - [x] La regla que prohíbe `Date.now()` falla si se introduce a propósito (probado con una sonda que disparó D2 y D8, y revertida).
 - [x] Las cinco rutas responden, aunque sea con texto de relleno.
@@ -50,6 +50,8 @@ S5 puede ir en paralelo con S3–S4: no comparten archivos.
 | TypeScript 7 no está soportado por `typescript-eslint` 8.x | El lint no arranca y rompe `pnpm check` | Fijado en TypeScript 6.0.x, documentado en [`tech-stack.md`](../architecture/tech-stack.md#fijaciones-conocidas) |
 | TS 7 eliminó `baseUrl` | `tsc --noEmit` falla al arrancar | `paths` sin `baseUrl`, que es válido desde TS 5.4 |
 | Next 16 reescribe `tsconfig.json` (jsx obligatorio) | Ruido en el primer commit | Se acepta: es el runtime que Next necesita |
+| `pnpm/action-setup` con `version` **y** `packageManager` | El CI muere antes de instalar: *Multiple versions of pnpm specified* | La versión se declara solo en `package.json`; el workflow no la repite |
+| Actions en v4 (Node 20, deprecado) | El runner avisa y fuerza Node 24 | `checkout@v7`, `setup-node@v7`, `action-setup@v6` |
 
 ---
 
