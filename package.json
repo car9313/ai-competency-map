@@ -19,6 +19,7 @@
     "test:watch": "vitest",
     "validate:content": "tsx scripts/validate-content.ts",
     "a11y": "tsx scripts/a11y-check.ts",
+    "content:status": "tsx scripts/content-status.ts",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm validate:content && pnpm build && pnpm a11y"
   },
   "dependencies": {

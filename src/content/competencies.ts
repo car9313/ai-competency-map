@@ -78,7 +78,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Tokenización y sus efectos',
     claim: 'Predecir por qué la misma frase ocupa tokens distintos en dos idiomas o formatos.',
     prerequisites: ['tokens-and-context-window'],
-    published: false,
+    published: true,
   },
   {
     id: 'attention-and-transformers',
@@ -89,7 +89,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Atención y transformer autorregresivo',
     claim: 'Explicar cómo se genera el siguiente token y qué implica realmente la atención.',
     prerequisites: ['tokens-and-context-window'],
-    published: false,
+    published: true,
   },
   {
     id: 'embeddings-and-vectors',
@@ -100,7 +100,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Embeddings y similitud vectorial',
     claim: 'Medir similitud y saber cuándo la distancia semántica engaña.',
     prerequisites: ['tokens-and-context-window'],
-    published: false,
+    published: true,
   },
   {
     id: 'inference-latency-cost',
@@ -111,7 +111,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Inferencia: latencia, coste y no-determinismo',
     claim: 'Estimar coste y latencia, y explicar por qué la misma entrada no da la misma salida.',
     prerequisites: ['tokens-and-context-window', 'attention-and-transformers'],
-    published: false,
+    published: true,
   },
   {
     // Detectada como hueco comparando con roadmap.sh/ai-agents ("Generation Controls").
@@ -124,7 +124,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     claim:
       'Elegir parámetros de muestreo y explicar por qué la misma entrada da salidas distintas.',
     prerequisites: ['tokens-and-context-window'],
-    published: false,
+    published: true,
   },
 
   // ── 03 · Prompt y context engineering ───────────────────────────────────────

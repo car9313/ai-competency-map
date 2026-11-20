@@ -71,7 +71,9 @@ async function launchBrowser(): Promise<Browser> {
 
   for (const channel of channels) {
     try {
-      return await chromium.launch(channel ? { channel } : {});
+      return await chromium.launch(
+        channel ? { channel, timeout: 60_000 } : { timeout: 60_000 },
+      );
     } catch {
       // Siguiente opción.
     }
@@ -117,7 +119,32 @@ function startServer(): Promise<{ url: string; close: () => void }> {
   });
 }
 
-async function auditRoute(browser: Browser, base: string, route: string, theme: 'dark' | 'light') {
+async function auditRoute(
+  browser: Browser,
+  base: string,
+  route: string,
+  theme: 'dark' | 'light',
+): Promise<Array<Violation & { route: string; theme: string }>> {
+  /**
+   * Un reintento por ruta. Arrancar un contexto de navegador falla de vez en cuando en
+   * máquinas cargadas, y un gate que falla por el entorno en vez de por el código acaba
+   * ignorándose. El reintento no oculta un problema real: ax no depende del azar.
+   */
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await auditRouteOnce(browser, base, route, theme);
+    } catch (error) {
+      if (attempt >= 2) throw error;
+    }
+  }
+}
+
+async function auditRouteOnce(
+  browser: Browser,
+  base: string,
+  route: string,
+  theme: 'dark' | 'light',
+): Promise<Array<Violation & { route: string; theme: string }>> {
   const context = await browser.newContext({ colorScheme: theme === 'dark' ? 'dark' : 'light' });
   const page: Page = await context.newPage();
 

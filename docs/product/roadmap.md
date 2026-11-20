@@ -46,6 +46,8 @@ La regla organizadora: **cada fase tiene que ser demostrable por sí sola**. Una
 
 **Estado: en curso.** La infraestructura de esta fase ya está hecha: grafo de 39 competencias, linter en CI (G4), UI con filtros y dos vistas, y SEO estático. Lo que queda es **volumen**: 4 de 39 competencias publicadas, con lección y 4 ítems cada una.
 
+El **estado detallado** por área está en [content-status.md](content-status.md), que se genera desde el catálogo con `pnpm content:status` y por tanto no se puede quedar desactualizado.
+
 El contenido se escribe **un archivo por área** (`src/content/area-NN-*.ts`) que exporta `LESSONS_AREA_NN` e `ITEMS_AREA_NN` y se suma al catálogo en `src/content/index.ts`. Así una persona cierra un área completa y `pnpm validate:content` dice si cumple; ver [content-authoring](../contributing/content-authoring.md#patrón-por-área).
 
 **Criterios de salida**
