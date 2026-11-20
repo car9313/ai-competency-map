@@ -159,6 +159,18 @@ export function MapDiagram({
   };
 
   const onPointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
+    /**
+     * Si el puntero cae sobre un enlace, el arrastre no empieza.
+     *
+     * `setPointerCapture` redirige los eventos del puntero al elemento que captura, y por
+     * tanto el navegador entrega también el `click` al SVG en vez de al `<a>`: los nodos
+     * dejaban de navegar. Se comprobó con el ratón; con teclado nunca falló, porque ahí no
+     * hay captura de puntero.
+     */
+    if ((event.target as Element).closest('a')) {
+      return;
+    }
+
     drag.current = {
       x: event.clientX,
       y: event.clientY,
@@ -380,6 +392,16 @@ export function MapDiagram({
 
               const shape = (
                 <>
+                  {/* Zona de clic generosa y transparente. Sin ella solo aciertan el círculo
+                      de 11 px y los trazos del texto: el hueco entre ambos no responde, y
+                      apuntar a un nodo dejaba de funcionar a poco que te desviaras. */}
+                  <rect
+                    x={position.x - SLOT_WIDTH / 2 + 6}
+                    y={position.y - NODE_RADIUS - 12}
+                    width={SLOT_WIDTH - 12}
+                    height={58}
+                    fill="transparent"
+                  />
                   {isFocus && (
                     <circle
                       cx={position.x}
