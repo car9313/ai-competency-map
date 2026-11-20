@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 import { contentIndex } from '@/content';
+import { CompetencyProgress } from '@/features/assessment/presentation/CompetencyProgress';
 
 export const dynamicParams = false;
 
@@ -76,6 +77,9 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
 
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{competency.title}</h1>
         <p className="max-w-2xl text-muted">{competency.claim}</p>
+
+        {/* Estado real del alumno, recalculado en el cliente a partir del historial. */}
+        <CompetencyProgress items={items} />
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start">
@@ -143,14 +147,20 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
             <div>
               <p className="text-sm font-semibold">Comprobación con preguntas</p>
               <p className="text-xs text-muted">
-                Llega en la rebanada S6. Una vez disponible, podrás reintentarla siempre —también
-                con la competencia consolidada—: cada intento se añade al historial y el estado se
-                recalcula.
+                {items.length > 0
+                  ? `Opción múltiple con justificación por distractor y confianza declarada. Puedes repetirla siempre: cada intento se guarda y el estado se recalcula.`
+                  : 'Esta competencia todavía no tiene ítems.'}
               </p>
             </div>
-            <span className="rounded-lg border border-border px-3 py-1.5 font-mono text-[11px] text-muted">
-              pendiente
-            </span>
+            {items.length > 0 && (
+              <Link
+                href={`/c/${competency.id}/comprobar`}
+                className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              >
+                Comprobar
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            )}
           </div>
 
           {references.length > 0 && (
