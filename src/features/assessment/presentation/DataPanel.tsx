@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Download, Trash2, Upload } from 'lucide-react';
-import { resolveClock } from '@/shared/time/dev-clock';
+import { systemClock } from '@/shared/time/clock';
 import { openAttemptStore } from '../infrastructure/local-storage-attempt-store';
 import { parseProgressFile, serializeProgress } from '../application/progress-file';
 
@@ -13,8 +13,9 @@ import { parseProgressFile, serializeProgress } from '../application/progress-fi
  * sitio donde se ve qué está guardado: un número de intentos, no una barra de progreso
  * inventada.
  *
- * El reloj viene de `resolveClock`, que en desarrollo acepta `?devtime=` para viajar en el
- * tiempo durante la demo. En producción ese bloque no existe.
+ * El reloj es siempre el del sistema: no hay control de tiempo en el producto (ADR-007).
+ * Para probar la cola de repaso se siembran intentos con fechas pasadas, que es lo que de
+ * verdad le pasó a alguien que respondió hace cuatro días.
  */
 export function DataPanel() {
   const [attempts, setAttempts] = useState<number | null>(null);
@@ -29,14 +30,13 @@ export function DataPanel() {
     // (regla set-state-in-effect) y no se escribe estado si el componente ya se desmontó.
     void (async () => {
       const { store, persistent: isPersistent } = openAttemptStore();
-      const clock = resolveClock(window.location.search);
       const list = await store.list();
 
       if (cancelled) return;
 
       setAttempts(list.length);
       setPersistent(isPersistent);
-      setToday(clock.today());
+      setToday(systemClock.today());
     })();
 
     return () => {
@@ -47,13 +47,14 @@ export function DataPanel() {
   const handleExport = async () => {
     const { store } = openAttemptStore();
     const list = await store.list();
-    const clock = resolveClock(window.location.search);
-    const blob = new Blob([serializeProgress(list, clock.now())], { type: 'application/json' });
+    const blob = new Blob([serializeProgress(list, systemClock.now())], {
+      type: 'application/json',
+    });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
 
     anchor.href = url;
-    anchor.download = `ai-competency-map-${clock.today()}.json`;
+    anchor.download = `ai-competency-map-${systemClock.today()}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
     setMessage(`Exportados ${list.length} intentos.`);
@@ -144,12 +145,6 @@ export function DataPanel() {
       {message && (
         <p role="status" className="text-xs text-muted">
           {message}
-        </p>
-      )}
-
-      {process.env.NODE_ENV !== 'production' && (
-        <p className="border-t border-border pt-3 text-xs text-muted">
-          En desarrollo puedes viajar en el tiempo con <code>?devtime=2026-12-01</code> en la URL.
         </p>
       )}
     </div>

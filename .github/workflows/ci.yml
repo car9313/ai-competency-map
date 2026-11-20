@@ -42,6 +42,3 @@ jobs:
 
       - name: G5 · Build
         run: pnpm build
-
-      - name: G6 · El control de tiempo no llega al bundle
-        run: pnpm assert:bundle

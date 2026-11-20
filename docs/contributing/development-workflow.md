@@ -136,3 +136,48 @@ El `CHANGELOG` no se escribe a mano: se genera desde los commits convencionales 
 | Se cambia el flujo de trabajo                 | Este documento                                          |
 | Se arregla un bug no obvio                    | Un comentario en el código, con el porqué              |
 | Todo lo demás                                 | Nada. El código legible no necesita un ensayo al lado  |
+
+## 9. Trabajar con el reloj
+
+La app usa siempre el reloj del sistema. **No hay `?devtime` ni ninguna bandera equivalente** (ADR-007): los intentos son append-only, así que un intento grabado con una fecha falsa no se puede corregir después.
+
+Para ver la cola de repaso sin esperar días, se siembran intentos **con fechas pasadas**. Es lo que de verdad le ocurrió a alguien que respondió hace cuatro días, y no añade código al producto.
+
+Pega esto en la consola del navegador (con la app abierta) y recarga:
+
+```js
+// Siembra intentos de hace N días para el ítem indicado.
+// Los ids de ítem están en src/content/items.ts (campo `id`).
+(() => {
+  const hace = (dias) => new Date(Date.now() - dias * 86400000).toISOString();
+  const intento = (id, itemId, dias) => ({
+    id,
+    deviceId: 'dev',
+    itemId,
+    answeredAt: hace(dias),
+    selectedOptionId: 'opcion-correcta',
+    correct: true,
+    confidence: 'confident',
+    presentedOptionIds: ['opcion-correcta', 'opcion-b', 'opcion-c'],
+    durationMs: 4000,
+  });
+
+  localStorage.setItem(
+    'acm:attempts:v1',
+    JSON.stringify([
+      intento('seed-1', 'ctx-token-unit', 5),   // venció hace 2 días
+      intento('seed-2', 'ctx-at-limit', 1),     // todavía no vence
+    ]),
+  );
+
+  location.reload();
+})();
+```
+
+Reglas de uso:
+
+- **Solo en tu navegador.** Borra con el botón «Borrar» de `/acerca` cuando termines.
+- **No lo conviertas en datos de ejemplo del producto.** Sembrar intentos falsos en la app que ve un visitante sería fabricar evidencia, justo lo que el producto promete no hacer.
+- **Los tests no usan esto.** El dominio recibe `today` como argumento, así que las pruebas inyectan `fixedClock` y no necesitan sembrar nada.
+
+Si algún día hace falta que un visitante *vea* el ciclo, la respuesta es una ruta de simulación explícita, no un reloj sustituido (criterio de revisión de ADR-007).

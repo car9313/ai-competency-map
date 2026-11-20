@@ -101,11 +101,11 @@ El flujo es por tanto: escribir contenido → `pnpm validate:content` → correg
 
 La demo depende de viajar en el tiempo (responder hoy, repasar mañana). Eso exige un reloj controlado:
 
-- Producción y uso normal: reloj del sistema.
-- Solo en desarrollo: un control de tiempo oculto tras una bandera (`?devtime=2026-11-25` o un panel) que inyecta una fecha fija en el puerto `Clock`.
-- El mismo puerto es el que usan los tests, así que el mecanismo tiene dos consumidores y no se puede pudrir.
+- Producción y uso normal: reloj del sistema, siempre. No hay override.
+- Los tests inyectan `fixedClock`, que es lo que hace determinista al planificador.
+- Para ver la cola de repaso en el navegador se siembran intentos con fechas pasadas (ver ADR-007), no se mueve «hoy».
 
-**Regla:** el control de tiempo nunca debe llegar al bundle de producción. Se excluye por bandera en build, y hay una aserción E2E de que está ausente en la build de producción.
+**Regla:** el puerto `Clock` es el único sitio donde se lee la hora real, y el producto no ofrece ninguna forma de sustituirla. Se probó a tener un `?devtime` de desarrollo y se retiró: los intentos son append-only, así que un intento grabado con una fecha falsa no se puede corregir después. La forma segura de que un control de tiempo no llegue a producción es que no exista.
 
 ---
 

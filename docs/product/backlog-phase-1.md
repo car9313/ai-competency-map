@@ -134,7 +134,7 @@ S5 puede ir en paralelo con S3–S4: no comparten archivos.
 
 - Puerto `AttemptStore` (asíncrono e idempotente).
 - `LocalStorageAttemptStore` con detección de disponibilidad.
-- Puerto `Clock` y control de tiempo solo en desarrollo (`?devtime=`).
+- Puerto `Clock` con el reloj del sistema, **sin control de tiempo** ([ADR-007](../architecture/adr/ADR-007-sin-control-de-tiempo.md)).
 - Exportar/importar progreso en JSON.
 
 **Criterio de hecho**
@@ -142,7 +142,7 @@ S5 puede ir en paralelo con S3–S4: no comparten archivos.
 - [x] Test de ida y vuelta: `append` + `list` devuelve lo mismo.
 - [x] Insertar dos veces el mismo `id` no duplica.
 - [x] Un test prohíbe persistir `ItemSchedule` o `CompetencyState` (I15).
-- [x] `?devtime` cambia "hoy" y **no aparece** en el bundle de producción (aserción E2E).
+- [x] El producto no ofrece ninguna forma de sustituir «hoy». *(Se implementó `?devtime` y se retiró: ver ADR-007.)*
 
 **Cómo quedó**
 
@@ -152,14 +152,13 @@ S5 puede ir en paralelo con S3–S4: no comparten archivos.
 | Adaptador `localStorage` con detección de disponibilidad | `assessment/infrastructure/local-storage-attempt-store.ts` |
 | Validación de lo leído (una entrada corrupta no borra el historial) | `assessment/domain/schema.ts` |
 | Archivo de progreso (exportar/importar) | `assessment/application/progress-file.ts` |
-| Control de tiempo de la demo | `shared/time/dev-clock.ts` |
 | Panel de datos en `/acerca` | `assessment/presentation/DataPanel.tsx` |
-| Aserción de bundle (gate G6) | `scripts/assert-no-devtime.ts` |
 
-Dos decisiones que no estaban escritas y hubo que tomar:
+Tres decisiones que no estaban escritas y hubo que tomar:
 
 1. **Una entrada corrupta se descarta, no se propaga.** Validar al leer convierte un fallo silencioso (un `undefined` que revienta tres pantallas después) en un descarte visible. Probado con un almacén que mezcla entradas buenas y basura.
 2. **Cuando el navegador no puede almacenar, se sigue funcionando en memoria** y el panel lo dice explícitamente. Es preferible un progreso de sesión anunciado a una pantalla en blanco.
+3. **Se retiró el control de tiempo.** Llegó a implementarse (`?devtime`, con un gate de CI que verificaba su ausencia en el bundle) y se eliminó por ser más complejo que el problema y por el daño irreversible que un intento con fecha falsa haría en un historial append-only. En su lugar se siembran intentos con fechas pasadas desde la consola, documentado en [development-workflow](../contributing/development-workflow.md).
 
 ---
 

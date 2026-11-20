@@ -29,6 +29,7 @@ El apartado que casi nadie escribe y es el que más valor tiene: **consecuencias
 | [ADR-004](ADR-004-opcion-multiple-repaso-espaciado.md)  | Opción múltiple con confianza y repaso espaciado    | aceptado |
 | [ADR-005](ADR-005-sin-ia-en-v1.md)                      | Sin IA en la v1                                     | aceptado |
 | [ADR-006](ADR-006-persistencia-local.md)                | Persistencia local con puerto preparado para cuentas | aceptado |
+| [ADR-007](ADR-007-sin-control-de-tiempo.md)             | Sin control de tiempo en el producto                | aceptado |
 
 ## Pendientes de escribir cuando toque
 
