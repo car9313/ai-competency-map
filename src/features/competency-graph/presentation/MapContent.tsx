@@ -111,7 +111,19 @@ export function MapContent({ view }: { view: MapView }) {
       )}
 
       {view === 'mapa' ? (
-        <Suspense fallback={<p className="text-sm text-muted">Cargando diagrama…</p>}>
+        <>
+          {/* En móvil el grafo no se lee: 1112 px de viewBox en 343 px de ancho dejan el
+              texto a 3 px. Mejor decirlo y ofrecer la vista que sí funciona. */}
+          <div className="rounded-xl border border-border bg-surface p-4 text-sm text-muted md:hidden">
+            En pantalla pequeña el grafo no se lee.{' '}
+            <Link href="/mapa/tarjetas" className="text-accent underline underline-offset-4">
+              Ver el roadmap en tarjetas
+            </Link>
+            .
+          </div>
+
+          <div className="hidden md:block">
+            <Suspense fallback={<p className="text-sm text-muted">Cargando diagrama…</p>}>
           <MapDiagram
             levels={map.levels}
             nodes={[...map.nodes.values()].map((node) => ({
@@ -130,7 +142,9 @@ export function MapContent({ view }: { view: MapView }) {
             trailLinks={trail.links}
             areas={map.areas.map((area) => ({ id: area.id, index: area.index, name: area.name }))}
           />
-        </Suspense>
+            </Suspense>
+          </div>
+        </>
       ) : (
         <section aria-label="Competencias por área" className="grid gap-4 md:grid-cols-2">
           {map.areas.map((area) => {
