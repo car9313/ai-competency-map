@@ -11,6 +11,7 @@ Las rutas del producto, su modo de renderizado y por qué. Con exportación est�
 | `/`                    | **Hoy**: cola de repaso y estado    | Client Component                  | Intentos del almacenamiento local      |
 | `/mapa`                | Mapa (grafo vertical)               | Servidor + isla cliente           | Grafo estático + intentos locales      |
 | `/mapa/tarjetas`       | Roadmap en tarjetas                 | Servidor (HTML estático)          | Tarjetas por área, indexable           |
+| `/repaso`              | Sesión de repaso                    | Servidor + isla cliente           | Recorre la cola del día, ítem a ítem   |
 | `/c/[competencyId]`    | Lección y comprobación              | Estática + isla cliente           | Contenido en build + intentos locales  |
 | `/acerca`              | Qué es esto y por qué               | Estática                          | Contenido en build                     |
 | `not-found`            | 404                                 | Estática                          | —                                      |

@@ -194,19 +194,21 @@ Se descartó bloquear por área temática porque el grafo no está particionado:
 | Comprobación: opciones barajadas, confianza, feedback, reprogramación | ✅ |
 | Exportar e importar progreso en JSON | ✅ |
 | Estado de la competencia en la página de la lección | ✅ |
+| Cola del día en la portada y sesión de repaso en `/repaso` | ✅ |
+| El mapa muestra el estado real de cada nodo según tu historial | ✅ |
 
 ---
 
 ## Qué falta
 
-### Fase 1 — la última rebanada
+### Fase 1 — cerrada salvo el guion de demo
 
-**S8 · Cola de repaso y desbloqueo**
+**S8 · Cola de repaso y desbloqueo** ✅
 
-- La portada «Hoy»: qué toca repasar ahora, ordenado por urgencia.
-- El mapa reflejando **tu** progreso por nodo (hoy muestra un estado neutro, porque sus tarjetas se sirven estáticas por SEO).
-- Desbloqueo calculado y visible en el mapa.
-- Racha y meta diaria.
+- La portada «Hoy»: qué toca repasar, ordenado por atraso y dificultad.
+- El mapa refleja **tu** progreso por nodo.
+- El desbloqueo se calcula y se ve.
+- **Racha y meta diaria: descartadas a propósito.** Miden constancia, no evidencia; premiar días seguidos por encima de saber es justo la lógica de la que este proyecto se aparta.
 
 ### Fase 2 — contenido
 

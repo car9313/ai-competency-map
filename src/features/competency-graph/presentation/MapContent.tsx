@@ -1,12 +1,13 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Lock, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { CATALOG } from '@/content';
 import { systemClock } from '@/shared/time/clock';
 import { cn } from '@/shared/utils/cn';
 import { activeTrail, buildCompetencyMap } from '../application/map';
 import { MapDiagram } from './MapDiagram';
 import { VISUAL } from './state-visual';
+import { NodeStateChip } from './NodeStateChip';
 
 /**
  * Contenido del mapa en dos vistas.
@@ -189,20 +190,14 @@ export function MapContent({ view }: { view: MapView }) {
                               {node.claim}
                             </span>
                           </span>
-                          <span className="mt-0.5 flex shrink-0 items-center gap-1.5 font-mono text-[10px] whitespace-nowrap text-muted">
-                            {node.visibility === 'locked' ? (
-                              <Lock className="h-3 w-3" aria-hidden="true" />
-                            ) : (
-                              <span
-                                aria-hidden="true"
-                                className="inline-block h-2 w-2 rounded-full"
-                                style={{
-                                  backgroundColor: visual.fill,
-                                  border: `1px solid ${visual.stroke}`,
-                                }}
-                              />
-                            )}
-                            {visual.label}
+                          <span className="mt-0.5 shrink-0">
+                            <NodeStateChip
+                              items={CATALOG.items.filter((item) => item.competencyId === node.id)}
+                              fallbackLabel={visual.label}
+                              fallbackFill={visual.fill}
+                              fallbackStroke={visual.stroke}
+                              locked={node.visibility === 'locked'}
+                            />
                           </span>
                         </Link>
                       </li>

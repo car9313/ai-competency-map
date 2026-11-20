@@ -7,6 +7,7 @@ import { foldSchedule } from '../domain/fold';
 import { projectState, type CompetencyState } from '../domain/projection';
 import { describeDue } from '../application/next-item';
 import { openAttemptStore } from '../infrastructure/local-storage-attempt-store';
+import { STATE_LABEL, STATE_TONE } from './state-labels';
 
 /**
  * Estado de la competencia según la evidencia guardada.
@@ -18,20 +19,6 @@ import { openAttemptStore } from '../infrastructure/local-storage-attempt-store'
  * Se calcula en el cliente a propósito. El HTML estático no puede saber qué ha respondido
  * este navegador, y fingir un estado en el servidor sería inventarlo.
  */
-
-const LABELS: Record<CompetencyState, string> = {
-  no_evidence: 'Sin evidencia todavía',
-  learning: 'En aprendizaje',
-  consolidated: 'Consolidada',
-  at_risk: 'Necesita repaso',
-};
-
-const TONES: Record<CompetencyState, string> = {
-  no_evidence: 'border-border text-muted',
-  learning: 'border-amber-500/40 text-amber-600 dark:text-amber-300',
-  consolidated: 'border-emerald-500/40 text-emerald-600 dark:text-emerald-300',
-  at_risk: 'border-rose-500/40 text-rose-600 dark:text-rose-300',
-};
 
 export function CompetencyProgress({ items }: { items: readonly Item[] }) {
   const [state, setState] = useState<{ state: CompetencyState; due: string } | null>(null);
@@ -69,10 +56,8 @@ export function CompetencyProgress({ items }: { items: readonly Item[] }) {
   if (!state) return null;
 
   return (
-    <span
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[11px] ${TONES[state.state]}`}
-    >
-      {LABELS[state.state]}
+    <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 font-mono text-[11px]">
+      <span className={STATE_TONE[state.state]}>{STATE_LABEL[state.state]}</span>
       {state.due && <span className="text-muted">· {state.due}</span>}
     </span>
   );

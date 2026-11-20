@@ -237,10 +237,35 @@ Una suposición mía que los tests corrigieron: creía que un acierto desde `new
 
 **Criterio de hecho**
 
-- [ ] Tras responder, el ítem desaparece de la cola hasta su vencimiento.
-- [ ] Avanzar el reloj hace aparecer exactamente los ítems vencidos.
-- [ ] Completar los ítems de una competencia desbloquea la siguiente.
-- [ ] **El guion de demo completo corre sin tocar código.**
+- [x] Tras responder, el ítem desaparece de la cola hasta su vencimiento.
+- [x] Avanzar el reloj hace aparecer exactamente los ítems vencidos.
+- [x] Completar los ítems de una competencia desbloquea la siguiente.
+- [ ] **El guion de demo completo corre sin tocar código.** *(pendiente de la pasada final)*
+
+**Cómo quedó**
+
+| Pieza | Archivo |
+|---|---|
+| Cola del día en `/` | `assessment/presentation/TodayQueue.tsx` |
+| Sesión de repaso en `/repaso` | `assessment/presentation/ReviewSession.tsx` |
+| Pregunta compartida entre comprobación y repaso | `assessment/presentation/ItemRunner.tsx` |
+| Contador vivo de la barra lateral | `assessment/presentation/SidebarToday.tsx` |
+| Estado personal en cada nodo del mapa | `competency-graph/presentation/NodeStateChip.tsx` |
+| Caché de intentos por página (39 nodos, una lectura) | `assessment/infrastructure/attempts-cache.ts` |
+
+Dos matices que conviene dejar escritos:
+
+1. **«Avanzar el reloj» ya no significa mover el reloj.** Tras [ADR-007](../architecture/adr/ADR-007-sin-control-de-tiempo.md) no hay `?devtime`; el criterio se verifica sembrando intentos con fechas pasadas, que es lo que de verdad le ocurrió a un alumno real. Comprobado: con un ítem respondido hace 5 días y otro ayer, la cola muestra **exactamente** el primero.
+2. **«Completar» el prerrequisito es más estricto que la regla implementada.** El modelo exige **alguna** evidencia, no completarlo: exigir terminarlo convertiría el grafo en una cadena secuencial, que es justo lo que se descartó al decidir que se bloquea la comprobación y no el acceso. Por eso el criterio se cumple con la primera evidencia y no con la última.
+
+Verificado en navegador:
+
+- `/` con un ítem vencido: «1 ítem»; la barra lateral dice «1 ítem para repasar».
+- Tras responder ese ítem: «Nada vence hoy».
+- `/c/tokens-and-context-window/comprobar` bloqueado sin evidencia en la raíz, y con la pregunta cuando la hay.
+- `/mapa/tarjetas` muestra «consolidada» en la raíz y «faltan previos» en tokens.
+
+**Lo que sigue sin hacer:** racha y meta diaria. Estaban en la lista original de S8 y se han dejado fuera a propósito: miden constancia, no evidencia, y el producto no debe premiar días seguidos por encima de saber.
 
 ---
 

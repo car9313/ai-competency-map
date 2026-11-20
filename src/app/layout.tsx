@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { ThemeToggle } from '@/shared/ui/ThemeToggle';
+import { SidebarToday } from '@/features/assessment/presentation/SidebarToday';
+import { contentIndex } from '@/content';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -82,17 +84,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </nav>
             </div>
 
-            <div className="rounded-xl border border-border bg-surface-2 p-3.5">
-              <p className="font-mono text-[11px] tracking-wide text-muted uppercase">
-                Sesión de hoy
-              </p>
-              <p className="mt-1 text-sm text-fg">
-                Sin repasos pendientes.
-              </p>
-              <p className="mt-1 text-[11px] text-muted">
-                La racha y la meta diaria llegan en la rebanada S8.
-              </p>
-            </div>
+            <SidebarToday items={[...contentIndex.itemById.values()]} />
           </aside>
 
           <div className="flex min-w-0 flex-1 flex-col">
