@@ -18,7 +18,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "validate:content": "tsx scripts/validate-content.ts",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm validate:content && pnpm build"
+    "assert:bundle": "tsx scripts/assert-no-devtime.ts",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm validate:content && pnpm build && pnpm assert:bundle"
   },
   "dependencies": {
     "lucide-react": "^1.75.0",

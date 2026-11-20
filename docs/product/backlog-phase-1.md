@@ -139,10 +139,27 @@ S5 puede ir en paralelo con S3–S4: no comparten archivos.
 
 **Criterio de hecho**
 
-- [ ] Test de ida y vuelta: `append` + `list` devuelve lo mismo.
-- [ ] Insertar dos veces el mismo `id` no duplica.
-- [ ] Un test prohíbe persistir `ItemSchedule` o `CompetencyState` (I15).
-- [ ] `?devtime` cambia "hoy" y **no aparece** en el bundle de producción (aserción E2E).
+- [x] Test de ida y vuelta: `append` + `list` devuelve lo mismo.
+- [x] Insertar dos veces el mismo `id` no duplica.
+- [x] Un test prohíbe persistir `ItemSchedule` o `CompetencyState` (I15).
+- [x] `?devtime` cambia "hoy" y **no aparece** en el bundle de producción (aserción E2E).
+
+**Cómo quedó**
+
+| Pieza | Archivo |
+|---|---|
+| Puerto + implementación en memoria | `assessment/application/attempt-store.ts` |
+| Adaptador `localStorage` con detección de disponibilidad | `assessment/infrastructure/local-storage-attempt-store.ts` |
+| Validación de lo leído (una entrada corrupta no borra el historial) | `assessment/domain/schema.ts` |
+| Archivo de progreso (exportar/importar) | `assessment/application/progress-file.ts` |
+| Control de tiempo de la demo | `shared/time/dev-clock.ts` |
+| Panel de datos en `/acerca` | `assessment/presentation/DataPanel.tsx` |
+| Aserción de bundle (gate G6) | `scripts/assert-no-devtime.ts` |
+
+Dos decisiones que no estaban escritas y hubo que tomar:
+
+1. **Una entrada corrupta se descarta, no se propaga.** Validar al leer convierte un fallo silencioso (un `undefined` que revienta tres pantallas después) en un descarte visible. Probado con un almacén que mezcla entradas buenas y basura.
+2. **Cuando el navegador no puede almacenar, se sigue funcionando en memoria** y el panel lo dice explícitamente. Es preferible un progreso de sesión anunciado a una pantalla en blanco.
 
 ---
 
