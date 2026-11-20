@@ -6,6 +6,8 @@ import { ArrowRight } from 'lucide-react';
 import type { Item } from '@/shared/types/domain';
 import { systemClock } from '@/shared/time/clock';
 import { pickNextItem } from '../application/next-item';
+import { foldSchedule } from '../domain/fold';
+import { projectItemOutcome } from '../domain/projection';
 import { loadAttempts } from '../infrastructure/attempts-cache';
 import { ItemRunner } from './ItemRunner';
 
@@ -29,6 +31,7 @@ type State =
   | { kind: 'loading' }
   | { kind: 'empty' }
   | { kind: 'blocked'; missing: Array<{ id: string; title: string }> }
+  | { kind: 'done'; total: number; correct: number; nextDueAt: string | null }
   | { kind: 'ready'; item: Item };
 
 export function CheckSession({
@@ -44,6 +47,8 @@ export function CheckSession({
 }) {
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [round, setRound] = useState(0);
+  /** El alumno ha pedido seguir practicando después de haber visto todo. */
+  const [continuing, setContinuing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,13 +73,33 @@ export function CheckSession({
 
       const next = pickNextItem(items, attempts, systemClock);
 
+      /**
+       * La comprobación **termina**: cuando ya has visto todos los ítems, no se vuelve a
+       * empezar en silencio. Antes reofrecía el que antes vencía, y el usuario no sabía
+       * cuándo había acabado. Seguir practicando es ahora una decisión explícita.
+       */
+      const allSeen = items.length > 0 && items.every((item) => attemptedItems.has(item.id));
+
+      if (allSeen && !continuing) {
+        const correct = items.filter(
+          (item) => projectItemOutcome(item.id, attempts) === 'correct',
+        ).length;
+        const nextDueAt =
+          items
+            .map((item) => foldSchedule(item.id, attempts, systemClock).dueAt)
+            .sort((a, b) => a.localeCompare(b))[0] ?? null;
+
+        setState({ kind: 'done', total: items.length, correct, nextDueAt });
+        return;
+      }
+
       setState(next ? { kind: 'ready', item: next.item } : { kind: 'empty' });
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [prerequisites, items, round]);
+  }, [prerequisites, items, round, continuing]);
 
   if (state.kind === 'loading') {
     return <p className="text-sm text-muted">Preparando la comprobación…</p>;
@@ -85,6 +110,49 @@ export function CheckSession({
       <p className="rounded-xl border border-border bg-surface p-4 text-sm text-muted">
         Esta competencia todavía no tiene ítems para comprobar.
       </p>
+    );
+  }
+
+  if (state.kind === 'done') {
+    return (
+      <section className="space-y-4 rounded-xl border border-border bg-surface p-5">
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold tracking-tight">
+            Has respondido los {state.total} {state.total === 1 ? 'ítem' : 'ítems'}
+          </h2>
+          <p className="text-sm text-muted">
+            {state.correct} de {state.total} con el último intento correcto.
+            {state.nextDueAt
+              ? ` El primero vuelve a la cola el ${state.nextDueAt}.`
+              : ''}
+          </p>
+        </div>
+
+        <p className="text-xs text-muted">
+          Puedes seguir practicando: cada intento se guarda y recalcula la fecha. El repaso que
+          de verdad consolida es el que llega cuando el ítem vence, no el de ahora mismo.
+        </p>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <button
+            type="button"
+            onClick={() => {
+              setContinuing(true);
+              setRound((value) => value + 1);
+            }}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:text-accent"
+          >
+            Practicar otra vez
+          </button>
+
+          <Link
+            href={`/c/${competencyId}`}
+            className="text-sm text-muted underline underline-offset-4 hover:text-accent"
+          >
+            Volver a la lección
+          </Link>
+        </div>
+      </section>
     );
   }
 

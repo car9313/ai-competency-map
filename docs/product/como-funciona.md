@@ -86,6 +86,17 @@ La confianza es lo que permite tratar distinto a quien acierta sin saber. Sin es
 ### Cuando fallas
 
 Un fallo te devuelve a `relearning` con **1 día**, y la facilidad baja 0,2. No es un castigo: es información. El intervalo vuelve a empezar porque el anterior estaba basado en un acierto que ya no se sostiene.
+### ¿Por qué vuelve mañana y no ahora mismo?
+
+Porque el intervalo mínimo del planificador es **1 día**, y por una razón práctica: repetir el mismo ítem en la misma sesión mide memoria inmediata, no aprendizaje. Volver al día siguiente obliga a que pase una noche de por medio, que es cuando el olvido empieza a hacer su trabajo.
+
+Una aclaración honesta: **«vuelve mañana» describe la cola de repaso, no un bloqueo.** Puedes seguir practicando ahora —la comprobación te deja— y cada intento se guarda. Lo que no hace es adelantar la programación: el ítem sigue vencido mañana, y ese repaso es el que cuenta.
+
+### ¿Cuándo terminan las preguntas?
+
+En **`/repaso`** terminan solas: cuando la cola se vacía, la pantalla lo dice y propone seguir por el mapa.
+
+En **la comprobación de una competencia** terminan cuando has respondido **todos sus ítems**. Ahí aparece un resumen —cuántos tienes con el último intento correcto y cuándo vuelve el primero— y, si quieres, un botón para seguir practicando. Antes la pantalla volvía a empezar en silencio, sin decirte que ya habías terminado.
 
 ### Lo que el tiempo **no** hace
 
