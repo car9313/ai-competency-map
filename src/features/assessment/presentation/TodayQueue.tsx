@@ -148,9 +148,11 @@ export function TodayQueue({
           {summary.dueItems} {summary.dueItems === 1 ? 'ítem' : 'ítems'}
         </p>
         <p className="mt-1 text-sm text-muted">
-          {summary.overdueItems > 0
-            ? `${summary.overdueItems} con retraso, el resto vencen hoy. Empezar por lo más atrasado.`
-            : 'Todos vencen hoy.'}
+          {summary.overdueItems === summary.dueItems
+            ? 'Todos con retraso. Empieza por el más atrasado.'
+            : summary.overdueItems > 0
+              ? `${summary.overdueItems} con retraso; el resto vencen hoy.`
+              : 'Todos vencen hoy.'}
         </p>
 
         <Link
