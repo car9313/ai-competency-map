@@ -20,6 +20,7 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "a11y": "tsx scripts/a11y-check.ts",
     "content:status": "tsx scripts/content-status.ts",
+    "serve:headers": "tsx scripts/serve-with-headers.ts",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm validate:content && pnpm build && pnpm a11y"
   },
   "dependencies": {

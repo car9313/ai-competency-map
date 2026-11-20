@@ -40,6 +40,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               "try{if(localStorage.getItem('acm-theme')==='light'){document.documentElement.classList.remove('dark')}}catch(e){}",
           }}
         />
+        {/*
+          Fuentes desde Google Fonts. Lo ideal sería autoalojarlas con `next/font`, pero la
+          build de Turbopack de este entorno no resuelve su módulo interno de fuentes. La CSP
+          de `vercel.json` abre la excepción para estos dos dominios, y solo para ellos.
+        */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

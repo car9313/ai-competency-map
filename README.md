@@ -75,6 +75,7 @@ scripts/              gates: linter de contenido, auditoría de accesibilidad, e
 | Cómo se navega el producto                     | [`docs/product/navigation.md`](docs/product/navigation.md)                     |
 | **Cómo añadir una competencia**                 | [`CONTRIBUTING.md`](CONTRIBUTING.md)                                           |
 | **El recorrido de la demo**                     | [`docs/product/demo-script.md`](docs/product/demo-script.md)                   |
+| **Cómo se despliega**                           | [docs/product/deployment.md](docs/product/deployment.md)                     |
 
 ## Comandos
 
@@ -86,6 +87,7 @@ scripts/              gates: linter de contenido, auditoría de accesibilidad, e
 | `pnpm a11y` | Auditoría de accesibilidad con axe en navegador real |
 | `pnpm content:status` | Regenera el documento de estado del contenido |
 | `pnpm check` | Todo: tipos, lint, tests, contenido, build y accesibilidad |
+| `pnpm serve:headers` | Sirve la build con las cabeceras de producción |
 
 ## Licencia
 
