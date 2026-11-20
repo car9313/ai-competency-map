@@ -4,8 +4,9 @@ import { ArrowRight, Lock, Sparkles } from 'lucide-react';
 import { CATALOG } from '@/content';
 import { systemClock } from '@/shared/time/clock';
 import { cn } from '@/shared/utils/cn';
-import { activeTrail, buildCompetencyMap, type NodeVisibility } from '../application/map';
+import { activeTrail, buildCompetencyMap } from '../application/map';
 import { MapDiagram } from './MapDiagram';
+import { VISUAL } from './state-visual';
 
 /**
  * Contenido del mapa en dos vistas.
@@ -21,16 +22,6 @@ import { MapDiagram } from './MapDiagram';
  */
 
 export type MapView = 'mapa' | 'tarjetas';
-
-const VISUAL: Record<NodeVisibility, { fill: string; stroke: string; label: string }> = {
-  pending: { fill: 'transparent', stroke: 'var(--border)', label: 'próximamente' },
-  locked: { fill: 'var(--surface-2)', stroke: 'var(--border)', label: 'bloqueada' },
-  available: { fill: 'var(--accent)', stroke: 'var(--accent)', label: 'disponible' },
-  learning: { fill: '#f59e0b', stroke: '#f59e0b', label: 'en aprendizaje' },
-  consolidated: { fill: '#10b981', stroke: '#10b981', label: 'consolidada' },
-  at_risk: { fill: '#f43f5e', stroke: '#f43f5e', label: 'necesita repaso' },
-  no_evidence: { fill: 'transparent', stroke: 'var(--border)', label: 'sin evidencia' },
-};
 
 const TABS: Array<{ id: MapView; href: string; label: string }> = [
   { id: 'mapa', href: '/mapa', label: 'Mapa' },
@@ -51,6 +42,12 @@ export function MapContent({ view }: { view: MapView }) {
   const trailIds = new Set(trail.nodeIds);
   const focus = trail.focusId ? map.nodes.get(trail.focusId) : undefined;
   const published = [...map.nodes.values()].filter((node) => node.published);
+
+  /** Títulos de los prerrequisitos que todavía no tienen ninguna evidencia. */
+  const unmetOf = (ids: readonly string[]): string[] =>
+    ids
+      .filter((id) => (map.nodes.get(id)?.state ?? 'no_evidence') === 'no_evidence')
+      .map((id) => map.nodes.get(id)?.title ?? id);
 
   return (
     <div className="space-y-6">
@@ -120,11 +117,13 @@ export function MapContent({ view }: { view: MapView }) {
             nodes={[...map.nodes.values()].map((node) => ({
               id: node.id,
               title: node.title,
+              claim: node.claim,
               areaId: node.areaId,
               layer: node.layer,
               visibility: node.visibility,
               published: node.published,
               prerequisiteIds: node.prerequisiteIds,
+              unmetPrerequisites: unmetOf(node.prerequisiteIds),
             }))}
             focusId={trail.focusId}
             trailIds={trail.nodeIds}

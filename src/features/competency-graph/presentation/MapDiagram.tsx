@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Minus, Plus, RotateCcw } from 'lucide-react';
 import { cn } from '@/shared/utils/cn';
 import type { NodeVisibility } from '../application/map';
+import { LEGEND_ORDER, VISUAL, labelLines } from './state-visual';
 
 /**
  * Diagrama vertical del grafo.
@@ -21,20 +22,9 @@ import type { NodeVisibility } from '../application/map';
  * con teclado, igual que los botones de zoom.
  */
 
-const VISUAL: Record<NodeVisibility, { fill: string; stroke: string; label: string }> = {
-  pending: { fill: 'transparent', stroke: 'var(--border)', label: 'próximamente' },
-  locked: { fill: 'var(--surface-2)', stroke: 'var(--border)', label: 'bloqueada' },
-  available: { fill: 'var(--accent)', stroke: 'var(--accent)', label: 'disponible' },
-  learning: { fill: '#f59e0b', stroke: '#f59e0b', label: 'en aprendizaje' },
-  consolidated: { fill: '#10b981', stroke: '#10b981', label: 'consolidada' },
-  at_risk: { fill: '#f43f5e', stroke: '#f43f5e', label: 'necesita repaso' },
-  no_evidence: { fill: 'transparent', stroke: 'var(--border)', label: 'sin evidencia' },
-};
-
 const SLOT_WIDTH = 124;
 const ROW_HEIGHT = 100;
 const NODE_RADIUS = 11;
-const LABEL_MAX_LENGTH = 16;
 const SIDE_PADDING = 60;
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 2.5;
@@ -43,11 +33,14 @@ const DRAG_THRESHOLD = 3;
 export interface DiagramNode {
   id: string;
   title: string;
+  claim: string;
   areaId: string;
   layer: string;
   visibility: NodeVisibility;
   published: boolean;
   prerequisiteIds: readonly string[];
+  /** Títulos de los prerrequisitos que aún no tienen evidencia. Alimenta el tooltip. */
+  unmetPrerequisites: readonly string[];
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -78,6 +71,8 @@ export function MapDiagram({
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState<string | null>(null);
+  const [tip, setTip] = useState<{ id: string; x: number; y: number } | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
   const drag = useRef<{ x: number; y: number; panX: number; panY: number; moved: boolean } | null>(
     null,
   );
@@ -213,6 +208,33 @@ export function MapDiagram({
     }
   };
 
+  /**
+   * Tooltip de verdad, no `title` nativo: aparece al instante, sigue al nodo y muestra lo
+   * que la etiqueta no cabe (título completo, qué demuestra, estado y previos pendientes).
+   *
+   * Se calcula la posición desde el `getBoundingClientRect` del nodo, así funciona igual
+   * con ratón y con teclado —al enfocar un enlace no hay cursor del que tirar—.
+   */
+  const showTip = (id: string, event: React.SyntheticEvent<Element>) => {
+    setHovered(id);
+
+    const base = cardRef.current?.getBoundingClientRect();
+    const target = event.currentTarget as Element;
+
+    if (!base) return;
+
+    const rect = target.getBoundingClientRect();
+
+    setTip({ id, x: rect.left + rect.width / 2 - base.left, y: rect.top - base.top });
+  };
+
+  const hideTip = () => {
+    setHovered(null);
+    setTip(null);
+  };
+
+  const tipNode = tip ? nodes.find((node) => node.id === tip.id) : undefined;
+
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2.5 rounded-xl border border-border bg-surface p-4">
@@ -241,7 +263,7 @@ export function MapDiagram({
         />
       </div>
 
-      <div className="rounded-xl border border-border bg-surface">
+      <div ref={cardRef} className="relative rounded-xl border border-border bg-surface">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2">
           <p className="font-mono text-[10px] text-muted">
             Arrastra para mover · rueda para acercar · {Math.round(zoom * 100)}%
@@ -354,10 +376,7 @@ export function MapDiagram({
               const isFocus = node.id === focusId;
               const canOpen = node.published;
               const row = rowOf.get(node.id) ?? 0;
-              const short =
-                node.title.length > LABEL_MAX_LENGTH
-                  ? `${node.title.slice(0, LABEL_MAX_LENGTH - 1)}…`
-                  : node.title;
+              const lines = labelLines(node.title);
 
               const shape = (
                 <>
@@ -398,7 +417,11 @@ export function MapDiagram({
                     fontSize={10}
                     fontFamily="var(--font-sans)"
                   >
-                    {short}
+                    {lines.map((line, index) => (
+                      <tspan key={line} x={position.x} dy={index === 0 ? 0 : 11}>
+                        {line}
+                      </tspan>
+                    ))}
                   </text>
                 </>
               );
@@ -411,16 +434,16 @@ export function MapDiagram({
                   opacity={opacity}
                   className="acm-row"
                   style={{ animationDelay: `${row * 45}ms` }}
-                  onPointerEnter={() => setHovered(node.id)}
-                  onPointerLeave={() => setHovered(null)}
+                  onPointerEnter={(event) => showTip(node.id, event)}
+                  onPointerLeave={hideTip}
                 >
                   {canOpen ? (
                     <Link
                       href={`/c/${node.id}`}
                       className="cursor-pointer"
                       aria-label={`${node.title} — ${visual.label}`}
-                      onFocus={() => setHovered(node.id)}
-                      onBlur={() => setHovered(null)}
+                      onFocus={(event) => showTip(node.id, event)}
+                      onBlur={hideTip}
                     >
                       {shape}
                     </Link>
@@ -428,8 +451,8 @@ export function MapDiagram({
                     <g
                       role="img"
                       aria-label={`${node.title} — ${visual.label} (sin contenido)`}
-                      onFocus={() => setHovered(node.id)}
-                      onBlur={() => setHovered(null)}
+                      onFocus={(event) => showTip(node.id, event)}
+                      onBlur={hideTip}
                     >
                       {shape}
                     </g>
@@ -440,28 +463,55 @@ export function MapDiagram({
           </svg>
         </div>
 
+        {/* Tooltip propio: instantáneo, accesible por teclado y con lo que la etiqueta no cabe. */}
+        {tip && tipNode && (
+          <div
+            role="tooltip"
+            className="pointer-events-none absolute z-30 w-64 -translate-x-1/2 -translate-y-full rounded-lg border border-border bg-surface-2 px-3 py-2 shadow-xl"
+            style={{ left: tip.x, top: tip.y - 14 }}
+          >
+            <p className="text-xs font-semibold text-fg">{tipNode.title}</p>
+            <p className="mt-1 text-[11px] leading-snug text-muted">{tipNode.claim}</p>
+            <p className="mt-1.5 flex items-center gap-1.5 font-mono text-[10px] text-muted">
+              <span
+                aria-hidden="true"
+                className="inline-block h-2 w-2 rounded-full"
+                style={{
+                  backgroundColor: VISUAL[tipNode.visibility].fill,
+                  border: `1px solid ${VISUAL[tipNode.visibility].stroke}`,
+                }}
+              />
+              {VISUAL[tipNode.visibility].label}
+            </p>
+            {tipNode.unmetPrerequisites.length > 0 && (
+              <p className="mt-1.5 border-t border-border pt-1.5 text-[10px] leading-snug text-muted">
+                Te falta: {tipNode.unmetPrerequisites.join(' · ')}
+              </p>
+            )}
+          </div>
+        )}
+
         <ul className="flex flex-wrap gap-x-4 gap-y-1.5 border-t border-border px-4 py-3 font-mono text-[10px] text-muted">
-          {(['pending', 'locked', 'available', 'learning', 'consolidated', 'at_risk'] as const).map(
-            (visibility) => (
-              <li key={visibility} className="flex items-center gap-1.5">
-                <span
-                  aria-hidden="true"
-                  className="inline-block h-2.5 w-2.5 rounded-full"
-                  style={{
-                    backgroundColor: VISUAL[visibility].fill,
-                    border: `1px solid ${VISUAL[visibility].stroke}`,
-                  }}
-                />
-                {VISUAL[visibility].label}
-              </li>
-            ),
-          )}
+          {LEGEND_ORDER.map((visibility) => (
+            <li key={visibility} className="flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className="inline-block h-2.5 w-2.5 rounded-full"
+                style={{
+                  backgroundColor: VISUAL[visibility].fill,
+                  border: `1px solid ${VISUAL[visibility].stroke}`,
+                }}
+              />
+              {VISUAL[visibility].label}
+            </li>
+          ))}
         </ul>
       </div>
 
       <p className="text-[11px] text-muted">
         Los nodos con contenido son enlaces: pulsa uno para abrir su lección. Al pasar el cursor
-        sobre un nodo se resaltan sus prerrequisitos y sus dependencias.
+        sobre un nodo se resaltan sus prerrequisitos y sus dependencias, y el tooltip muestra el
+        título completo y lo que falta para poder comprobarlo.
       </p>
     </div>
   );

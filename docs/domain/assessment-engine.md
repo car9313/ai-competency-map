@@ -228,6 +228,20 @@ Un desbloqueo decide **por dónde se puede entrar**, nunca **qué se puede volve
 - Si el repaso sale mal, la competencia pasa a `at_risk` y sus ítems vuelven a la cola cuando vencen. Eso no es un castigo: es información.
 - Nada en el modelo impide revisar. El único bloqueo del sistema está en la **entrada** (prerrequisitos sin evidencia), jamás en la salida.
 
+### Qué se bloquea: la comprobación, no el acceso
+
+Son tres cosas distintas y conviene no confundirlas:
+
+| | ¿Cuándo se puede? | Por qué |
+|---|---|---|
+| **Leer** la lección | Siempre que tenga contenido | El contenido no se gasta por leerlo antes de tiempo |
+| **Comprobar** con preguntas | Solo con evidencia en sus prerrequisitos | Medir sin base mide ruido, no conocimiento |
+| **Ser el siguiente paso** | Según el camino activo | Es una recomendación, no un permiso |
+
+Por eso las etiquetas del mapa dicen **«evaluable»** y **«faltan previos»**, y no «bloqueada»: describen la comprobación. Un nodo con previos pendientes se abre igual, y el tooltip dice exactamente qué falta.
+
+**Se descartó el bloqueo por temática** (cada área como entrada independiente con secuencia interna) porque el grafo no está particionado: **20 de las 49 aristas cruzan de área** y solo una de las ocho áreas es autocontenida. Un área cuyos prerrequisitos viven en otra no puede tener una secuencia interna que la desbloquee; el bloqueo quedaría vacío o arbitrario.
+
 ---
 
 ## 6. Testeabilidad
