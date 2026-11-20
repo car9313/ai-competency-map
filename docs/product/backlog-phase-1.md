@@ -175,10 +175,32 @@ Tres decisiones que no estaban escritas y hubo que tomar:
 
 **Criterio de hecho**
 
-- [ ] El orden presentado se guarda en `presentedOptionIds` y es reproducible desde el intento.
-- [ ] Cada opción muestra **su** justificación, no una genérica.
-- [ ] La confianza cambia la fecha resultante (con test).
-- [ ] Selección y envío funcionan solo con teclado.
+- [x] El orden presentado se guarda en `presentedOptionIds` y es reproducible desde el intento.
+- [x] Cada opción muestra **su** justificación, no una genérica.
+- [x] La confianza cambia la fecha resultante (con test).
+- [x] Selección y envío funcionan solo con teclado.
+
+**Cómo quedó**
+
+| Pieza | Archivo |
+|---|---|
+| Caso de uso: registrar un intento y devolver la reprogramación | `assessment/application/submit-attempt.ts` |
+| Elección del siguiente ítem (primero lo nuevo, después lo que vence) | `assessment/application/next-item.ts` |
+| Pantalla de comprobación | `assessment/presentation/CheckSession.tsx` |
+| Estado de la competencia en la lección | `assessment/presentation/CompetencyProgress.tsx` |
+| Ruta `/c/[id]/comprobar` | `app/c/[competencyId]/comprobar/page.tsx` |
+
+Verificado en navegador, no solo en tests:
+
+- El orden barajado se guardó como `["c","a","b"]` y el intento tiene exactamente los 9 campos del tipo.
+- Flujo completo con teclado: `Space` marca opción, `Space` marca confianza, `Enter` envía.
+- Tras enviar, el foco se mueve al bloque de resultado (lectores de pantalla lo anuncian).
+- Acierto con confianza desde `new`: «vuelve en 3 días · intervalo 1 → 3 días» (regla R1).
+- Fallo: «vuelve mañana · el intervalo vuelve a empezar» (regla R3). Antes decía «intervalo 1 → 1», que no comunica nada.
+
+Una suposición mía que los tests corrigieron: creía que un acierto desde `new` pasaba a `learning`. La tabla de reglas dice que pasa directo a `review` a 3 días (R1). El código tenía razón; el test estaba mal.
+
+**Lo que S6 no hace todavía:** el mapa sigue mostrando el estado neutro. Sus tarjetas se sirven desde el servidor por SEO y no pueden saber qué ha respondido este navegador; reflejar el progreso por nodo es exactamente el trabajo de S8, igual que el desbloqueo.
 
 ---
 
