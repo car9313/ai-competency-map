@@ -1,8 +1,13 @@
 # AI Competency Map
 
-> **Nombre provisional.** Un mapa de competencias de AI Engineering donde el progreso se **deriva de evidencia**, no se declara.
+> Un mapa de competencias de AI Engineering donde el progreso se **deriva de evidencia**, no se declara.
 
-**Estado:** Fase 0 — definición de producto y arquitectura. Todavía no hay código de aplicación, y es intencionado.
+**Estado:** fases 1 y 2 completas. **39 competencias · 39 lecciones · 156 ítems · 186 tests · 6 gates en CI.** Coste de infraestructura: cero.
+
+```bash
+pnpm install
+pnpm dev        # http://localhost:3000
+```
 
 ---
 
@@ -37,11 +42,18 @@ Autenticación, base de datos, contenido generado por IA, sandboxes de ejecució
 ## Mapa del repositorio
 
 ```text
+src/
+├── app/              rutas (App Router, exportación estática)
+├── content/          competencias, lecciones e ítems — un archivo por área
+├── features/         slices verticales: assessment, competency-graph, content
+└── shared/           tipos y utilidades sin dependencias de producto
 docs/
-├── product/          visión, alcance, roadmap, guion de demo
+├── product/          visión, alcance, roadmap, guion de demo, retrospectiva
 ├── domain/           lenguaje ubicuo, grafo de competencias, motor de evaluación
-├── architecture/     visión general, reglas de dependencias, patrones, stack
-└── quality/          linter de contenido, harness de ingeniería
+├── architecture/     visión general, reglas de dependencias, patrones, stack, ADRs
+├── quality/          linter de contenido, accesibilidad, harness de ingeniería
+└── contributing/     flujo de trabajo y autoría de contenido
+scripts/              gates: linter de contenido, auditoría de accesibilidad, estado
 ```
 
 ## Por dónde empezar
@@ -50,8 +62,9 @@ docs/
 | ---------------------------------------------- | ---------------------------------------------------------------------------- |
 | Por qué existe este proyecto                   | [`docs/product/vision.md`](docs/product/vision.md)                             |
 | **Cómo funciona, en lenguaje llano**            | [`docs/product/como-funciona.md`](docs/product/como-funciona.md)               |
-| **Accesibilidad: qué se mide y qué no**          | [docs/quality/accessibility.md](docs/quality/accessibility.md)               |
-| **Estado del contenido, por área**               | [docs/product/content-status.md](docs/product/content-status.md)             |
+| **Qué se decidió y qué salió mal**              | [`docs/product/retro.md`](docs/product/retro.md)                               |
+| **Accesibilidad: qué se mide y qué no**          | [`docs/quality/accessibility.md`](docs/quality/accessibility.md)               |
+| **Estado del contenido, por área**               | [`docs/product/content-status.md`](docs/product/content-status.md)             |
 | Qué significa cada palabra                     | [`docs/domain/ubiquitous-language.md`](docs/domain/ubiquitous-language.md)     |
 | Cómo funcionan el dominio y el repaso          | [`docs/domain/assessment-engine.md`](docs/domain/assessment-engine.md)         |
 | Qué competencias hay y cómo se conectan        | [`docs/domain/competency-graph.md`](docs/domain/competency-graph.md)           |
@@ -59,10 +72,24 @@ docs/
 | Qué patrones se usan y por qué                 | [`docs/architecture/design-patterns.md`](docs/architecture/design-patterns.md) |
 | Qué herramientas y por qué                     | [`docs/architecture/tech-stack.md`](docs/architecture/tech-stack.md)           |
 | Qué se construye y en qué orden                | [`docs/product/roadmap.md`](docs/product/roadmap.md)                           |
-| Qué se construye primero                      | [`docs/product/backlog-phase-1.md`](docs/product/backlog-phase-1.md)           |
 | Cómo se navega el producto                     | [`docs/product/navigation.md`](docs/product/navigation.md)                     |
-| Cómo se trabaja en el repo                     | [`docs/contributing/development-workflow.md`](docs/contributing/development-workflow.md) |
+| **Cómo añadir una competencia**                 | [`CONTRIBUTING.md`](CONTRIBUTING.md)                                           |
+| **El recorrido de la demo**                     | [`docs/product/demo-script.md`](docs/product/demo-script.md)                   |
 
-## Cómo arrancarlo
+## Comandos
 
-Todavía no hay nada que ejecutar. El primer hito ejecutable está definido en el roadmap.
+| Comando | Qué hace |
+|---|---|
+| `pnpm dev` | Servidor de desarrollo |
+| `pnpm test` | Tests del dominio |
+| `pnpm validate:content` | Linter de contenido R1–R7 |
+| `pnpm a11y` | Auditoría de accesibilidad con axe en navegador real |
+| `pnpm content:status` | Regenera el documento de estado del contenido |
+| `pnpm check` | Todo: tipos, lint, tests, contenido, build y accesibilidad |
+
+## Licencia
+
+- **Código:** MIT ([`LICENSE`](LICENSE)).
+- **Contenido pedagógico** (lecciones, ítems, prosa de `docs/`): CC BY-SA 4.0 ([`LICENSE-CONTENT`](LICENSE-CONTENT)).
+
+Son dos cosas con ciclos distintos: la herramienta cuanto más libre mejor; el currículo, para que las mejoras vuelvan.

@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: Cómo funciona el proyecto
+    url: https://github.com/car9313/ai-competency-map/blob/main/docs/product/como-funciona.md
+    about: Si es tu primera visita, empieza por aquí.

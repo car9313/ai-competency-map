@@ -76,10 +76,9 @@ El contenido se escribe **un archivo por área** (`src/content/area-NN-*.ts`) qu
 
 **Criterios de salida**
 
-- Un desconocido puede clonar, `pnpm i`, `pnpm dev` y ver la demo sin configuración.
-- El juego de ADRs explica toda decisión no obvia, incluidas las descartadas.
-- axe no reporta problemas críticos; la navegación solo con teclado funciona en las cuatro pantallas.
-
+- Un desconocido puede clonar, `pnpm i`, `pnpm dev` y ver la demo sin configuración. ✅
+- El juego de ADRs explica toda decisión no obvia, incluidas las descartadas. ✅
+- axe no reporta problemas críticos; la navegación solo con teclado funciona en las cuatro pantallas. ✅ 0 violaciones en 7 rutas × 2 temas
 ---
 
 ## Lo que deliberadamente no está planificado

@@ -1,0 +1,39 @@
+# Licencia del contenido
+
+El **código** de este repositorio se distribuye bajo MIT (ver `LICENSE`). El
+**contenido pedagógico** se distribuye bajo:
+
+**Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)**
+https://creativecommons.org/licenses/by-sa/4.0/deed.es
+
+## Qué cubre
+
+- Las lecciones (`src/content/area-*.ts`, `src/content/lessons.ts`).
+- Los ítems de evaluación y sus justificaciones (`src/content/items.ts`).
+- Las descripciones de competencias y áreas (`src/content/competencies.ts`, `src/content/areas.ts`).
+- La prosa de `docs/`.
+
+## Qué no cubre
+
+El código de la aplicación: componentes, dominio, scripts, configuración. Eso es MIT.
+
+## Por qué dos licencias y no una
+
+Son dos cosas distintas con dos ciclos de vida distintos.
+
+El código es una herramienta: cuanto más permisiva, más se reutiliza, y no se
+empobrece por que alguien la use en un producto cerrado.
+
+El contenido es un **currículo**. Su valor está en que circule y se corrija, y
+en que las correcciones vuelvan. CompartirIgual garantiza eso: quien mejore una
+lección y publique una versión derivada tiene que dejarla abierta también. Un
+currículo que se puede cerrar y revender pierde exactamente la propiedad que lo
+hace útil.
+
+## Si solo quieres una cosa
+
+- Vas a usar el **motor o los componentes** → MIT. Haz lo que quieras.
+- Vas a reutilizar las **lecciones o los ítems** → CC BY-SA 4.0. Cita el origen y
+  deja la obra derivada bajo la misma licencia.
+
+La atribución puede ser un enlace a este repositorio en un sitio visible.
