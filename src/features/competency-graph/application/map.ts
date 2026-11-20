@@ -11,6 +11,7 @@ import type { Area, CompetencyRecord } from '@/features/content/domain/types';
 import type { Clock } from '@/shared/time/clock';
 import type { Difficulty, Item, Layer } from '@/shared/types/domain';
 import { topologicalLevels } from '../domain/graph';
+import { orderLevels } from '../domain/layout';
 import type { Prerequisite } from '@/shared/types/domain';
 
 /**
@@ -73,10 +74,14 @@ export function buildCompetencyMap(input: MapInput): CompetencyMap {
   }
 
   const edges = prerequisitesOf(competencies);
-  const { levels } = topologicalLevels(
+  const topology = topologicalLevels(
     competencies.map((competency) => competency.id),
     edges,
   );
+
+  // Los niveles salen de Kahn en orden de declaración; el baricentro los reordena para
+  // que las aristas crucen lo menos posible. Mismo grafo, mismo dibujo en cada build.
+  const levels = orderLevels(topology.levels, edges);
 
   const nodes = new Map<string, MapNode>();
 
@@ -150,7 +155,11 @@ export function activeTrail(map: CompetencyMap): ActiveTrail {
     .filter((node): node is MapNode => node !== undefined);
 
   const focus =
-    ordered.find((node) => node.published && IN_PROGRESS.includes(node.visibility)) ?? null;
+    ordered
+      .filter((node) => node.published && IN_PROGRESS.includes(node.visibility))
+      // El foco se elige por el orden editorial del grafo, no por la posición en pantalla:
+      // el baricentro puede mover un nodo de fila y eso no debe cambiar "por dónde vas".
+      .sort((a, b) => a.order - b.order)[0] ?? null;
 
   if (!focus) {
     return { focusId: null, nodeIds: [], links: [] };

@@ -104,3 +104,21 @@ Es la pantalla que justifica el producto, y la más difícil.
 - Sin animaciones que retrasen la lectura (`prefers-reduced-motion` respetado).
 - Sin iconografía custom: Lucide.
 - Sin ilustraciones generadas: el proyecto anterior tenía portadas para las áreas y se reutilizan si aportan; si no, no se ponen.
+
+## Animación y navegación del grafo
+
+Regla de oro: **cada animación comunica algo concreto**. En una aplicación de estudio, animar por animar retrasa la información y hace ambiguo si algo cambió.
+
+| Animación | Qué comunica | Implementación |
+|---|---|---|
+| Entrada escalonada por filas (420 ms) | el grafo se lee de arriba abajo | `@keyframes acm-row-in`, retardo `fila × 45 ms` |
+| Trazo del camino (900 ms) | «este es tu recorrido» | `pathLength="1"` + `stroke-dashoffset`, sin medir longitudes en JS |
+| Transición de estado (260 ms) | «esta competencia **cambió**» | `transition` sobre `fill`, `stroke`, `stroke-width` |
+| Resaltado de vecinos al pasar el cursor o enfocar | leer un grafo denso | estado `hovered`; se atenúa todo lo que no sea prerrequisito ni dependencia |
+| Pulso del nodo actual (2,8 s) | «estás aquí» | `@keyframes acm-pulse` sobre el halo |
+
+Todas quedan anuladas por `prefers-reduced-motion: reduce`, que colapsa cualquier `animation-duration` a 0,01 ms. Verificado en navegador: con movimiento reducido la duración pasa a `1e-05s`.
+
+**Zoom y paneo** se controlan con el `viewBox` del SVG: rueda o botones para acercar, arrastre para mover, botón de reinicio. No hay librería de lienzo. Se descartó React Flow (86 KB) porque además llevaría las posiciones al estado del cliente: el mapa dejaría de ser determinista entre builds y las pruebas de geometría perderían sentido.
+
+**Menos cruces:** los niveles salen de Kahn en orden de declaración, así que antes de dibujar se reordenan con el heurístico de baricentro (`domain/layout.ts`, pasadas alternas arriba/abajo, desempate estable). Medido sobre el grafo real: **de 15 cruces a 3**.

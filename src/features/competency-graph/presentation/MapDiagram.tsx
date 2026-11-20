@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Minus, Plus, RotateCcw } from 'lucide-react';
 import { cn } from '@/shared/utils/cn';
 import type { NodeVisibility } from '../application/map';
 
@@ -10,11 +11,14 @@ import type { NodeVisibility } from '../application/map';
  * Diagrama vertical del grafo.
  *
  * Vertical a propósito: los niveles topológicos son filas, de arriba abajo, así que el
- * grafo aprovecha todo el ancho y se lee como un camino. Con columnas necesitaba 1548 px
- * y scroll horizontal; con filas cabe en pantalla.
+ * grafo aprovecha todo el ancho y se lee como un camino.
  *
- * Los nodos son enlaces: si la competencia tiene contenido, se puede abrir. El SVG **no**
- * es `aria-hidden`, para que esos enlaces también sean alcanzables con teclado.
+ * Zoom y paneo sin dependencias: se controla el `viewBox` del SVG. Cuesta unas 40 líneas
+ * y ahorra los 86 KB de una librería de lienzo que además movería las posiciones al estado
+ * del cliente (dejarían de ser deterministas).
+ *
+ * El SVG **no** es `aria-hidden`: los nodos con contenido son enlaces reales y se recorren
+ * con teclado, igual que los botones de zoom.
  */
 
 const VISUAL: Record<NodeVisibility, { fill: string; stroke: string; label: string }> = {
@@ -27,15 +31,14 @@ const VISUAL: Record<NodeVisibility, { fill: string; stroke: string; label: stri
   no_evidence: { fill: 'transparent', stroke: 'var(--border)', label: 'sin evidencia' },
 };
 
-/**
- * Anchos medidos sobre el grafo real: 10 niveles y la fila más ancha tiene 8 nodos.
- * 8 × 124 + 120 = 1112 px, que cabe en el área de contenido sin scroll horizontal.
- */
 const SLOT_WIDTH = 124;
 const ROW_HEIGHT = 100;
 const NODE_RADIUS = 11;
 const LABEL_MAX_LENGTH = 16;
 const SIDE_PADDING = 60;
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 2.5;
+const DRAG_THRESHOLD = 3;
 
 export interface DiagramNode {
   id: string;
@@ -45,6 +48,10 @@ export interface DiagramNode {
   visibility: NodeVisibility;
   published: boolean;
   prerequisiteIds: readonly string[];
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
 }
 
 export function MapDiagram({
@@ -68,9 +75,13 @@ export function MapDiagram({
   const layerFilter = params.get('capa');
   const stateFilter = params.get('estado');
 
-  const maxRowWidth = Math.max(...levels.map((ids) => ids.length * SLOT_WIDTH), SLOT_WIDTH);
-  const width = maxRowWidth + SIDE_PADDING * 2;
-  const height = 60 + levels.length * ROW_HEIGHT + 40;
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [hovered, setHovered] = useState<string | null>(null);
+  const drag = useRef<{ x: number; y: number; panX: number; panY: number; moved: boolean } | null>(
+    null,
+  );
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   const positions = useMemo(() => {
     const result = new Map<string, { x: number; y: number }>();
@@ -92,17 +103,114 @@ export function MapDiagram({
     return result;
   }, [levels]);
 
+  const rowOf = useMemo(() => {
+    const result = new Map<string, number>();
+
+    levels.forEach((ids, rowIndex) => ids.forEach((id) => result.set(id, rowIndex)));
+
+    return result;
+  }, [levels]);
+
+  const maxRowWidth = Math.max(...levels.map((ids) => ids.length * SLOT_WIDTH), SLOT_WIDTH);
+  const width = maxRowWidth + SIDE_PADDING * 2;
+  const height = 60 + levels.length * ROW_HEIGHT + 40;
+
+  const viewWidth = width / zoom;
+  const viewHeight = height / zoom;
+  const viewX = (width - viewWidth) / 2 + pan.x;
+  const viewY = (height - viewHeight) / 2 + pan.y;
+
   const trailNodeSet = useMemo(() => new Set(trailIds), [trailIds]);
   const trailLinkSet = useMemo(
     () => new Set(trailLinks.map(([from, to]) => `${from}->${to}`)),
     [trailLinks],
   );
 
+  /** El nodo bajo el cursor y sus vecinos directos: sin esto, un grafo denso no se lee. */
+  const related = useMemo(() => {
+    if (!hovered) return null;
+
+    const set = new Set<string>([hovered]);
+    const node = nodes.find((entry) => entry.id === hovered);
+
+    node?.prerequisiteIds.forEach((id) => set.add(id));
+    nodes.forEach((entry) => {
+      if (entry.prerequisiteIds.includes(hovered)) set.add(entry.id);
+    });
+
+    return set;
+  }, [hovered, nodes]);
+
+  useEffect(() => {
+    const element = svgRef.current;
+
+    if (!element) return;
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      setZoom((current) => clamp(current * (event.deltaY < 0 ? 1.12 : 0.89), MIN_ZOOM, MAX_ZOOM));
+    };
+
+    element.addEventListener('wheel', onWheel, { passive: false });
+
+    return () => element.removeEventListener('wheel', onWheel);
+  }, []);
+
   const matches = (node: DiagramNode): boolean => {
     if (areaFilter && node.areaId !== areaFilter) return false;
     if (layerFilter && node.layer !== layerFilter) return false;
     if (stateFilter && node.visibility !== stateFilter) return false;
     return true;
+  };
+
+  const onPointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
+    drag.current = {
+      x: event.clientX,
+      y: event.clientY,
+      panX: pan.x,
+      panY: pan.y,
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const onPointerMove = (event: React.PointerEvent<SVGSVGElement>) => {
+    const state = drag.current;
+    const element = svgRef.current;
+
+    if (!state || !element) return;
+
+    const rect = element.getBoundingClientRect();
+    const dx = event.clientX - state.x;
+    const dy = event.clientY - state.y;
+
+    if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
+      state.moved = true;
+    }
+
+    if (!state.moved) return;
+
+    const scaleX = viewWidth / rect.width;
+    const scaleY = viewHeight / rect.height;
+
+    setPan({
+      x: clamp(state.panX - dx * scaleX, -width / 2, width / 2),
+      y: clamp(state.panY - dy * scaleY, -height / 2, height / 2),
+    });
+  };
+
+  const onPointerUp = () => {
+    // Se limpia en el siguiente tick para que el click del enlace alcance a ver `moved`.
+    window.setTimeout(() => {
+      drag.current = null;
+    }, 0);
+  };
+
+  const suppressClickAfterDrag = (event: React.MouseEvent) => {
+    if (drag.current?.moved) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
   };
 
   return (
@@ -133,144 +241,206 @@ export function MapDiagram({
         />
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-surface p-4">
-        <svg
-          width={width}
-          height={height}
-          viewBox={`0 0 ${width} ${height}`}
-          className="mx-auto block max-w-full"
-          role="group"
-          aria-label="Grafo de competencias"
-        >
-          <defs>
-            <marker
-              id="arrow"
-              viewBox="0 0 10 10"
-              refX="9"
-              refY="5"
-              markerWidth="5"
-              markerHeight="5"
-              orient="auto-start-reverse"
+      <div className="rounded-xl border border-border bg-surface">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2">
+          <p className="font-mono text-[10px] text-muted">
+            Arrastra para mover · rueda para acercar · {Math.round(zoom * 100)}%
+          </p>
+
+          <div className="flex items-center gap-1">
+            <ZoomButton
+              label="Alejar"
+              onClick={() => setZoom((current) => clamp(current * 0.85, MIN_ZOOM, MAX_ZOOM))}
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--border)" />
-            </marker>
-            <marker
-              id="arrow-trail"
-              viewBox="0 0 10 10"
-              refX="9"
-              refY="5"
-              markerWidth="5"
-              markerHeight="5"
-              orient="auto-start-reverse"
+              <Minus className="h-3.5 w-3.5" aria-hidden="true" />
+            </ZoomButton>
+            <ZoomButton
+              label="Acercar"
+              onClick={() => setZoom((current) => clamp(current * 1.18, MIN_ZOOM, MAX_ZOOM))}
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
-            </marker>
-          </defs>
+              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+            </ZoomButton>
+            <ZoomButton
+              label="Ver el grafo completo"
+              onClick={() => {
+                setZoom(1);
+                setPan({ x: 0, y: 0 });
+              }}
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            </ZoomButton>
+          </div>
+        </div>
 
-          {nodes.flatMap((node) =>
-            node.prerequisiteIds.map((fromId) => {
-              const from = positions.get(fromId);
-              const to = positions.get(node.id);
+        <div className="overflow-hidden p-2">
+          <svg
+            ref={svgRef}
+            viewBox={`${viewX} ${viewY} ${viewWidth} ${viewHeight}`}
+            /* El cursor lo resuelve CSS (`active:`) y no un ref: leer `drag.current` durante
+               el render es exactamente lo que la regla de hooks prohíbe. */
+            /* Sin tope de altura: al encajar 1100 px de grafo en 70 vh el texto caía a 6 px.
+               Aquí manda la legibilidad; para ver el conjunto están el zoom y el arrastre. */
+            className="block h-auto w-full cursor-grab touch-none select-none active:cursor-grabbing"
+            role="group"
+            aria-label="Grafo de competencias. Arrastra para mover y usa los botones para acercar."
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
+            onClickCapture={suppressClickAfterDrag}
+          >
+            <defs>
+              <marker
+                id="arrow"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="5"
+                markerHeight="5"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--border)" />
+              </marker>
+              <marker
+                id="arrow-trail"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="5"
+                markerHeight="5"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
+              </marker>
+            </defs>
 
-              if (!from || !to) return null;
+            {nodes.flatMap((node) =>
+              node.prerequisiteIds.map((fromId) => {
+                const from = positions.get(fromId);
+                const to = positions.get(node.id);
 
-              const onTrail = trailLinkSet.has(`${fromId}->${node.id}`);
+                if (!from || !to) return null;
+
+                const onTrail = trailLinkSet.has(`${fromId}->${node.id}`);
+                const dimmed = !matches(node);
+                const faded = related !== null && !(related.has(fromId) && related.has(node.id));
+                const midY = (from.y + to.y) / 2;
+
+                return (
+                  <path
+                    key={`${fromId}-${node.id}`}
+                    d={`M ${from.x} ${from.y + NODE_RADIUS + 14} C ${from.x} ${midY}, ${to.x} ${midY}, ${to.x} ${to.y - NODE_RADIUS - 4}`}
+                    fill="none"
+                    stroke={onTrail ? 'var(--accent)' : 'var(--border)'}
+                    strokeWidth={onTrail ? 2.5 : 1.5}
+                    opacity={dimmed || faded ? 0.1 : onTrail ? 0.9 : 0.5}
+                    markerEnd={onTrail ? 'url(#arrow-trail)' : 'url(#arrow)'}
+                    pathLength={onTrail ? 1 : undefined}
+                    className={cn('acm-edge', onTrail && 'acm-draw')}
+                  />
+                );
+              }),
+            )}
+
+            {nodes.map((node) => {
+              const position = positions.get(node.id);
+
+              if (!position) return null;
+
+              const visual = VISUAL[node.visibility];
               const dimmed = !matches(node);
-              const midY = (from.y + to.y) / 2;
+              const faded = related !== null && !related.has(node.id);
+              const onTrail = trailNodeSet.has(node.id);
+              const isFocus = node.id === focusId;
+              const canOpen = node.published;
+              const row = rowOf.get(node.id) ?? 0;
+              const short =
+                node.title.length > LABEL_MAX_LENGTH
+                  ? `${node.title.slice(0, LABEL_MAX_LENGTH - 1)}…`
+                  : node.title;
 
-              return (
-                <path
-                  key={`${fromId}-${node.id}`}
-                  d={`M ${from.x} ${from.y + NODE_RADIUS + 14} C ${from.x} ${midY}, ${to.x} ${midY}, ${to.x} ${to.y - NODE_RADIUS - 4}`}
-                  fill="none"
-                  stroke={onTrail ? 'var(--accent)' : 'var(--border)'}
-                  strokeWidth={onTrail ? 2.5 : 1.5}
-                  opacity={dimmed ? 0.12 : onTrail ? 0.9 : 0.5}
-                  markerEnd={onTrail ? 'url(#arrow-trail)' : 'url(#arrow)'}
-                />
-              );
-            }),
-          )}
-
-          {nodes.map((node) => {
-            const position = positions.get(node.id);
-
-            if (!position) return null;
-
-            const visual = VISUAL[node.visibility];
-            const dimmed = !matches(node);
-            const onTrail = trailNodeSet.has(node.id);
-            const isFocus = node.id === focusId;
-            const canOpen = node.published;
-            const short =
-              node.title.length > LABEL_MAX_LENGTH
-                ? `${node.title.slice(0, LABEL_MAX_LENGTH - 1)}…`
-                : node.title;
-
-            const shape = (
-              <>
-                {isFocus && (
+              const shape = (
+                <>
+                  {isFocus && (
+                    <circle
+                      cx={position.x}
+                      cy={position.y}
+                      r={NODE_RADIUS + 6}
+                      fill="none"
+                      stroke="var(--accent)"
+                      strokeWidth={1.5}
+                      className="acm-pulse"
+                    />
+                  )}
                   <circle
                     cx={position.x}
                     cy={position.y}
-                    r={NODE_RADIUS + 6}
-                    fill="none"
-                    stroke="var(--accent)"
-                    strokeWidth={1.5}
-                    opacity={0.5}
+                    r={NODE_RADIUS}
+                    fill={visual.fill}
+                    stroke={onTrail ? 'var(--accent)' : visual.stroke}
+                    strokeWidth={onTrail ? 3 : 2}
+                    strokeDasharray={node.visibility === 'pending' ? '3 3' : undefined}
+                    className="acm-node"
                   />
-                )}
-                <circle
-                  cx={position.x}
-                  cy={position.y}
-                  r={NODE_RADIUS}
-                  fill={visual.fill}
-                  stroke={onTrail ? 'var(--accent)' : visual.stroke}
-                  strokeWidth={onTrail ? 3 : 2}
-                  strokeDasharray={node.visibility === 'pending' ? '3 3' : undefined}
-                />
-                {node.visibility === 'consolidated' && (
-                  <path
-                    d={`M ${position.x - 5} ${position.y} l 3.5 3.5 l 6 -7`}
-                    fill="none"
-                    stroke="var(--bg)"
-                    strokeWidth={2}
-                  />
-                )}
-                <text
-                  x={position.x}
-                  y={position.y + NODE_RADIUS + 16}
-                  textAnchor="middle"
-                  fill={onTrail ? 'var(--text)' : 'var(--text-muted)'}
-                  fontSize={10}
-                  fontFamily="var(--font-sans)"
-                >
-                  {short}
-                </text>
-              </>
-            );
-
-            return (
-              <g key={node.id} opacity={dimmed ? 0.18 : 1}>
-                {canOpen ? (
-                  <Link
-                    href={`/c/${node.id}`}
-                    className="cursor-pointer"
-                    aria-label={`${node.title} — ${visual.label}`}
+                  {node.visibility === 'consolidated' && (
+                    <path
+                      d={`M ${position.x - 5} ${position.y} l 3.5 3.5 l 6 -7`}
+                      fill="none"
+                      stroke="var(--bg)"
+                      strokeWidth={2}
+                    />
+                  )}
+                  <text
+                    x={position.x}
+                    y={position.y + NODE_RADIUS + 16}
+                    textAnchor="middle"
+                    fill={onTrail ? 'var(--text)' : 'var(--text-muted)'}
+                    fontSize={10}
+                    fontFamily="var(--font-sans)"
                   >
-                    {shape}
-                  </Link>
-                ) : (
-                  <g role="img" aria-label={`${node.title} — ${visual.label} (sin contenido)`}>
-                    {shape}
-                  </g>
-                )}
-              </g>
-            );
-          })}
-        </svg>
+                    {short}
+                  </text>
+                </>
+              );
 
-        <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-border pt-3 font-mono text-[10px] text-muted">
+              const opacity = dimmed ? 0.18 : faded ? 0.3 : 1;
+
+              return (
+                <g
+                  key={node.id}
+                  opacity={opacity}
+                  className="acm-row"
+                  style={{ animationDelay: `${row * 45}ms` }}
+                  onPointerEnter={() => setHovered(node.id)}
+                  onPointerLeave={() => setHovered(null)}
+                >
+                  {canOpen ? (
+                    <Link
+                      href={`/c/${node.id}`}
+                      className="cursor-pointer"
+                      aria-label={`${node.title} — ${visual.label}`}
+                      onFocus={() => setHovered(node.id)}
+                      onBlur={() => setHovered(null)}
+                    >
+                      {shape}
+                    </Link>
+                  ) : (
+                    <g
+                      role="img"
+                      aria-label={`${node.title} — ${visual.label} (sin contenido)`}
+                      onFocus={() => setHovered(node.id)}
+                      onBlur={() => setHovered(null)}
+                    >
+                      {shape}
+                    </g>
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+
+        <ul className="flex flex-wrap gap-x-4 gap-y-1.5 border-t border-border px-4 py-3 font-mono text-[10px] text-muted">
           {(['pending', 'locked', 'available', 'learning', 'consolidated', 'at_risk'] as const).map(
             (visibility) => (
               <li key={visibility} className="flex items-center gap-1.5">
@@ -287,13 +457,35 @@ export function MapDiagram({
             ),
           )}
         </ul>
-
-        <p className="mt-2 text-[11px] text-muted">
-          Los nodos con contenido son enlaces: pulsa uno para abrir su lección. Los nodos sin
-          contenido aparecen como próximos.
-        </p>
       </div>
+
+      <p className="text-[11px] text-muted">
+        Los nodos con contenido son enlaces: pulsa uno para abrir su lección. Al pasar el cursor
+        sobre un nodo se resaltan sus prerrequisitos y sus dependencias.
+      </p>
     </div>
+  );
+}
+
+function ZoomButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-md border border-border text-muted transition-colors hover:text-accent"
+    >
+      {children}
+    </button>
   );
 }
 

@@ -64,6 +64,77 @@ h3 {
   background-color: var(--accent-soft);
 }
 
+/* ── Animación del grafo ────────────────────────────────────────────────────
+   Cada animación comunica algo concreto; ninguna es decorativa. Todas quedan
+   anuladas por la regla de `prefers-reduced-motion` del final del archivo. */
+
+/* Entrada escalonada: orienta la lectura de arriba abajo. */
+@keyframes acm-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Trazo del camino: "esto es tu recorrido". `pathLength="1"` normaliza la longitud,
+   así no hay que medirla en JavaScript. */
+@keyframes acm-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Pulso del foco: "estás aquí". */
+@keyframes acm-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.08);
+  }
+}
+
+.acm-row {
+  animation: acm-row-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.acm-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: acm-draw 900ms cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+.acm-pulse {
+  animation: acm-pulse 2.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Transición de estado: si una competencia cambia, se ve el cambio. */
+.acm-node {
+  transition:
+    fill 260ms ease,
+    stroke 260ms ease,
+    stroke-width 260ms ease,
+    opacity 200ms ease;
+}
+
+.acm-edge {
+  transition:
+    stroke 260ms ease,
+    opacity 200ms ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
