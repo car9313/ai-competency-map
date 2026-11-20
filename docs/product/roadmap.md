@@ -44,6 +44,10 @@ La regla organizadora: **cada fase tiene que ser demostrable por sí sola**. Una
 | SEO: metadatos por competencia, generación estática                    | Descubribilidad, y argumento de portfolio                         |
 | Flujo de autoría de contenido documentado                              | Para que el modelo sea repetible                                  |
 
+**Estado: en curso.** La infraestructura de esta fase ya está hecha: grafo de 39 competencias, linter en CI (G4), UI con filtros y dos vistas, y SEO estático. Lo que queda es **volumen**: 4 de 39 competencias publicadas, con lección y 4 ítems cada una.
+
+El contenido se escribe **un archivo por área** (`src/content/area-NN-*.ts`) que exporta `LESSONS_AREA_NN` e `ITEMS_AREA_NN` y se suma al catálogo en `src/content/index.ts`. Así una persona cierra un área completa y `pnpm validate:content` dice si cumple; ver [content-authoring](../contributing/content-authoring.md#patrón-por-área).
+
 **Criterios de salida**
 
 - El linter rechaza un ítem roto a propósito en CI (esto es en sí una escena de la demo).

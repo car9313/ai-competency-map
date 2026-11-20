@@ -32,7 +32,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Supervisado, no supervisado y refuerzo',
     claim: 'Elegir el paradigma de aprendizaje según el dato disponible y el objetivo del sistema.',
     prerequisites: ['ai-ml-dl-boundaries'],
-    published: false,
+    published: true,
   },
   {
     id: 'generalization-overfitting',
@@ -43,7 +43,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Generalización, sobreajuste y partición de datos',
     claim: 'Explicar por qué un modelo que acierta en entrenamiento puede fallar en producción.',
     prerequisites: ['supervised-vs-unsupervised'],
-    published: false,
+    published: true,
   },
   {
     id: 'deterministic-vs-learned',
@@ -54,7 +54,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Código determinista frente a inferencia aprendida',
     claim: 'Decidir cuándo un `if`, un SQL o una expresión regular es mejor que un modelo.',
     prerequisites: ['ai-ml-dl-boundaries'],
-    published: false,
+    published: true,
   },
 
   // ── 02 · IA generativa y LLMs ───────────────────────────────────────────────

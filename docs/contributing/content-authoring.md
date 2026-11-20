@@ -98,3 +98,31 @@ Más de diez suele significar que la competencia debería dividirse.
 - **Cada 6 meses**: revisar `reviewedAt` de las referencias. Si una URL murió, se reemplaza o se retira la referencia.
 - **Cada vez que cambie una regla del motor**: revisar si algún ítem deja de ser válido por la nueva lógica.
 - **Nunca**: reescribir un ítem para que "cuadre" con una estadística. Si la gente falla mucho, puede ser que el ítem discrimine bien.
+
+## Patrón por área
+
+A partir de la fase 2, el contenido se escribe **un archivo por área**:
+
+```
+src/content/area-01-fundamentals.ts   →  LESSONS_AREA_01 + ITEMS_AREA_01
+src/content/area-02-generative-llms.ts →  LESSONS_AREA_02 + ITEMS_AREA_02
+```
+
+y se suma en `src/content/index.ts`:
+
+```ts
+lessons: [...LESSONS, ...LESSONS_AREA_01, ...LESSONS_AREA_02],
+items: [...ITEMS, ...ITEMS_AREA_01, ...ITEMS_AREA_02],
+```
+
+Motivos:
+
+- Una persona cierra un área completa, que es una unidad de trabajo con sentido.
+- El archivo no crece sin límite: `items.ts` ya tiene 400 líneas y no escala a 156 ítems.
+- Activar un área es cambiar tres `published: false` a `true`; el linter hace el resto.
+
+Al terminar un área:
+
+```powershell
+pnpm validate:content
+```

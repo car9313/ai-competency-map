@@ -39,4 +39,10 @@ export const REFERENCES: readonly Reference[] = [
     url: 'https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts',
     reviewedAt: REVIEWED,
   },
+  {
+    id: 'ref-isl',
+    title: 'An Introduction to Statistical Learning — James et al.',
+    url: 'https://www.statlearning.com/',
+    reviewedAt: REVIEWED,
+  },
 ];

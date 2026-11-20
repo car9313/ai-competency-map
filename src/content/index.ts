@@ -9,6 +9,7 @@ import { buildCatalog } from '@/features/content/application/catalog';
 import type { Catalog } from '@/features/content/domain/types';
 import { AREAS } from './areas';
 import { COMPETENCIES } from './competencies';
+import { ITEMS_AREA_01, LESSONS_AREA_01 } from './area-01-fundamentals';
 import { ITEMS } from './items';
 import { LESSONS } from './lessons';
 import { REFERENCES } from './references';
@@ -16,8 +17,8 @@ import { REFERENCES } from './references';
 export const CATALOG: Catalog = {
   areas: AREAS,
   competencies: COMPETENCIES,
-  lessons: LESSONS,
-  items: ITEMS,
+  lessons: [...LESSONS, ...LESSONS_AREA_01],
+  items: [...ITEMS, ...ITEMS_AREA_01],
   references: REFERENCES,
 };
 
