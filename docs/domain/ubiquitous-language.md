@@ -39,7 +39,7 @@ El vocabulario de este proyecto forma parte de su diseño, no es decoración doc
 
 | Español               | Identificador     | Definición                                                                                              |
 | --------------------- | ----------------- | ------------------------------------------------------------------------------------------------------- |
-| Estado de competencia | `CompetencyState` | Uno de `no_evidence`, `learning`, `consolidated`, `at_risk`. **Siempre derivado**, nunca persistido.      |
+| Estado de competencia | `CompetencyState` | Uno de `no_evidence`, `learning`, `almost`, `consolidated`, `at_risk`. **Siempre derivado**, nunca persistido. |
 | Desbloqueo            | `Unlocked`        | Una competencia está desbloqueada cuando **todos** sus prerrequisitos tienen alguna evidencia (`state !== no_evidence`). |
 | Consolidada           | `consolidated`    | Todos los ítems intentados, todos los últimos intentos correctos y ningún ítem en `relearning`.           |
 | En riesgo             | `at_risk`         | Estuvo consolidada alguna vez y ahora al menos un ítem está fallado o en `relearning`.                    |

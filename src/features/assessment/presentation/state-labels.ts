@@ -9,6 +9,7 @@ import type { CompetencyState } from '../domain/projection';
 export const STATE_LABEL: Record<CompetencyState, string> = {
   no_evidence: 'sin evidencia',
   learning: 'en aprendizaje',
+  almost: 'a un ítem',
   consolidated: 'consolidada',
   at_risk: 'necesita repaso',
 };
@@ -16,6 +17,7 @@ export const STATE_LABEL: Record<CompetencyState, string> = {
 export const STATE_TONE: Record<CompetencyState, string> = {
   no_evidence: 'text-muted',
   learning: 'text-amber-700 dark:text-amber-300',
+  almost: 'text-yellow-700 dark:text-yellow-300',
   consolidated: 'text-emerald-700 dark:text-emerald-300',
   at_risk: 'text-rose-700 dark:text-rose-300',
 };

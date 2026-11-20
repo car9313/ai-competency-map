@@ -146,7 +146,7 @@ export interface ActiveTrail {
   links: Array<[string, string]>;
 }
 
-const IN_PROGRESS: readonly NodeVisibility[] = ['available', 'learning', 'at_risk'];
+const IN_PROGRESS: readonly NodeVisibility[] = ['available', 'learning', 'almost', 'at_risk'];
 
 export function activeTrail(map: CompetencyMap): ActiveTrail {
   const ordered = map.levels

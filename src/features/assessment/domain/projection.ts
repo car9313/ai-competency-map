@@ -16,7 +16,7 @@ import { compareAttempts } from './fold';
 import { initialSchedule, scheduleNext } from './schedule';
 import type { Attempt, Item, ItemSchedule } from './types';
 
-export type CompetencyState = 'no_evidence' | 'learning' | 'consolidated' | 'at_risk';
+export type CompetencyState = 'no_evidence' | 'learning' | 'almost' | 'consolidated' | 'at_risk';
 
 /**
  * Un ítem cuenta como consolidado si su último intento fue correcto y no está en
@@ -49,9 +49,18 @@ function isConsolidated(
  * Estado de una competencia, evaluado en este orden (gana el primero):
  *
  *   1. no_evidence   — no hay intentos sobre ninguno de sus ítems
- *   2. at_risk       — estuvo consolidada y ya no lo está
- *   3. consolidated  — todos los ítems intentados, últimos aciertos, ninguno en relearning
- *   4. learning      — cualquier otro caso
+ *   2. consolidated  — todos los ítems intentados, últimos aciertos, ninguno en relearning
+ *   3. at_risk       — estuvo consolidada y ya no lo está
+ *   4. almost        — todos los ítems intentados y solo uno sin el último acierto
+ *   5. learning      — cualquier otro caso
+ *
+ * `almost` existe por un problema real: con cuatro ítems, fallar uno deja la competencia en
+ * `learning`, que se lee como «no sé nada» cuando en realidad faltan tres de cuatro. La regla
+ * de consolidación no se relaja —sigue exigiendo los cuatro—, pero el estado deja de mentir
+ * sobre cuánto falta.
+ *
+ * `at_risk` va antes que `almost` a propósito: haber tenido la competencia y perderla es más
+ * informativo que estar a un ítem, y pide una acción distinta.
  */
 export function projectState(
   items: readonly Item[],
@@ -89,13 +98,26 @@ export function projectState(
     }
   }
 
-  const consolidatedNow = isConsolidated(items, latest, schedules);
+  if (isConsolidated(items, latest, schedules)) {
+    return 'consolidated';
+  }
 
-  if (everConsolidated && !consolidatedNow) {
+  if (everConsolidated) {
     return 'at_risk';
   }
 
-  return consolidatedNow ? 'consolidated' : 'learning';
+  const allAttempted = items.every((item) => latest.has(item.id));
+  const settled = items.filter((item) => {
+    const schedule = schedules.get(item.id);
+
+    return latest.get(item.id)?.correct === true && schedule?.phase !== 'relearning';
+  }).length;
+
+  if (items.length >= 2 && allAttempted && settled === items.length - 1) {
+    return 'almost';
+  }
+
+  return 'learning';
 }
 
 /**

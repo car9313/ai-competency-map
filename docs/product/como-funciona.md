@@ -20,7 +20,7 @@ De ahí sale todo lo demás.
 |---|---|---|
 | **Intento** | **Sí** | Un hecho inmutable: respondiste X, con esta confianza, en este instante |
 | **Programación** | No, se calcula | Cuándo vuelve cada ítem (fase, intervalo, facilidad, fecha) |
-| **Estado de competencia** | No, se calcula | Dominio actual: sin evidencia / en aprendizaje / consolidada / necesita repaso |
+| **Estado de competencia** | No, se calcula | Dominio actual: sin evidencia / en aprendizaje / a un ítem / consolidada / necesita repaso |
 
 Se guarda **una sola entidad**. Si mañana cambian las reglas del planificador, no hay que migrar nada: los intentos son los mismos y el estado se recalcula distinto. Y como los intentos nunca se editan ni se borran, el historial no se puede falsificar hacia atrás.
 
@@ -164,16 +164,19 @@ Puedes volver a intentar cualquier ítem en cualquier momento, **también cuando
 
 ---
 
-## Los cuatro estados de una competencia
+## Los cinco estados de una competencia
 
 Se evalúan en este orden; gana el primero que se cumpla:
 
 | Estado | Cuándo |
 |---|---|
 | **Sin evidencia** | No hay ningún intento sobre sus ítems |
-| **Necesita repaso** | Estuvo consolidada y ha dejado de estarlo |
 | **Consolidada** | Todos sus ítems intentados, últimos intentos correctos y ninguno en `relearning` |
+| **Necesita repaso** | Estuvo consolidada y ha dejado de estarlo |
+| **A un ítem** | Todos intentados y solo uno sin el último acierto |
 | **En aprendizaje** | Cualquier otro caso |
+
+«A un ítem» existe por un problema concreto: con cuatro ítems, fallar uno dejaba la competencia en «en aprendizaje», que se lee como *no sé nada* cuando en realidad están tres de cuatro resueltos. **La regla de consolidación no se ha relajado** —sigue exigiendo los cuatro—, pero el estado deja de mentir sobre cuánto falta.
 
 Detalle fino: «consolidada» **no** exige que todos los ítems estén en fase `review`. Un acierto con dudas deja el ítem en `learning` y sigue siendo un acierto válido. Se mide evidencia, no fases.
 

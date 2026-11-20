@@ -80,7 +80,7 @@ interface ItemSchedule {
 **Modelos de lectura derivados** — nunca persistidos, siempre calculados:
 
 ```ts
-type CompetencyState = 'no_evidence' | 'learning' | 'consolidated' | 'at_risk';
+type CompetencyState = 'no_evidence' | 'learning' | 'almost' | 'consolidated' | 'at_risk';
 
 interface CompetencyView {
   competencyId: string;

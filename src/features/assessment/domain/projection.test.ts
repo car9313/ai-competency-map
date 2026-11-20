@@ -15,6 +15,7 @@ const clock = fixedClock(TEST_TODAY);
 
 const ITEM_A: Item = makeItem({ id: 'item-a', difficulty: 1 });
 const ITEM_B: Item = makeItem({ id: 'item-b', difficulty: 2 });
+const ITEM_C: Item = makeItem({ id: 'item-c', difficulty: 3 });
 const ITEMS: readonly Item[] = [ITEM_A, ITEM_B];
 
 const states = (entries: Array<[string, CompetencyState]>): Map<string, CompetencyState> =>
@@ -46,11 +47,30 @@ describe('projectState', () => {
     expect(projectState(ITEMS, attempts, clock)).toBe('consolidated');
   });
 
-  it('learning si un ítem falló y nunca llegó a estar consolidada', () => {
+  it('almost si todos los ítems están intentados y solo uno quedó sin acierto', () => {
     const attempts = [
       correctAttempt(ITEM_A.id, '2026-11-10'),
       wrongAttempt(ITEM_B.id, '2026-11-10'),
     ];
+
+    // Antes esto devolvía `learning`, que con dos ítems se lee como «no sé nada»
+    // cuando en realidad falta uno. La regla de consolidación no cambia.
+    expect(projectState(ITEMS, attempts, clock)).toBe('almost');
+  });
+
+  it('learning si falla más de un ítem y nunca llegó a estar consolidada', () => {
+    const items = [ITEM_A, ITEM_B, ITEM_C];
+    const attempts = [
+      correctAttempt(ITEM_A.id, '2026-11-10'),
+      wrongAttempt(ITEM_B.id, '2026-11-10'),
+      wrongAttempt(ITEM_C.id, '2026-11-10'),
+    ];
+
+    expect(projectState(items, attempts, clock)).toBe('learning');
+  });
+
+  it('learning si aún quedan ítems sin intentar, aunque el resto esté bien', () => {
+    const attempts = [correctAttempt(ITEM_A.id, '2026-11-10')];
 
     expect(projectState(ITEMS, attempts, clock)).toBe('learning');
   });

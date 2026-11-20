@@ -65,6 +65,7 @@ scripts/              gates: linter de contenido, auditoría de accesibilidad, e
 | **Qué se decidió y qué salió mal**              | [`docs/product/retro.md`](docs/product/retro.md)                               |
 | **Accesibilidad: qué se mide y qué no**          | [`docs/quality/accessibility.md`](docs/quality/accessibility.md)               |
 | **Estado del contenido, por área**               | [`docs/product/content-status.md`](docs/product/content-status.md)             |
+| **Qué has respondido y qué hizo**                | /historial — cada intento con su efecto en la programación                   |
 | Qué significa cada palabra                     | [`docs/domain/ubiquitous-language.md`](docs/domain/ubiquitous-language.md)     |
 | Cómo funcionan el dominio y el repaso          | [`docs/domain/assessment-engine.md`](docs/domain/assessment-engine.md)         |
 | Qué competencias hay y cómo se conectan        | [`docs/domain/competency-graph.md`](docs/domain/competency-graph.md)           |

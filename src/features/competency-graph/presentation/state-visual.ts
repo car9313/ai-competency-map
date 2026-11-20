@@ -13,6 +13,7 @@ export const VISUAL: Record<NodeVisibility, { fill: string; stroke: string; labe
   locked: { fill: 'var(--surface-2)', stroke: 'var(--border)', label: 'faltan previos' },
   available: { fill: 'var(--accent)', stroke: 'var(--accent)', label: 'evaluable' },
   learning: { fill: '#f59e0b', stroke: '#f59e0b', label: 'en aprendizaje' },
+  almost: { fill: '#eab308', stroke: '#eab308', label: 'a un ítem' },
   consolidated: { fill: '#10b981', stroke: '#10b981', label: 'consolidada' },
   at_risk: { fill: '#f43f5e', stroke: '#f43f5e', label: 'necesita repaso' },
   no_evidence: { fill: 'transparent', stroke: 'var(--border)', label: 'sin evidencia' },
@@ -23,6 +24,7 @@ export const LEGEND_ORDER: NodeVisibility[] = [
   'locked',
   'available',
   'learning',
+  'almost',
   'consolidated',
   'at_risk',
 ];

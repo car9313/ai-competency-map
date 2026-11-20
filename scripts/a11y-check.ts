@@ -35,6 +35,7 @@ const ROUTES = [
   '/mapa/tarjetas',
   '/c/ai-ml-dl-boundaries',
   '/c/tokens-and-context-window/comprobar',
+  '/historial',
   '/repaso',
   '/acerca',
 ];
