@@ -15,7 +15,7 @@ La regla organizadora: **cada fase tiene que ser demostrable por sí sola**. Una
 | Montaje del proyecto: Next.js App Router (exportación estática), TypeScript estricto, Tailwind, pnpm, Vitest | Hosting sin coste, SEO en build, ningún servidor que mantener |
 | `features/assessment/domain`: modelo, invariantes, planificador (R1–R12), proyecciones | Es aquello de lo que va el proyecto                      |
 | Puerto de almacenamiento + adaptador `localStorage`                          | Los intentos persisten sin backend                                      |
-| Puerto `Clock` + control de tiempo solo en desarrollo                        | Lo exigen la demo y los tests                                            |
+| Puerto `Clock` con el reloj del sistema, sin control de tiempo ([ADR-007](../architecture/adr/ADR-007-sin-control-de-tiempo.md)) | Los tests inyectan un reloj fijo; el producto no lo sustituye |
 | Una cadena completa: 1 área → 3 competencias → 3 lecciones → 12 ítems         | Suficiente para recorrer la demo, pequeño para terminar                 |
 | Vista de mapa, vista de lección, vista de ítem, cola de repaso               | Son las cuatro pantallas de la demo                                      |
 
@@ -37,7 +37,7 @@ La regla organizadora: **cada fase tiene que ser demostrable por sí sola**. Una
 
 | Se construye                                                          | Por qué                                                          |
 | --------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Grafo de competencias: 39 competencias repartidas en 8 áreas, con eje de capa (`núcleo` / `servicio` / `interfaz`) | Es el mapa por el que navega el alumno |          | Es el mapa por el que navega el alumno                            |
+| Grafo de competencias: 39 competencias en 8 áreas, con eje de capa (`núcleo` / `servicio` / `interfaz`) | Es el mapa por el que navega el alumno |
 | ~156 ítems con justificación por distractor                            | Es el suministro de evidencia                                     |
 | Linter de contenido (R1–R7) conectado a CI                             | Evita que la calidad decaiga según crece el contenido             |
 | UI completa del grafo con cuatro estados, filtros y URLs compartibles  | Navegación y capacidad de compartir                               |

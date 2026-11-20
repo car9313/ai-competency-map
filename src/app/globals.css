@@ -140,6 +140,17 @@ h3 {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    /* Sin esta línea, una animación `infinite` con duración 0,01 ms no se detiene:
+       se acelera a ~100 000 ciclos por segundo. Eso no es movimiento reducido, es un
+       estrobo, y es justo lo que no debe ver alguien que pidió menos movimiento. */
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* El halo del nodo actual se queda quieto y visible en vez de desaparecer. */
+  .acm-pulse {
+    animation: none !important;
+    opacity: 0.45;
   }
 }

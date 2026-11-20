@@ -52,7 +52,16 @@ export default async function ComprobarPage({ params }: { params: Promise<Params
 
       <h1 className="text-2xl font-bold tracking-tight">Comprobación</h1>
 
-      <CheckSession competencyId={competency.id} title={competency.title} items={items} />
+      <CheckSession
+        competencyId={competency.id}
+        title={competency.title}
+        items={items}
+        prerequisites={competency.prerequisites.map((id) => ({
+          id,
+          title: contentIndex.competencyById.get(id)?.title ?? id,
+          itemIds: (contentIndex.itemsByCompetency.get(id) ?? []).map((item) => item.id),
+        }))}
+      />
     </div>
   );
 }
