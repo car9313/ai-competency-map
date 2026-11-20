@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 import { contentIndex } from '@/content';
 import { CompetencyProgress } from '@/features/assessment/presentation/CompetencyProgress';
+import { CompetencyChecklist } from '@/features/assessment/presentation/CompetencyChecklist';
 
 export const dynamicParams = false;
 
@@ -162,6 +163,8 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
               </Link>
             )}
           </div>
+
+          <CompetencyChecklist items={items} />
 
           {references.length > 0 && (
             <Section title="Referencias">

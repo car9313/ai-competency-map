@@ -113,3 +113,25 @@ export function projectUnlocked(
     .filter((prerequisite) => prerequisite.to === competencyId)
     .every((prerequisite) => (states.get(prerequisite.from) ?? 'no_evidence') !== 'no_evidence');
 }
+
+/**
+ * Resultado del último intento de un ítem.
+ *
+ * Sirve para responder «¿qué tal voy en esta competencia?» sin inventar un porcentaje de
+ * acierto. Un porcentaje mezcla ítems, ignora la confianza y la antigüedad, y no dice qué
+ * hacer; el resultado por ítem sí: señala exactamente qué falta.
+ */
+export type ItemOutcome = 'no_evidence' | 'correct' | 'incorrect';
+
+export function projectItemOutcome(itemId: string, attempts: readonly Attempt[]): ItemOutcome {
+  const own = attempts.filter((attempt) => attempt.itemId === itemId);
+
+  if (own.length === 0) {
+    return 'no_evidence';
+  }
+
+  const ordered = [...own].sort(compareAttempts);
+  const last = ordered[ordered.length - 1];
+
+  return last?.correct ? 'correct' : 'incorrect';
+}

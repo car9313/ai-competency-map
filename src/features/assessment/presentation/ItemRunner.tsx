@@ -121,6 +121,12 @@ export function ItemRunner({
                 ? ` · intervalo ${result.previous.intervalDays} → ${result.next.intervalDays} días`
                 : ' · el intervalo vuelve a empezar'}
             </p>
+            {!result.correct && (
+              <p className="text-xs text-muted">
+                Ese «vuelve» es cuándo entra otra vez en la cola de repaso, no un bloqueo: puedes
+                seguir practicando ahora.
+              </p>
+            )}
           </div>
         </header>
 

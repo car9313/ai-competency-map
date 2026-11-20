@@ -123,8 +123,13 @@ async function auditRoute(browser: Browser, base: string, route: string, theme: 
 
   await page.addInitScript(`localStorage.setItem('acm-theme', '${theme}');`);
   await page.addInitScript(SEED);
-  await page.goto(`${base}${route}`, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(600);
+  /**
+   * `waitUntil: 'load'` en vez de `networkidle`: en una página estática no hay peticiones
+   * en vuelo que esperar, y `networkidle` es la causa típica de que el gate falle de forma
+   * intermitente. Después se espera a que hidraten las islas de cliente.
+   */
+  await page.goto(`${base}${route}`, { waitUntil: 'load', timeout: 45_000 });
+  await page.waitForTimeout(900);
   await page.addScriptTag({ path: AXE_PATH });
 
   const violations = (await page.evaluate(async () => {
