@@ -104,7 +104,7 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-4">
-                  <h2 className="mb-2 text-sm font-semibold text-emerald-600 dark:text-emerald-300">
+                  <h2 className="mb-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
                     Cuándo usarlo
                   </h2>
                   <ul className="list-disc space-y-1.5 pl-4 text-sm leading-relaxed">
@@ -115,7 +115,7 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
                 </div>
 
                 <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4">
-                  <h2 className="mb-2 text-sm font-semibold text-amber-600 dark:text-amber-300">
+                  <h2 className="mb-2 text-sm font-semibold text-amber-700 dark:text-amber-300">
                     Cuándo no
                   </h2>
                   <ul className="list-disc space-y-1.5 pl-4 text-sm leading-relaxed">
@@ -155,7 +155,7 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
             {items.length > 0 && (
               <Link
                 href={`/c/${competency.id}/comprobar`}
-                className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-lg bg-accent-bg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
                 Comprobar
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />

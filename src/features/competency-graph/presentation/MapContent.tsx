@@ -69,7 +69,7 @@ export function MapContent({ view }: { view: MapView }) {
                   className={cn(
                     'block rounded-md px-4 py-1.5 text-sm font-medium transition-colors',
                     view === tab.id
-                      ? 'bg-accent text-white'
+                      ? 'bg-accent-bg text-white'
                       : 'text-muted hover:bg-surface-2 hover:text-fg',
                   )}
                 >
@@ -93,7 +93,7 @@ export function MapContent({ view }: { view: MapView }) {
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <Link
               href={`/c/${focus.id}`}
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent-bg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
               Empezar
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

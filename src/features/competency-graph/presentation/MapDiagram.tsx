@@ -18,8 +18,14 @@ import { LEGEND_ORDER, VISUAL, labelLines } from './state-visual';
  * y ahorra los 86 KB de una librería de lienzo que además movería las posiciones al estado
  * del cliente (dejarían de ser deterministas).
  *
- * El SVG **no** es `aria-hidden`: los nodos con contenido son enlaces reales y se recorren
- * con teclado, igual que los botones de zoom.
+ * El SVG es **decorativo para la tecnología de asistencia** (`aria-hidden`): sus nodos son
+ * clicables con el ratón, pero no entran en el orden de tabulación. La versión completa y
+ * navegable con teclado es la vista de tarjetas, enlazada junto al gráfico.
+ *
+ * Esto es un cambio de criterio sobre lo que se decidió al principio (nodos enlazables y
+ * recorribles). Las razones están en el informe de accesibilidad: 39 paradas de tabulación
+ * para atravesar un mapa es peor que una alternativa textual, y el nombre accesible de cada
+ * enlace no podía coincidir con una etiqueta truncada (WCAG 2.5.3).
  */
 
 const SLOT_WIDTH = 124;
@@ -315,8 +321,8 @@ export function MapDiagram({
             /* Sin tope de altura: al encajar 1100 px de grafo en 70 vh el texto caía a 6 px.
                Aquí manda la legibilidad; para ver el conjunto están el zoom y el arrastre. */
             className="block h-auto w-full cursor-grab touch-none select-none active:cursor-grabbing"
-            role="group"
-            aria-label="Grafo de competencias. Arrastra para mover y usa los botones para acercar."
+            role="presentation"
+            aria-hidden="true"
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
@@ -463,19 +469,12 @@ export function MapDiagram({
                     <Link
                       href={`/c/${node.id}`}
                       className="cursor-pointer"
-                      aria-label={`${node.title} — ${visual.label}`}
-                      onFocus={(event) => showTip(node.id, event)}
-                      onBlur={hideTip}
+                      tabIndex={-1}
                     >
                       {shape}
                     </Link>
                   ) : (
-                    <g
-                      role="img"
-                      aria-label={`${node.title} — ${visual.label} (sin contenido)`}
-                      onFocus={(event) => showTip(node.id, event)}
-                      onBlur={hideTip}
-                    >
+                    <g>
                       {shape}
                     </g>
                   )}
@@ -531,9 +530,14 @@ export function MapDiagram({
       </div>
 
       <p className="text-[11px] text-muted">
-        Los nodos con contenido son enlaces: pulsa uno para abrir su lección. Al pasar el cursor
-        sobre un nodo se resaltan sus prerrequisitos y sus dependencias, y el tooltip muestra el
-        título completo y lo que falta para poder comprobarlo.
+        Los nodos con contenido se abren con un clic. Al pasar el cursor se resaltan sus
+        prerrequisitos y sus dependencias, y el tooltip muestra el título completo y lo que
+        falta para poder comprobarlo. Si navegas con teclado o lector de pantalla, la versión
+        completa es la{' '}
+        <Link href="/mapa/tarjetas" className="text-accent underline underline-offset-4">
+          vista de tarjetas
+        </Link>
+        .
       </p>
     </div>
   );
@@ -617,7 +621,7 @@ function chipClass(active: boolean): string {
   return cn(
     'rounded-full border px-2.5 py-1 text-xs transition-colors',
     active
-      ? 'border-accent bg-accent text-white'
+      ? 'border-accent bg-accent-bg text-white'
       : 'border-border bg-surface text-muted hover:text-fg',
   );
 }

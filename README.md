@@ -50,6 +50,7 @@ docs/
 | ---------------------------------------------- | ---------------------------------------------------------------------------- |
 | Por qué existe este proyecto                   | [`docs/product/vision.md`](docs/product/vision.md)                             |
 | **Cómo funciona, en lenguaje llano**            | [`docs/product/como-funciona.md`](docs/product/como-funciona.md)               |
+| **Accesibilidad: qué se mide y qué no**          | [docs/quality/accessibility.md](docs/quality/accessibility.md)               |
 | Qué significa cada palabra                     | [`docs/domain/ubiquitous-language.md`](docs/domain/ubiquitous-language.md)     |
 | Cómo funcionan el dominio y el repaso          | [`docs/domain/assessment-engine.md`](docs/domain/assessment-engine.md)         |
 | Qué competencias hay y cómo se conectan        | [`docs/domain/competency-graph.md`](docs/domain/competency-graph.md)           |

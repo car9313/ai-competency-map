@@ -100,7 +100,7 @@ export function DataPanel() {
       </p>
 
       {!persistent && (
-        <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-600 dark:text-amber-300">
+        <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700 dark:text-amber-300">
           Este navegador no permite almacenar de forma persistente, así que el progreso se perderá
           al cerrar la pestaña. Puedes exportarlo antes de salir.
         </p>

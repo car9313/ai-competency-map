@@ -15,7 +15,7 @@ export const STATE_LABEL: Record<CompetencyState, string> = {
 
 export const STATE_TONE: Record<CompetencyState, string> = {
   no_evidence: 'text-muted',
-  learning: 'text-amber-600 dark:text-amber-300',
-  consolidated: 'text-emerald-600 dark:text-emerald-300',
-  at_risk: 'text-rose-600 dark:text-rose-300',
+  learning: 'text-amber-700 dark:text-amber-300',
+  consolidated: 'text-emerald-700 dark:text-emerald-300',
+  at_risk: 'text-rose-700 dark:text-rose-300',
 };

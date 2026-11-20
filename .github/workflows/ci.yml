@@ -42,3 +42,6 @@ jobs:
 
       - name: G5 · Build
         run: pnpm build
+
+      - name: G6 · Accesibilidad (axe en navegador real)
+        run: pnpm a11y

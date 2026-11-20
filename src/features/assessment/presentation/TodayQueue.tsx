@@ -118,7 +118,7 @@ export function TodayQueue({
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
               href="/mapa"
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent-bg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
               Ver el mapa
             </Link>
@@ -157,7 +157,7 @@ export function TodayQueue({
 
         <Link
           href="/repaso"
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-accent-bg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           Empezar el repaso
         </Link>

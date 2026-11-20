@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen">
         <a
           href="#contenido"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-accent-bg focus:px-4 focus:py-2 focus:text-white"
         >
           Saltar al contenido
         </a>
@@ -60,7 +60,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col justify-between border-r border-border bg-surface p-4 lg:flex">
             <div className="space-y-7">
               <Link href="/" className="flex items-center gap-2.5 px-2 py-1">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent font-mono text-xs font-bold text-white">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-bg font-mono text-xs font-bold text-white">
                   AI
                 </span>
                 <span className="font-display text-sm font-bold tracking-tight">
@@ -115,7 +115,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </div>
             </header>
 
-            <main id="contenido" className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-8 sm:px-8">
+            <main
+              id="contenido"
+              /* `tabIndex=-1` es lo que hace que el enlace de salto mueva el foco de
+                 verdad: sin él, el navegador solo desplaza la vista y el foco se queda en
+                 `body`, así que el siguiente Tab vuelve al principio. */
+              tabIndex={-1}
+              className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-8 focus:outline-none sm:px-8"
+            >
               {children}
             </main>
           </div>

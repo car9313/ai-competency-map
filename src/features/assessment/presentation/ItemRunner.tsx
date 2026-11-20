@@ -133,7 +133,7 @@ export function ItemRunner({
 
         {!result.correct && right && (
           <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-4">
-            <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-300">
+            <h3 className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
               La correcta era: {right.text}
             </h3>
             <p className="mt-1 text-sm leading-relaxed text-muted">{right.rationale}</p>
@@ -149,7 +149,7 @@ export function ItemRunner({
           <button
             type="button"
             onClick={onNext}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-accent-bg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             {nextLabel}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -255,7 +255,7 @@ export function ItemRunner({
         <button
           type="submit"
           disabled={!selected || !confidence || pending}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-accent-bg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {pending ? 'Guardando…' : 'Comprobar'}
         </button>
