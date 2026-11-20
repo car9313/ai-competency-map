@@ -151,7 +151,7 @@ acaba ignorando. La corrección fue trivial —reintento por ruta y `waitUntil:
 ## Lo que queda
 
 1. **Guion de demo grabado.** El guion escrito está en [`demo-script.md`](demo-script.md); falta la toma.
-2. **Repo público.** Todo preparado (licencia, contribución, plantillas); falta cambiar la visibilidad.
+2. **Despliegue público.** El repositorio ya es público; falta publicar la build estática en Vercel para tener una URL que enseñar sin clonar.
 3. **Lectores de pantalla reales.** axe verifica nombres y roles; no verifica si el orden de lectura tiene sentido al escucharlo.
 4. **Zoom al 200 % y `prefers-contrast`.** Comprobado que no hay desborde a 375 px, que no es lo mismo.
 

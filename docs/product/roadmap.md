@@ -67,10 +67,10 @@ El contenido se escribe **un archivo por área** (`src/content/area-NN-*.ts`) qu
 
 | Se construye                                                | Por qué                                                  |
 | ----------------------------------------------------------- | -------------------------------------------------------- |
-| Pasada de accesibilidad: teclado, foco, contraste, axe en E2E | Una afirmación de calidad que se comprueba                |
-| Guion de demo final, grabado y escrito                       | Es el artefacto de portfolio                              |
-| ADRs completos para toda decisión relevante                  | Es lo que un revisor senior lee de verdad                 |
-| Preparación open-source: LICENSE, CONTRIBUTING, guías        | Solo ahora, cuando el núcleo está estable                 |
+| Pasada de accesibilidad: teclado, foco, contraste, axe en E2E | Una afirmación de calidad que se comprueba · ✅ hecha      |
+| Guion de demo final, grabado y escrito                       | Es el artefacto de portfolio · ✅ escrito, ⬜ grabado      |
+| ADRs completos para toda decisión relevante                  | Es lo que un revisor senior lee de verdad · ✅            |
+| Preparación open-source: LICENSE, CONTRIBUTING, guías        | Solo ahora, cuando el núcleo está estable · ✅ y publicado |
 | Opcional: contenido en inglés, una competencia a la vez      | Aditivo por diseño, gracias a la costura                  |
 | **Superficie MCP para agentes**: servidor local (stdio) exponiendo el dominio + skills que enseñan a usarlo | Convierte el núcleo en consumible por agentes, sin IA y sin coste. Requiere ADR previo |
 
