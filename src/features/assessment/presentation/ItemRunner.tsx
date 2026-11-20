@@ -168,6 +168,12 @@ export function ItemRunner({
     );
   }
 
+  const falta = !selected
+    ? 'Elige una opción para poder comprobar.'
+    : !confidence
+      ? 'Falta decir cómo de seguro estás.'
+      : null;
+
   return (
     <form
       className="space-y-6"
@@ -269,6 +275,12 @@ export function ItemRunner({
           </Link>
         )}
       </div>
+
+      {/* Un botón deshabilitado sin explicación deja al usuario adivinando qué le falta.
+          Es lo que pasó al probar la comprobación marcando solo la confianza. */}
+      <p role="status" className="text-xs text-amber-700 dark:text-amber-300">
+        {falta ?? ''}
+      </p>
     </form>
   );
 }
