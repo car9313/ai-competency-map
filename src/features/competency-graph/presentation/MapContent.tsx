@@ -194,10 +194,19 @@ export function MapContent({ view }: { view: MapView }) {
                           <span className="mt-0.5 shrink-0">
                             <NodeStateChip
                               items={CATALOG.items.filter((item) => item.competencyId === node.id)}
+                              /* El desbloqueo se recalcula en el cliente: el servidor no
+                                 conoce el historial y su etiqueta solo es cierta sin
+                                 intentos. Se pasan los ítems de cada prerrequisito, no sus
+                                 estados, porque el chip tampoco los tiene. */
+                              prerequisiteItemGroups={node.prerequisiteIds.map(
+                                (prerequisiteId) =>
+                                  CATALOG.items
+                                    .filter((item) => item.competencyId === prerequisiteId)
+                                    .map((item) => item.id),
+                              )}
                               fallbackLabel={visual.label}
-                              fallbackFill={visual.fill}
-                              fallbackStroke={visual.stroke}
-                              locked={node.visibility === 'locked'}
+                              pending={node.visibility === 'pending'}
+                              available={VISUAL.available}
                             />
                           </span>
                         </Link>

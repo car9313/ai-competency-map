@@ -36,6 +36,7 @@ const ROUTES = [
   '/c/ai-ml-dl-boundaries',
   '/c/tokens-and-context-window/comprobar',
   '/historial',
+  '/diagnostico',
   '/repaso',
   '/acerca',
 ];

@@ -36,10 +36,28 @@ export default function HomePage() {
 
       <TodayQueue items={items} titles={titles} competencies={competencies} />
 
+      <div className="rounded-xl border border-border bg-surface p-4">
+        <h2 className="text-sm font-semibold">¿Ya sabes algo de esto?</h2>
+        <p className="mt-1 text-xs text-muted">
+          Doce preguntas repartidas por todo el mapa. Lo que aciertes desbloquea lo que dependa de
+          ello, así que no tienes que empezar por la raíz si ya vienes sabiendo.
+        </p>
+        <Link
+          href="/diagnostico"
+          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:text-accent"
+        >
+          Hacer el diagnóstico
+        </Link>
+      </div>
+
       <p className="text-xs text-muted">
         ¿Quieres ver qué hay detrás?{' '}
         <Link href="/mapa" className="text-accent underline underline-offset-4">
           Mapa de competencias
+        </Link>{' '}
+        ·{' '}
+        <Link href="/historial" className="text-accent underline underline-offset-4">
+          Historial
         </Link>{' '}
         ·{' '}
         <Link href="/acerca" className="text-accent underline underline-offset-4">
