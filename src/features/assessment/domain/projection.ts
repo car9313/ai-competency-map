@@ -24,22 +24,22 @@ export type CompetencyState = 'no_evidence' | 'learning' | 'almost' | 'consolida
  * el ítem en `learning` y sigue siendo un acierto (R2, R5, R11).
  */
 function isConsolidated(
-  items: readonly Item[],
+  itemIds: readonly string[],
   latest: ReadonlyMap<string, Attempt>,
   schedules: ReadonlyMap<string, ItemSchedule>,
 ): boolean {
-  if (items.length === 0) {
+  if (itemIds.length === 0) {
     return false;
   }
 
-  return items.every((item) => {
-    const attempt = latest.get(item.id);
+  return itemIds.every((itemId) => {
+    const attempt = latest.get(itemId);
 
     if (!attempt || !attempt.correct) {
       return false;
     }
 
-    const schedule = schedules.get(item.id);
+    const schedule = schedules.get(itemId);
 
     return schedule !== undefined && schedule.phase !== 'relearning';
   });
@@ -67,8 +67,28 @@ export function projectState(
   attempts: readonly Attempt[],
   clock: Clock,
 ): CompetencyState {
-  const itemIds = new Set(items.map((item) => item.id));
-  const relevant = attempts.filter((attempt) => itemIds.has(attempt.itemId));
+  return projectStateByIds(
+    items.map((item) => item.id),
+    attempts,
+    clock,
+  );
+}
+
+/**
+ * La misma proyección, por identificadores.
+ *
+ * Existe porque calcular un estado solo necesita **qué ítems** tiene la competencia, no sus
+ * enunciados ni sus opciones. Pasar objetos `Item` completos desde el servidor al cliente
+ * metía en el HTML de cada tarjeta del mapa el texto de todas las preguntas, y con 156 ítems
+ * eso pesa. Los identificadores son todo lo que hace falta.
+ */
+export function projectStateByIds(
+  itemIds: readonly string[],
+  attempts: readonly Attempt[],
+  clock: Clock,
+): CompetencyState {
+  const known = new Set(itemIds);
+  const relevant = attempts.filter((attempt) => known.has(attempt.itemId));
 
   if (relevant.length === 0) {
     return 'no_evidence';
@@ -93,12 +113,12 @@ export function projectState(
 
     // La comprobación es O(ítems) por intento. Con decenas de ítems y cientos de
     // intentos es irrelevante, y evita guardar el histórico de estados.
-    if (isConsolidated(items, latest, schedules)) {
+    if (isConsolidated(itemIds, latest, schedules)) {
       everConsolidated = true;
     }
   }
 
-  if (isConsolidated(items, latest, schedules)) {
+  if (isConsolidated(itemIds, latest, schedules)) {
     return 'consolidated';
   }
 
@@ -106,14 +126,14 @@ export function projectState(
     return 'at_risk';
   }
 
-  const allAttempted = items.every((item) => latest.has(item.id));
-  const settled = items.filter((item) => {
-    const schedule = schedules.get(item.id);
+  const allAttempted = itemIds.every((itemId) => latest.has(itemId));
+  const settled = itemIds.filter((itemId) => {
+    const schedule = schedules.get(itemId);
 
-    return latest.get(item.id)?.correct === true && schedule?.phase !== 'relearning';
+    return latest.get(itemId)?.correct === true && schedule?.phase !== 'relearning';
   }).length;
 
-  if (items.length >= 2 && allAttempted && settled === items.length - 1) {
+  if (itemIds.length >= 2 && allAttempted && settled === itemIds.length - 1) {
     return 'almost';
   }
 

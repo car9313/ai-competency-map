@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Lock } from 'lucide-react';
 import type { CompetencyState } from '@/features/assessment';
-import { projectState } from '@/features/assessment/domain/projection';
+import { projectStateByIds } from '@/features/assessment/domain/projection';
 import { systemClock } from '@/shared/time/clock';
-import type { Item } from '@/shared/types/domain';
 import { loadAttempts } from '@/features/assessment/infrastructure/attempts-cache';
 import { STATE_LABEL, STATE_TONE } from '@/features/assessment/presentation/state-labels';
 
@@ -33,13 +32,13 @@ import { STATE_LABEL, STATE_TONE } from '@/features/assessment/presentation/stat
 export type PrerequisiteItemGroups = readonly (readonly string[])[];
 
 export function NodeStateChip({
-  items,
+  itemIds,
   prerequisiteItemGroups,
   pending,
   fallbackLabel,
   available,
 }: {
-  items: readonly Item[];
+  itemIds: readonly string[];
   prerequisiteItemGroups: PrerequisiteItemGroups;
   /** Nodo sin contenido: su etiqueta es estática y no depende del historial. */
   pending: boolean;
@@ -64,13 +63,13 @@ export function NodeStateChip({
       setUnlocked(
         prerequisiteItemGroups.every((group) => group.some((id) => conEvidencia.has(id))),
       );
-      setState(projectState(items, attempts, systemClock));
+      setState(projectStateByIds(itemIds, attempts, systemClock));
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [items, prerequisiteItemGroups]);
+  }, [itemIds, prerequisiteItemGroups]);
 
   const live = state !== null && state !== 'no_evidence';
 

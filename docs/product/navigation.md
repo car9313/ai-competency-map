@@ -13,10 +13,13 @@ Las rutas del producto, su modo de renderizado y por qué. Con exportación est�
 | `/mapa/tarjetas`       | Roadmap en tarjetas                 | Servidor (HTML estático)          | Tarjetas por área, indexable           |
 | `/repaso`              | Sesión de repaso                    | Servidor + isla cliente           | Recorre la cola del día, ítem a ítem   |
 | `/c/[competencyId]`    | Lección y comprobación              | Estática + isla cliente           | Contenido en build + intentos locales  |
+| `/diagnostico`         | Diagnóstico inicial (12 preguntas)  | Servidor + isla cliente           | Selección determinista + intentos      |
+| `/rutas`               | Camino hasta un objetivo            | Servidor + isla cliente           | Grafo en build + estado por nodo       |
+| `/historial`           | Intentos y su efecto                | Client Component                  | Solo tiene sentido con intentos locales |
 | `/acerca`              | Qué es esto y por qué               | Estática                          | Contenido en build                     |
 | `not-found`            | 404                                 | Estática                          | —                                      |
 
-Cinco rutas. Cualquier pantalla adicional tiene que justificarse contra el [guion de demo](vision.md#el-guion-de-demo) antes de existir.
+Ocho rutas. Las tres últimas no son contenido: son formas de mirar el mismo estado (`/diagnostico` para entrar, `/rutas` para planificar, `/historial` para auditar). Cualquier pantalla adicional tiene que justificarse contra el [guion de demo](vision.md#el-guion-de-demo) antes de existir.
 
 ### Por qué `/` es la cola y no el catálogo
 

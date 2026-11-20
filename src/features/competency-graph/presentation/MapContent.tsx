@@ -1,13 +1,14 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { CATALOG } from '@/content';
+import { CATALOG, contentIndex } from '@/content';
 import { systemClock } from '@/shared/time/clock';
 import { cn } from '@/shared/utils/cn';
 import { activeTrail, buildCompetencyMap } from '../application/map';
 import { MapDiagram } from './MapDiagram';
 import { VISUAL } from './state-visual';
 import { NodeStateChip } from './NodeStateChip';
+import { MapSearch } from './MapSearch';
 
 /**
  * Contenido del mapa en dos vistas.
@@ -82,6 +83,13 @@ export function MapContent({ view }: { view: MapView }) {
         </nav>
       </header>
 
+      {/* El buscador solo tiene sentido sobre las tarjetas: el grafo es una imagen única. */}
+      {view === 'tarjetas' && (
+        <div className="max-w-md">
+          <MapSearch listId="lista-competencias" />
+        </div>
+      )}
+
       {focus && (
         <section className="rounded-2xl border border-accent/40 bg-surface p-5 sm:p-6">
           <p className="flex items-center gap-1.5 font-mono text-[11px] tracking-wide text-accent uppercase">
@@ -148,7 +156,7 @@ export function MapContent({ view }: { view: MapView }) {
           </div>
         </>
       ) : (
-        <section aria-label="Competencias por área" className="grid gap-4 md:grid-cols-2">
+        <section id="lista-competencias" aria-label="Competencias por área" className="grid gap-4 md:grid-cols-2">
           {map.areas.map((area) => {
             const nodes = [...map.nodes.values()]
               .filter((node) => node.areaId === area.id)
@@ -159,6 +167,7 @@ export function MapContent({ view }: { view: MapView }) {
             return (
               <div
                 key={area.id}
+                data-area={area.id}
                 className="flex flex-col rounded-xl border border-border bg-surface"
               >
                 <div className="flex items-baseline justify-between gap-3 border-b border-border px-4 py-3">
@@ -175,7 +184,10 @@ export function MapContent({ view }: { view: MapView }) {
                     const clickable = node.published;
 
                     return (
-                      <li key={node.id}>
+                      <li
+                        key={node.id}
+                        data-search={`${node.title} ${node.claim} ${area.name}`.toLowerCase()}
+                      >
                         <Link
                           href={clickable ? `/c/${node.id}` : '/mapa/tarjetas'}
                           aria-disabled={!clickable}
@@ -193,7 +205,7 @@ export function MapContent({ view }: { view: MapView }) {
                           </span>
                           <span className="mt-0.5 shrink-0">
                             <NodeStateChip
-                              items={CATALOG.items.filter((item) => item.competencyId === node.id)}
+                              itemIds={(contentIndex.itemsByCompetency.get(node.id) ?? []).map((item) => item.id)}
                               /* El desbloqueo se recalcula en el cliente: el servidor no
                                  conoce el historial y su etiqueta solo es cierta sin
                                  intentos. Se pasan los ítems de cada prerrequisito, no sus
