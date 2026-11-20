@@ -148,7 +148,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Ejemplos few-shot y su coste',
     claim: 'Decidir cuándo los ejemplos ayudan y cuándo solo consumen contexto.',
     prerequisites: ['system-instructions-contract'],
-    published: false,
+    published: true,
   },
   {
     id: 'context-budgeting',
@@ -159,7 +159,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Presupuesto de contexto',
     claim: 'Repartir el contexto entre instrucciones, recuperación y salida reservada.',
     prerequisites: ['tokens-and-context-window'],
-    published: false,
+    published: true,
   },
   {
     id: 'structured-outputs',
@@ -170,7 +170,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Salidas estructuradas y validación',
     claim: 'Forzar un formato y validarlo en lugar de confiar en que el prompt lo cumpla.',
     prerequisites: ['system-instructions-contract'],
-    published: false,
+    published: true,
   },
   {
     id: 'prompt-evaluation',
@@ -181,7 +181,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Evaluar un prompt y detectar regresiones',
     claim: 'Medir si un cambio de prompt mejora o empeora, con casos fijos y repetibles.',
     prerequisites: ['structured-outputs'],
-    published: false,
+    published: true,
   },
   {
     // roadmap.sh la plantea como técnica; aquí es una DECISIÓN, que es lo que no caduca.
@@ -194,7 +194,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     claim:
       'Decidir entre prompt, ejemplos y ajuste fino según coste, datos disponibles y estabilidad exigida.',
     prerequisites: ['system-instructions-contract'],
-    published: false,
+    published: true,
   },
 
   // ── 04 · Aplicaciones y RAG ─────────────────────────────────────────────────
@@ -207,7 +207,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Function calling y contratos de herramientas',
     claim: 'Definir una herramienta con esquema y manejar sus fallos sin romper el flujo.',
     prerequisites: ['structured-outputs', 'system-instructions-contract'],
-    published: false,
+    published: true,
   },
   {
     id: 'streaming-ux',
@@ -218,7 +218,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Streaming y respuesta parcial',
     claim: 'Diseñar la interfaz cuando la respuesta llega por trozos y puede cortarse.',
     prerequisites: ['tokens-and-context-window'],
-    published: false,
+    published: true,
   },
   {
     id: 'chunking-and-overlap',
@@ -229,7 +229,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Chunking y solapamiento',
     claim: 'Elegir tamaño de trozo y solapamiento según la forma del contenido.',
     prerequisites: ['embeddings-and-vectors'],
-    published: false,
+    published: true,
   },
   {
     id: 'hybrid-retrieval',
@@ -240,7 +240,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Recuperación híbrida: léxica y vectorial',
     claim: 'Explicar por qué una búsqueda sola falla y cómo combinarlas.',
     prerequisites: ['chunking-and-overlap'],
-    published: false,
+    published: true,
   },
   {
     id: 'grounding-and-citations',
@@ -251,7 +251,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Grounding, citas y control de alucinación',
     claim: 'Anclar una respuesta a fuentes verificables y detectar cuándo no lo está.',
     prerequisites: ['hybrid-retrieval'],
-    published: false,
+    published: true,
   },
 
   // ── 05 · Ingeniería agéntica ────────────────────────────────────────────────
@@ -264,7 +264,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Ciclo de agente acotado',
     claim: 'Describir percibir → planificar → actuar → observar, y sobre todo sus límites.',
     prerequisites: ['function-calling-contracts'],
-    published: false,
+    published: true,
   },
   {
     id: 'tool-schemas-and-selection',
@@ -275,7 +275,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Esquemas de herramientas y selección',
     claim: 'Diseñar herramientas que el modelo elija bien y use correctamente.',
     prerequisites: ['function-calling-contracts', 'bounded-agent-loop'],
-    published: false,
+    published: true,
   },
   {
     id: 'agent-memory',
@@ -286,7 +286,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Memoria y compactación',
     claim: 'Decidir qué recordar, qué resumir y qué descartar entre turnos.',
     prerequisites: ['context-budgeting', 'bounded-agent-loop'],
-    published: false,
+    published: true,
   },
   {
     id: 'multi-agent-delegation',
@@ -297,7 +297,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Delegación multiagente y sus costes',
     claim: 'Justificar cuándo delegar a varios agentes y cuándo es peor que uno solo.',
     prerequisites: ['bounded-agent-loop', 'tool-schemas-and-selection'],
-    published: false,
+    published: true,
   },
   {
     id: 'mcp-protocol',
@@ -308,7 +308,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'MCP: interoperabilidad de herramientas',
     claim: 'Explicar qué resuelve un protocolo común frente a integraciones a medida.',
     prerequisites: ['tool-schemas-and-selection'],
-    published: false,
+    published: true,
   },
   {
     id: 'agent-skills',
@@ -319,7 +319,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Skills: capacidades empaquetadas bajo demanda',
     claim: 'Explicar cómo un agente descubre y carga instrucciones sin meterlas todas en el contexto.',
     prerequisites: ['tool-schemas-and-selection'],
-    published: false,
+    published: true,
   },
 
   // ── 06 · Harness engineering ────────────────────────────────────────────────
@@ -332,7 +332,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Tool registry y lista de permitidos',
     claim: 'Impedir que el agente invoque herramientas que no existen en el registro.',
     prerequisites: ['tool-schemas-and-selection'],
-    published: false,
+    published: true,
   },
   {
     id: 'sandboxing-isolation',
@@ -343,7 +343,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Sandboxing y aislamiento',
     claim: 'Delimitar qué puede tocar una herramienta y con qué privilegios.',
     prerequisites: ['tool-registry-allowlist'],
-    published: false,
+    published: true,
   },
   {
     id: 'checkpoints-recovery',
@@ -354,7 +354,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Checkpoints y recuperación',
     claim: 'Reanudar tras un fallo sin repetir efectos que ya se aplicaron.',
     prerequisites: ['bounded-agent-loop', 'tool-registry-allowlist'],
-    published: false,
+    published: true,
   },
   {
     id: 'human-approval-gates',
@@ -365,7 +365,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Puertas de aprobación humana',
     claim: 'Clasificar operaciones por riesgo y pausar solo las que lo merecen.',
     prerequisites: ['tool-registry-allowlist'],
-    published: false,
+    published: true,
   },
 
   // ── 07 · Arquitectura de software IA ────────────────────────────────────────
@@ -378,7 +378,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Contratos propios y desacoplamiento',
     claim: 'Diseñar casos de uso que no sepan de qué proveedor vienen las respuestas.',
     prerequisites: ['structured-outputs', 'inference-latency-cost'],
-    published: false,
+    published: true,
   },
   {
     id: 'model-routing',
@@ -389,7 +389,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Enrutado de modelos',
     claim: 'Elegir modelo por tarea, coste y latencia, y poder justificarlo.',
     prerequisites: ['provider-abstraction'],
-    published: false,
+    published: true,
   },
   {
     id: 'orchestration-patterns',
@@ -400,7 +400,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Orquestación y límites del sistema',
     claim: 'Decidir dónde vive la lógica y qué se deja dentro del modelo.',
     prerequisites: ['bounded-agent-loop', 'provider-abstraction'],
-    published: false,
+    published: true,
   },
   {
     id: 'resilience-fallback',
@@ -411,7 +411,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Resiliencia: timeout, reintento, fallback',
     claim: 'Diseñar qué ocurre cuando el proveedor falla o tarda demasiado.',
     prerequisites: ['provider-abstraction', 'model-routing'],
-    published: false,
+    published: true,
   },
 
   // ── 08 · Calidad y producción ───────────────────────────────────────────────
@@ -424,7 +424,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Evals reproducibles',
     claim: 'Construir un conjunto de casos que detecte regresiones al cambiar prompt o modelo.',
     prerequisites: ['prompt-evaluation'],
-    published: false,
+    published: true,
   },
   {
     id: 'guardrails-io',
@@ -435,7 +435,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Guardrails de entrada y salida',
     claim: 'Filtrar lo que entra y lo que sale sin romper la experiencia.',
     prerequisites: ['grounding-and-citations', 'tool-registry-allowlist'],
-    published: false,
+    published: true,
   },
   {
     id: 'observability-cost',
@@ -446,7 +446,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Observabilidad de latencia, tokens y coste',
     claim: 'Trazar una ejecución y atribuir su coste a una decisión concreta.',
     prerequisites: ['inference-latency-cost'],
-    published: false,
+    published: true,
   },
   {
     id: 'prompt-injection-defense',
@@ -457,6 +457,6 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Defensa ante prompt injection',
     claim: 'Detectar y contener contenido que intenta secuestrar las instrucciones.',
     prerequisites: ['tool-registry-allowlist', 'guardrails-io'],
-    published: false,
+    published: true,
   },
 ];
