@@ -44,7 +44,7 @@ La regla organizadora: **cada fase tiene que ser demostrable por sí sola**. Una
 | SEO: metadatos por competencia, generación estática                    | Descubribilidad, y argumento de portfolio                         |
 | Flujo de autoría de contenido documentado                              | Para que el modelo sea repetible                                  |
 
-**Estado: en curso.** La infraestructura de esta fase ya está hecha: grafo de 39 competencias, linter en CI (G4), UI con filtros y dos vistas, y SEO estático. Lo que queda es **volumen**: 4 de 39 competencias publicadas, con lección y 4 ítems cada una.
+**Estado: completada.** 39 de 39 competencias publicadas, con lección y 4 ítems cada una: 39 lecciones y 156 ítems, con 0 errores y 0 avisos del linter. El mapa no muestra ningún nodo «próximamente».
 
 El **estado detallado** por área está en [content-status.md](content-status.md), que se genera desde el catálogo con `pnpm content:status` y por tanto no se puede quedar desactualizado.
 
@@ -52,9 +52,9 @@ El contenido se escribe **un archivo por área** (`src/content/area-NN-*.ts`) qu
 
 **Criterios de salida**
 
-- El linter rechaza un ítem roto a propósito en CI (esto es en sí una escena de la demo).
-- Toda competencia tiene ≥ 1 lección y ≥ 3 ítems, verificado por regla, no por confianza.
-- Toda URL es compartible y se renderiza en primera carga sin estado de cliente.
+- El linter rechaza un ítem roto a propósito en CI (esto es en sí una escena de la demo). ✅
+- Toda competencia tiene ≥ 1 lección y ≥ 3 ítems, verificado por regla, no por confianza. ✅ 39 lecciones, 156 ítems
+- Toda URL es compartible y se renderiza en primera carga sin estado de cliente. ✅
 - El guion de demo completo corre de principio a fin.
 
 **Fuera explícitamente:** inglés, cuentas, IA, comunidad.

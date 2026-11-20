@@ -55,8 +55,9 @@ export function MapContent({ view }: { view: MapView }) {
       <header className="space-y-3">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Mapa de competencias</h1>
         <p className="max-w-2xl text-sm text-muted sm:text-base">
-          {map.nodes.size} competencias y sus prerrequisitos. {published.length} tienen contenido;
-          las demás aparecen como próximas para que el mapa no mienta por omisión.
+          {published.length === map.nodes.size
+            ? `${map.nodes.size} competencias y sus prerrequisitos. Todas tienen lección y preguntas.`
+            : `${map.nodes.size} competencias y sus prerrequisitos. ${published.length} tienen contenido; las demás aparecen como próximas para que el mapa no mienta por omisión.`}
         </p>
 
         <nav aria-label="Vista del mapa">
