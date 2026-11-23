@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fixedClock } from '@/shared/time/clock';
 import { foldSchedule } from './fold';
-import { buildReviewQueue } from './queue';
+import { buildMistakeQueue, buildReviewQueue } from './queue';
 import { correctAttempt, makeItem, makeAttempt, wrongAttempt } from './test-helpers';
 import type { Attempt, Item } from './types';
 
@@ -104,5 +104,71 @@ describe('buildReviewQueue', () => {
     const schedule = foldSchedule(ITEM_EASY.id, attempts, clock);
     expect(schedule.intervalDays).toBe(20);
     expect(schedule.dueAt).toBe('2026-11-27');
+  });
+});
+
+describe('buildMistakeQueue', () => {
+  it('está vacía sin intentos', () => {
+    expect(buildMistakeQueue(ITEMS, [], clock)).toEqual([]);
+  });
+
+  it('excluye los ítems que nunca se intentaron', () => {
+    const queue = buildMistakeQueue(ITEMS, [wrongAttempt(ITEM_EASY.id, '2026-11-18')], clock);
+
+    expect(queue.map((entry) => entry.item.id)).not.toContain(ITEM_NEW.id);
+  });
+
+  it('incluye el ítem cuyo último intento fue incorrecto, aunque no haya vencido', () => {
+    // Fallado hoy: no está vencido, y aun así aparece. Es el sentido del modo.
+    const queue = buildMistakeQueue(ITEMS, [wrongAttempt(ITEM_HARD.id, '2026-11-19')], clock);
+
+    expect(queue.map((entry) => entry.item.id)).toEqual([ITEM_HARD.id]);
+  });
+
+  it('excluye el ítem reparado: fallado y luego acertado', () => {
+    const attempts: Attempt[] = [
+      wrongAttempt(ITEM_EASY.id, '2026-11-10'),
+      correctAttempt(ITEM_EASY.id, '2026-11-15'),
+    ];
+
+    expect(buildMistakeQueue(ITEMS, attempts, clock)).toEqual([]);
+  });
+
+  it('vuelve a incluir el ítem que se acertó y después se falló', () => {
+    const attempts: Attempt[] = [
+      correctAttempt(ITEM_EASY.id, '2026-11-10'),
+      wrongAttempt(ITEM_EASY.id, '2026-11-16'),
+    ];
+
+    expect(buildMistakeQueue(ITEMS, attempts, clock).map((entry) => entry.item.id)).toEqual([
+      ITEM_EASY.id,
+    ]);
+  });
+
+  it('ordena por fallo más reciente primero', () => {
+    const attempts: Attempt[] = [
+      wrongAttempt(ITEM_EASY.id, '2026-11-05'),
+      wrongAttempt(ITEM_HARD.id, '2026-11-18'),
+      wrongAttempt(ITEM_NEW.id, '2026-11-12'),
+    ];
+
+    expect(buildMistakeQueue(ITEMS, attempts, clock).map((entry) => entry.item.id)).toEqual([
+      ITEM_HARD.id,
+      ITEM_NEW.id,
+      ITEM_EASY.id,
+    ]);
+  });
+
+  it('respeta el orden cronológico aunque los intentos lleguen desordenados', () => {
+    const attempts: Attempt[] = [
+      wrongAttempt(ITEM_EASY.id, '2026-11-18'),
+      // Este es posterior y acierta: el ítem deja de ser un fallo.
+      correctAttempt(ITEM_EASY.id, '2026-11-19'),
+      wrongAttempt(ITEM_HARD.id, '2026-11-10'),
+    ];
+
+    expect(buildMistakeQueue(ITEMS, attempts, clock).map((entry) => entry.item.id)).toEqual([
+      ITEM_HARD.id,
+    ]);
   });
 });

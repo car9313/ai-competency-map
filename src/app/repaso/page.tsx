@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { contentIndex } from '@/content';
 import { ReviewSession } from '@/features/assessment/presentation/ReviewSession';
 
 export const metadata: Metadata = {
   title: 'Repaso',
-  description: 'Recorre los ítems que vencen hoy, ordenados por atraso y dificultad.',
+  description:
+    'Recorre los ítems que vencen hoy, ordenados por atraso y dificultad, o repasa solo los que fallaste.',
 };
 
 export default function RepasoPage() {
@@ -24,7 +26,10 @@ export default function RepasoPage() {
         </p>
       </header>
 
-      <ReviewSession items={[...contentIndex.itemById.values()]} titles={titles} />
+      {/* useSearchParams no existe durante la exportación estática: hace falta el límite. */}
+      <Suspense fallback={<p className="text-sm text-muted">Mirando qué toca repasar…</p>}>
+        <ReviewSession items={[...contentIndex.itemById.values()]} titles={titles} />
+      </Suspense>
     </div>
   );
 }
