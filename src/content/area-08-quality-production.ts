@@ -666,4 +666,522 @@ export const ITEMS_AREA_08: readonly Item[] = [
       'Separar canales es una mitigación, no una cura: el modelo sigue viendo texto. Por eso se combina con mínimo privilegio y validación de acciones, que sí son barreras efectivas.',
     referenceId: 'ref-anthropic-system',
   },
+
+  // ── segunda tanda: hasta 8 ítems por competencia ────────────────────────────
+
+  {
+    id: 're-model-version-drift',
+    competencyId: 'reproducible-evals',
+    difficulty: 2,
+    prompt: 'El proveedor actualiza el modelo manteniendo el mismo nombre. ¿Qué rompe?',
+    options: [
+      {
+        id: 'a',
+        text: 'La comparación con tus mediciones anteriores',
+        correct: true,
+        rationale:
+          'Correcto: el número cambió porque cambió el modelo. Ya no es comparable con el histórico.',
+      },
+      {
+        id: 'b',
+        text: 'Nada: el nombre es el mismo, así que el modelo',
+        correct: false,
+        rationale:
+          'El nombre es una etiqueta comercial. El comportamiento detrás puede haber cambiado.',
+      },
+      {
+        id: 'c',
+        text: 'Solo el coste por token de la nueva versión',
+        correct: false,
+        rationale:
+          'El coste puede cambiar y lo importante es que la calidad medida dejó de ser comparable.',
+      },
+    ],
+    explanation:
+      'Los modelos cambian detrás de un alias estable. Sin registrar versión efectiva y fecha de cada medición, la serie histórica deja de significar lo mismo sin que nadie lo note.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 're-eval-size',
+    competencyId: 'reproducible-evals',
+    difficulty: 2,
+    prompt: '¿Cuántos casos necesita el conjunto de evaluación?',
+    options: [
+      {
+        id: 'a',
+        text: 'Los que distingan un cambio real, medido',
+        correct: true,
+        rationale:
+          'Correcto: el tamaño se fija por su capacidad de detectar diferencias, no por una cifra redonda.',
+      },
+      {
+        id: 'b',
+        text: 'Cuantos más casos, mejor en cualquier caso',
+        correct: false,
+        rationale:
+          'Más casos cuestan más en cada ejecución, y el exceso no aporta si el problema ya se detecta.',
+      },
+      {
+        id: 'c',
+        text: 'Diez casos bien elegidos bastan siempre',
+        correct: false,
+        rationale:
+          'Diez pueden no distinguir dos prompts parecidos. La cifra depende de la variabilidad real.',
+      },
+    ],
+    explanation:
+      'El conjunto se dimensiona por poder de discriminación: cuántos casos hacen falta para que la diferencia entre dos versiones no sea ruido. Eso se mide, no se estima.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 're-human-judgment',
+    competencyId: 'reproducible-evals',
+    difficulty: 3,
+    prompt: '¿Cuándo hace falta juicio humano aunque tengas un juez automático?',
+    options: [
+      {
+        id: 'a',
+        text: 'En criterios que el juez automático no captura',
+        correct: true,
+        rationale:
+          'Correcto: utilidad real, tono o adecuación al contexto suelen escaparse de una métrica simple.',
+      },
+      {
+        id: 'b',
+        text: 'Siempre: sin una persona no hay evaluación válida',
+        correct: false,
+        rationale:
+          'Inviable a escala. El juicio humano se reserva para calibrar y para lo que no se automatiza.',
+      },
+      {
+        id: 'c',
+        text: 'Nunca: si el juez es un modelo, es suficiente',
+        correct: false,
+        rationale:
+          'Un juez hereda sesgos y mide lo que sabe medir. Lo que está fuera de su criterio queda invisible.',
+      },
+    ],
+    explanation:
+      'La evaluación automática escala y la humana entiende. Se combinan: el juez cubre el volumen y la persona revisa una muestra y los criterios donde el automatismo no llega.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 're-eval-cost-tradeoff',
+    competencyId: 'reproducible-evals',
+    difficulty: 3,
+    prompt: 'Ejecutar el conjunto completo cuesta demasiado para cada cambio. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Un subconjunto estable para el día a día',
+        correct: true,
+        rationale:
+          'Correcto: se mantiene una señal rápida y se reserva el conjunto grande para hitos.',
+      },
+      {
+        id: 'b',
+        text: 'Dejar de evaluar y confiar en la revisión manual',
+        correct: false,
+        rationale:
+          'Sin medición no hay comparación. La impresión de quien revisa cambia con el caso que miró.',
+      },
+      {
+        id: 'c',
+        text: 'Evaluar solo con el conjunto completo al final',
+        correct: false,
+        rationale:
+          'Llega tarde: las regresiones se acumulan durante semanas sin que nadie las vea.',
+      },
+    ],
+    explanation:
+      'La evaluación tiene dos velocidades: una rápida y representativa en cada cambio, y otra completa en los hitos. Lo que no puede pasar es quedarse sin ninguna señal.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'gi-false-positive-rate',
+    competencyId: 'guardrails-io',
+    difficulty: 2,
+    prompt: 'El guardrail bloquea respuestas legítimas. ¿Qué mides para decidirlo?',
+    options: [
+      {
+        id: 'a',
+        text: 'La tasa de bloqueos incorrectos',
+        correct: true,
+        rationale:
+          'Correcto: un guardrail demasiado estricto rompe el producto sin aportar seguridad real.',
+      },
+      {
+        id: 'b',
+        text: 'La velocidad con la que decide el filtro',
+        correct: false,
+        rationale:
+          'La latencia importa y no dice si está acertando. Un filtro rápido y equivocado es peor.',
+      },
+      {
+        id: 'c',
+        text: 'El coste en tokens del guardrail',
+        correct: false,
+        rationale:
+          'El coste no informa de si bloquea lo que debe. El problema aquí es de precisión.',
+      },
+    ],
+    explanation:
+      'Todo guardrail tiene dos errores posibles: dejar pasar lo prohibido y bloquear lo correcto. El segundo se nota en el producto y se mide igual que el primero.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'gi-latency-cost',
+    competencyId: 'guardrails-io',
+    difficulty: 2,
+    prompt: 'Un guardrail añade 300 ms a cada respuesta. ¿Cómo decides si vale la pena?',
+    options: [
+      {
+        id: 'a',
+        text: 'Comparando el riesgo real con esa espera',
+        correct: true,
+        rationale:
+          'Correcto: la decisión es un intercambio explícito entre fricción constante y daño evitado.',
+      },
+      {
+        id: 'b',
+        text: 'Quitándolo: la latencia siempre es prioritaria',
+        correct: false,
+        rationale:
+          'Hay riesgos que justifican esperar. La latencia no es la única dimensión del producto.',
+      },
+      {
+        id: 'c',
+        text: 'Dejándolo: la seguridad no se negocia',
+        correct: false,
+        rationale:
+          'La seguridad tampoco es infinita. Un coste fijo en cada respuesta afecta a todos los usuarios.',
+      },
+    ],
+    explanation:
+      'Los guardrails se pagan en cada petición. Se aceptan cuando el daño que evitan es mayor que la fricción que añaden, y esa comparación se hace explícita.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'gi-layered',
+    competencyId: 'guardrails-io',
+    difficulty: 3,
+    prompt: '¿Por qué varios guardrails especializados en vez de uno solo muy estricto?',
+    options: [
+      {
+        id: 'a',
+        text: 'Cada uno cubre un fallo distinto',
+        correct: true,
+        rationale:
+          'Correcto: datos personales, formato y política son problemas distintos con comprobaciones distintas.',
+      },
+      {
+        id: 'b',
+        text: 'Para que el sistema parezca más seguro',
+        correct: false,
+        rationale:
+          'La apariencia no protege. Capas sin criterio solo suman latencia y falsos bloqueos.',
+      },
+      {
+        id: 'c',
+        text: 'Porque un filtro único siempre se queda corto',
+        correct: false,
+        rationale:
+          'Es una consecuencia, no la razón. Lo que decide es que cada capa responde a un riesgo concreto.',
+      },
+    ],
+    explanation:
+      'Las capas se justifican por tipo de riesgo: lo que entra, lo que sale, lo que se ejecuta. Cada una tiene su regla y su coste; un filtro genérico falla en los tres frentes.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'gi-block-audit',
+    competencyId: 'guardrails-io',
+    difficulty: 3,
+    prompt: '¿Qué hay que registrar cuando un guardrail bloquea?',
+    options: [
+      {
+        id: 'a',
+        text: 'La regla aplicada y el contenido que la disparó',
+        correct: true,
+        rationale:
+          'Correcto: sin ambos no se puede distinguir un acierto de un falso positivo al revisar.',
+      },
+      {
+        id: 'b',
+        text: 'Solo que hubo un bloqueo, para contar métricas',
+        correct: false,
+        rationale:
+          'El recuento no permite revisar nada. Se necesita saber qué regla y con qué contenido.',
+      },
+      {
+        id: 'c',
+        text: 'El prompt completo del sistema en ese momento',
+        correct: false,
+        rationale:
+          'Es contexto interno y voluminoso. Lo relevante es la regla y el texto que la activó.',
+      },
+    ],
+    explanation:
+      'Un bloqueo es una decisión, y las decisiones se auditan. Registrar regla y contenido permite detectar falsos positivos y ajustar el criterio con datos.',
+    referenceId: 'ref-anthropic-system',
+  },
+
+  {
+    id: 'oc-logs-with-pii',
+    competencyId: 'observability-cost',
+    difficulty: 2,
+    prompt: 'Tus trazas guardan los prompts completos de los usuarios. ¿Qué riesgo hay?',
+    options: [
+      {
+        id: 'a',
+        text: 'Datos personales en un log sin política',
+        correct: true,
+        rationale:
+          'Correcto: un log es un almacén de datos. Si guarda contenido de usuarios, necesita el mismo trato.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: el log es interno y no se comparte',
+        correct: false,
+        rationale:
+          'Interno no es inocuo. Un acceso indebido o una retención excesiva bastan para el problema.',
+      },
+      {
+        id: 'c',
+        text: 'Solo que el log ocupa demasiado espacio',
+        correct: false,
+        rationale:
+          'El tamaño es lo de menos. El riesgo es qué contiene, cuánto dura y quién puede verlo.',
+      },
+    ],
+    explanation:
+      'Observar exige registrar, y registrar contenido de usuarios es tratar datos personales. Las trazas necesitan retención, acceso y anonimización tan definidos como la base de datos.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'oc-alert-targets',
+    competencyId: 'observability-cost',
+    difficulty: 2,
+    prompt: '¿Sobre qué conviene alertar de un servicio con modelo?',
+    options: [
+      {
+        id: 'a',
+        text: 'Sobre p95 y tasa de error, no sobre la media',
+        correct: true,
+        rationale:
+          'Correcto: las alertas describen el sufrimiento del usuario, que vive en la cola.',
+      },
+      {
+        id: 'b',
+        text: 'Sobre la latencia media de cada hora',
+        correct: false,
+        rationale:
+          'La media esconde la cola. Una hora con p95 de cinco segundos puede tener media normal.',
+      },
+      {
+        id: 'c',
+        text: 'Sobre el mínimo registrado en el día',
+        correct: false,
+        rationale:
+          'El mínimo solo dice lo mejor que fue. Nadie vive el mínimo.',
+      },
+    ],
+    explanation:
+      'Las alertas deben corresponder a lo que rompe la experiencia. Con latencias de cola larga, el percentil alto y la tasa de error describen el incidente mucho mejor que el promedio.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'oc-sampling',
+    competencyId: 'observability-cost',
+    difficulty: 3,
+    prompt: 'Trazar el 100 % de las peticiones es caro. ¿Qué estrategia conviene?',
+    options: [
+      {
+        id: 'a',
+        text: 'Una muestra amplia más todas las que fallan',
+        correct: true,
+        rationale:
+          'Correcto: el muestreo da la visión general y los fallos se conservan enteros, que es donde se investiga.',
+      },
+      {
+        id: 'b',
+        text: 'Trazar todo siempre, sin excepciones',
+        correct: false,
+        rationale:
+          'El coste crece con el volumen y, cuando llega el incidente, se paga igual de caro.',
+      },
+      {
+        id: 'c',
+        text: 'No trazar y confiar en las métricas agregadas',
+        correct: false,
+        rationale:
+          'Sin trazas no se puede reconstruir una petición concreta, que es lo que se necesita al depurar.',
+      },
+    ],
+    explanation:
+      'La observabilidad se presupuesta como el resto. Muestrear con sesgo hacia los errores conserva lo que sirve para investigar sin pagar por cada petición correcta.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'oc-cost-dimensions',
+    competencyId: 'observability-cost',
+    difficulty: 3,
+    prompt: '¿Con qué dimensiones atribuyes el coste de un sistema con modelo?',
+    options: [
+      {
+        id: 'a',
+        text: 'Por función, ruta de modelo y usuario',
+        correct: true,
+        rationale:
+          'Correcto: esas tres permiten decidir qué optimizar y quién genera el gasto.',
+      },
+      {
+        id: 'b',
+        text: 'Solo el total por día y por proveedor',
+        correct: false,
+        rationale:
+          'El total diario no dice qué apagar. Sin dimensiones, cualquier recorte es una apuesta.',
+      },
+      {
+        id: 'c',
+        text: 'Solo por modelo utilizado',
+        correct: false,
+        rationale:
+          'Sabes cuánto cuesta cada modelo y no qué parte del producto lo usa ni por qué.',
+      },
+    ],
+    explanation:
+      'El coste se optimiza donde se puede actuar: una función concreta, una ruta, un usuario. El agregado por proveedor informa de la factura, no de la decisión.',
+    referenceId: 'ref-openai-tokens',
+  },
+
+  {
+    id: 'pi-indirect-source',
+    competencyId: 'prompt-injection-defense',
+    difficulty: 2,
+    prompt: '¿Por dónde entra una inyección indirecta de prompt?',
+    options: [
+      {
+        id: 'a',
+        text: 'En un documento o web que el sistema lee',
+        correct: true,
+        rationale:
+          'Correcto: el ataque viaja en contenido que el agente trata como dato y acaba como instrucción.',
+      },
+      {
+        id: 'b',
+        text: 'En el prompt de sistema que escribes tú',
+        correct: false,
+        rationale:
+          'Eso lo controlas tú. La inyección viene de lo que no escribes: el contenido externo.',
+      },
+      {
+        id: 'c',
+        text: 'En el código del agente, mediante parches',
+        correct: false,
+        rationale:
+          'Eso sería otra clase de ataque. La inyección explota el canal de datos hacia el modelo.',
+      },
+    ],
+    explanation:
+      'La forma indirecta es la más frecuente en sistemas con recuperación: el texto recuperado contiene órdenes y el modelo no distingue el canal. Se defiende con permisos, no con advertencias.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'pi-tool-scope',
+    competencyId: 'prompt-injection-defense',
+    difficulty: 2,
+    prompt: 'Un agente lee correos y tiene herramientas. ¿Qué mínimo aplicas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que no pueda enviar nada sin aprobación',
+        correct: true,
+        rationale:
+          'Correcto: la combinación de leer contenido ajeno y actuar sin control es el escenario clásico.',
+      },
+      {
+        id: 'b',
+        text: 'Que no lea correos, para eliminar el riesgo',
+        correct: false,
+        rationale:
+          'Elimina la función, no el riesgo: el agente no sirve para lo que se le pide.',
+      },
+      {
+        id: 'c',
+        text: 'Que use un modelo más grande y prudente',
+        correct: false,
+        rationale:
+          'La prudencia no es una garantía. La barrera tiene que estar en las herramientas.',
+      },
+    ],
+    explanation:
+      'La defensa efectiva es el mínimo privilegio: leer y actuar en el mismo agente convierte una inyección en una cadena completa. La aprobación humana rompe esa cadena.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'pi-text-filter-limits',
+    competencyId: 'prompt-injection-defense',
+    difficulty: 3,
+    prompt: '¿Por qué un filtro de texto no basta para detectar inyecciones?',
+    options: [
+      {
+        id: 'a',
+        text: 'El ataque cabe en lenguaje normal y legítimo',
+        correct: true,
+        rationale:
+          'Correcto: «resume esto y envía el resultado a…» es texto corriente. No hay firma que buscar.',
+      },
+      {
+        id: 'b',
+        text: 'Porque los filtros de texto son demasiado lentos',
+        correct: false,
+        rationale:
+          'La latencia es un problema distinto. Un filtro rápido tampoco detectaría el ataque.',
+      },
+      {
+        id: 'c',
+        text: 'Porque no existen filtros de texto fiables',
+        correct: false,
+        rationale:
+          'Existen y sirven para otras cosas. Aquí el problema es que la forma del ataque es inocua.',
+      },
+    ],
+    explanation:
+      'La inyección no tiene una firma léxica: es una instrucción bien escrita dentro de un documento. Por eso se defiende con arquitectura —permisos, separación de canales, aprobación— y no con patrones.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'pi-red-team',
+    competencyId: 'prompt-injection-defense',
+    difficulty: 3,
+    prompt: '¿Cómo compruebas que tu sistema resiste una inyección?',
+    options: [
+      {
+        id: 'a',
+        text: 'Intentando inyectar tú, con casos conocidos',
+        correct: true,
+        rationale:
+          'Correcto: la resistencia se prueba atacando, no leyendo el prompt ni confiando en el proveedor.',
+      },
+      {
+        id: 'b',
+        text: 'Revisando el prompt de sistema y su redacción',
+        correct: false,
+        rationale:
+          'La redacción ayuda y no demuestra nada. El ataque real llega por el contenido, no por tu prompt.',
+      },
+      {
+        id: 'c',
+        text: 'Confiar en las protecciones del proveedor del modelo',
+        correct: false,
+        rationale:
+          'El proveedor protege su modelo, no tu arquitectura. Las herramientas y permisos son tuyos.',
+      },
+    ],
+    explanation:
+      'La inyección se verifica empíricamente: un conjunto de ataques conocidos —exfiltración, cambio de tarea, uso indebido de herramientas— que se ejecuta contra el sistema y se mide.',
+    referenceId: 'ref-anthropic-system',
+  },
 ];

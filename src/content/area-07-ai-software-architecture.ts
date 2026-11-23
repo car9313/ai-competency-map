@@ -666,4 +666,522 @@ export const ITEMS_AREA_07: readonly Item[] = [
       'Un timeout convierte «no sé qué pasa» en un error manejable: se reintenta, se degrada o se avisa. Sin él, el fallo se manifiesta como una pantalla que nunca termina de cargar.',
     referenceId: 'ref-rules-ml',
   },
+
+  // ── segunda tanda: hasta 8 ítems por competencia ────────────────────────────
+
+  {
+    id: 'pa-adapter-parity',
+    competencyId: 'provider-abstraction',
+    difficulty: 2,
+    prompt: '¿Cómo compruebas que dos adaptadores de proveedor se comportan igual?',
+    options: [
+      {
+        id: 'a',
+        text: 'La misma batería de casos contra los dos',
+        correct: true,
+        rationale:
+          'Correcto: la interfaz promete equivalencia; solo una prueba común demuestra que se cumple.',
+      },
+      {
+        id: 'b',
+        text: 'Leyendo el código de los dos adaptadores',
+        correct: false,
+        rationale:
+          'La lectura detecta diferencias obvias, no las de comportamiento ante casos límite.',
+      },
+      {
+        id: 'c',
+        text: 'Usando solo el proveedor que parece más fiable',
+        correct: false,
+        rationale:
+          'Deja el otro adaptador sin validar hasta el día del cambio, que es el peor momento.',
+      },
+    ],
+    explanation:
+      'Una abstracción es una promesa de equivalencia, y las promesas se comprueban. La misma batería contra ambos adaptadores es lo que permite cambiar de proveedor sin sorpresas.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'pa-normalized-errors',
+    competencyId: 'provider-abstraction',
+    difficulty: 2,
+    prompt: 'Cada proveedor devuelve errores con códigos y formatos distintos. ¿Qué conviene?',
+    options: [
+      {
+        id: 'a',
+        text: 'Normalizarlos en tu propia interfaz',
+        correct: true,
+        rationale:
+          'Correcto: el dominio trata categorías propias —transitorio, límite, inválido— y no códigos ajenos.',
+      },
+      {
+        id: 'b',
+        text: 'Pasar el código del proveedor tal cual',
+        correct: false,
+        rationale:
+          'Filtra el proveedor al dominio. Cada capa acabará con un `if` por marca.',
+      },
+      {
+        id: 'c',
+        text: 'Ignorar los errores y reintentar siempre',
+        correct: false,
+        rationale:
+          'Reintentar un error de validación repite el fallo. Sin categorías no se puede decidir.',
+      },
+    ],
+    explanation:
+      'Los errores son parte de la interfaz. Normalizarlos a un vocabulario propio permite reintentar, degradar o avisar sin saber qué proveedor está detrás.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'pa-interface-growth',
+    competencyId: 'provider-abstraction',
+    difficulty: 3,
+    prompt: 'Tu interfaz gana un método nuevo cada vez que un proveedor estrena algo. ¿Qué señal es?',
+    options: [
+      {
+        id: 'a',
+        text: 'Está copiando el catálogo del proveedor',
+        correct: true,
+        rationale:
+          'Correcto: la abstracción dejó de expresar lo que necesitas y pasó a reflejar lo que te ofrecen.',
+      },
+      {
+        id: 'b',
+        text: 'Está madurando y cubre cada vez más',
+        correct: false,
+        rationale:
+          'Cubrir más no es madurar. Una interfaz que crece con el proveedor vuelve a acoplarte a él.',
+      },
+      {
+        id: 'c',
+        text: 'Necesitas un segundo proveedor cuanto antes',
+        correct: false,
+        rationale:
+          'Añadir proveedores multiplica el problema. Antes hay que decidir qué necesita el producto.',
+      },
+    ],
+    explanation:
+      'La interfaz se define por lo que el producto necesita, no por lo que el proveedor ofrece. Cuando crece en espejo del proveedor, la capa informa y deja de proteger.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'pa-migration-readiness',
+    competencyId: 'provider-abstraction',
+    difficulty: 3,
+    prompt: 'Antes de cambiar de proveedor en producción, ¿qué necesitas tener?',
+    options: [
+      {
+        id: 'a',
+        text: 'La calidad del nuevo medida con tus casos',
+        correct: true,
+        rationale:
+          'Correcto: sin medir, el cambio de proveedor es un cambio de comportamiento a ciegas.',
+      },
+      {
+        id: 'b',
+        text: 'El precio más bajo del mercado',
+        correct: false,
+        rationale:
+          'El precio sin calidad no es una ventaja. Un proveedor barato que falla cuesta más.',
+      },
+      {
+        id: 'c',
+        text: 'El adaptador escrito y las pruebas que pasan',
+        correct: false,
+        rationale:
+          'Es necesario y no suficiente: dice que se comporta igual en forma, no en acierto.',
+      },
+    ],
+    explanation:
+      'La abstracción resuelve el trabajo mecánico del cambio, no la decisión. Cambiar de proveedor exige comparar calidad con tus propios casos, igual que cualquier cambio de modelo.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'mr-route-by-difficulty',
+    competencyId: 'model-routing',
+    difficulty: 2,
+    prompt: '¿Con qué criterio conviene enrutar entre modelos?',
+    options: [
+      {
+        id: 'a',
+        text: 'Por tipo de tarea y dificultad medida',
+        correct: true,
+        rationale:
+          'Correcto: el criterio sale de comparar resultados por tipo, no de una intuición sobre el texto.',
+      },
+      {
+        id: 'b',
+        text: 'Por la longitud del prompt recibido',
+        correct: false,
+        rationale:
+          'La longitud mide tamaño, no dificultad. Un texto largo puede ser trivial y uno corto, ambiguo.',
+      },
+      {
+        id: 'c',
+        text: 'Por la hora a la que llega la petición',
+        correct: false,
+        rationale:
+          'La hora no dice nada de la tarea. Enrutar así es repartir al azar con apariencia de sistema.',
+      },
+    ],
+    explanation:
+      'El enrutado es una hipótesis sobre qué modelo resuelve qué tipo de tarea. Se construye clasificando por tarea y midiendo, no por una propiedad superficial del texto.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'mr-route-tests',
+    competencyId: 'model-routing',
+    difficulty: 2,
+    prompt: '¿Qué necesita el enrutador para no degradar la calidad sin que nadie lo note?',
+    options: [
+      {
+        id: 'a',
+        text: 'Casos de prueba por cada ruta',
+        correct: true,
+        rationale:
+          'Correcto: el promedio global esconde la ruta que falla. Se mide por ruta, por separado.',
+      },
+      {
+        id: 'b',
+        text: 'Un modelo mayor como respaldo',
+        correct: false,
+        rationale:
+          'El respaldo existe justo porque la ruta falla. Sin medirla, el fallo se paga en silencio.',
+      },
+      {
+        id: 'c',
+        text: 'Más rutas para repartir la carga',
+        correct: false,
+        rationale:
+          'Más rutas multiplican los sitios donde la calidad puede caer sin que se note.',
+      },
+    ],
+    explanation:
+      'Un enrutado sin medición por ruta es un ahorro invisible que alguien paga en calidad. Cada ruta necesita sus casos, igual que el sistema completo.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'mr-hidden-escalation',
+    competencyId: 'model-routing',
+    difficulty: 3,
+    prompt: 'La ruta barata falla el 20 % y escala al modelo caro sin registrarlo. ¿Qué problema hay?',
+    options: [
+      {
+        id: 'a',
+        text: 'El coste real se paga sin que nadie lo vea',
+        correct: true,
+        rationale:
+          'Correcto: el ahorro estimado es falso. Un quinto de las llamadas se factura al precio caro.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: el usuario recibe buena respuesta',
+        correct: false,
+        rationale:
+          'La respuesta es buena y la factura no. Sin registro, el sistema parece más barato de lo que es.',
+      },
+      {
+        id: 'c',
+        text: 'Que la latencia media baja demasiado',
+        correct: false,
+        rationale:
+          'La latencia no baja por escalar. Lo que se distorsiona es el modelo de coste.',
+      },
+    ],
+    explanation:
+      'El escalado es correcto como mecanismo y engañoso como contabilidad. Si se hace, se registra: es el dato que dice si la ruta barata está sirviendo o solo disimulando.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'mr-when-routing-is-overkill',
+    competencyId: 'model-routing',
+    difficulty: 3,
+    prompt: '¿Cuándo no compensa enrutar entre modelos?',
+    options: [
+      {
+        id: 'a',
+        text: 'Con volumen bajo y tareas homogéneas',
+        correct: true,
+        rationale:
+          'Correcto: la complejidad del enrutador cuesta más que el ahorro en pocas llamadas iguales.',
+      },
+      {
+        id: 'b',
+        text: 'Con mucho volumen y tareas muy distintas',
+        correct: false,
+        rationale:
+          'Es justo el caso ideal: hay mezcla que separar y volumen para que el ahorro pese.',
+      },
+      {
+        id: 'c',
+        text: 'Cuando el presupuesto ya está ajustado',
+        correct: false,
+        rationale:
+          'Si el presupuesto aprieta, el enrutado ayuda; el problema es que añade mantenimiento.',
+      },
+    ],
+    explanation:
+      'El enrutado se amortiza con heterogeneidad y volumen. Con tareas parecidas, basta un modelo; con pocas llamadas, el ahorro no paga el sistema de rutas ni su medición.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'or-idempotent-steps',
+    competencyId: 'orchestration-patterns',
+    difficulty: 2,
+    prompt: 'Un pipeline puede reintentar pasos. ¿Qué necesita cada paso?',
+    options: [
+      {
+        id: 'a',
+        text: 'Ser idempotente o registrar su efecto',
+        correct: true,
+        rationale:
+          'Correcto: sin eso, el reintento repite el efecto y el fallo se convierte en duplicado.',
+      },
+      {
+        id: 'b',
+        text: 'Ejecutarse con el modelo más rápido',
+        correct: false,
+        rationale:
+          'La velocidad no evita el duplicado. El problema es de efectos, no de latencia.',
+      },
+      {
+        id: 'c',
+        text: 'Tener un timeout más largo que los demás',
+        correct: false,
+        rationale:
+          'Alarga la espera y no resuelve el reintento. El efecto se repetiría igual.',
+      },
+    ],
+    explanation:
+      'El reintento es parte del diseño de cualquier pipeline con dependencias externas. O los pasos se pueden repetir sin daño, o hay que saber cuáles ya se aplicaron.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'or-partial-fanout-failure',
+    competencyId: 'orchestration-patterns',
+    difficulty: 2,
+    prompt: 'En un abanico de cinco subtareas, una falla. ¿Qué decide el sistema?',
+    options: [
+      {
+        id: 'a',
+        text: 'Si el resultado parcial ya sirve para el objetivo',
+        correct: true,
+        rationale:
+          'Correcto: la respuesta depende de la tarea. A veces cuatro de cinco bastan y a veces no.',
+      },
+      {
+        id: 'b',
+        text: 'Descartar todo el abanico y repetirlo entero',
+        correct: false,
+        rationale:
+          'Tira trabajo correcto y paga otra vez las cuatro que iban bien. Solo procede si la tarea es atómica.',
+      },
+      {
+        id: 'c',
+        text: 'Ignorar el fallo y seguir con lo que haya',
+        correct: false,
+        rationale:
+          'Oculta el problema. El resultado se presenta como completo sin serlo.',
+      },
+    ],
+    explanation:
+      'La política ante el fallo parcial es una decisión de producto: qué significa «suficiente» en esa tarea. Se define antes, no cuando ocurre el fallo.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'or-state-location',
+    competencyId: 'orchestration-patterns',
+    difficulty: 3,
+    prompt: '¿Dónde debe vivir el estado de una orquestación larga?',
+    options: [
+      {
+        id: 'a',
+        text: 'Fuera del proceso, para sobrevivir a un reinicio',
+        correct: true,
+        rationale:
+          'Correcto: si el proceso muere, el trabajo hecho no puede evaporarse con él.',
+      },
+      {
+        id: 'b',
+        text: 'En la memoria del proceso que orquesta',
+        correct: false,
+        rationale:
+          'Un despliegue o una caída se lleva todo el progreso. La orquestación no puede ser efímera.',
+      },
+      {
+        id: 'c',
+        text: 'En el prompt, para que el modelo lo recuerde',
+        correct: false,
+        rationale:
+          'El prompt no es almacenamiento. Y crece sin control hasta agotar el contexto.',
+      },
+    ],
+    explanation:
+      'Una orquestación dura más que un proceso: minutos, horas o días. El estado tiene que persistir para poder reanudar, y eso implica guardarlo de forma explícita.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'or-debuggability',
+    competencyId: 'orchestration-patterns',
+    difficulty: 3,
+    prompt: 'La orquestación falla al tercer paso y no sabes por qué. ¿Qué faltaba?',
+    options: [
+      {
+        id: 'a',
+        text: 'Trazas por paso con entrada y salida',
+        correct: true,
+        rationale:
+          'Correcto: sin ver qué recibió y qué devolvió cada paso, el fallo se investiga adivinando.',
+      },
+      {
+        id: 'b',
+        text: 'El prompt inicial completo del coordinador',
+        correct: false,
+        rationale:
+          'Explica la intención y no lo que ocurrió. El error está en un paso intermedio.',
+      },
+      {
+        id: 'c',
+        text: 'El coste total de la ejecución fallida',
+        correct: false,
+        rationale:
+          'Sabe cuánto se gastó, no dónde se rompió ni con qué datos.',
+      },
+    ],
+    explanation:
+      'Cada patrón de orquestación añade capas, y con ellas modos de fallo. La trazabilidad por paso es lo que convierte «algo falló» en «falló aquí, con esta entrada».',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'rf-circuit-breaker',
+    competencyId: 'resilience-fallback',
+    difficulty: 2,
+    prompt: 'El proveedor lleva diez minutos devolviendo errores. ¿Qué conviene hacer?',
+    options: [
+      {
+        id: 'a',
+        text: 'Dejar de llamarlo y fallar rápido',
+        correct: true,
+        rationale:
+          'Correcto: seguir llamando alarga la espera del usuario y mantiene cargado el servicio caído.',
+      },
+      {
+        id: 'b',
+        text: 'Reintentar en cada petición sin parar',
+        correct: false,
+        rationale:
+          'Multiplica la carga sobre un servicio que ya no responde y propaga la caída.',
+      },
+      {
+        id: 'c',
+        text: 'Aumentar el timeout para darle más margen',
+        correct: false,
+        rationale:
+          'Alarga la espera sin mejorar la probabilidad. El servicio está caído, no lento.',
+      },
+    ],
+    explanation:
+      'El cortacircuitos convierte una caída ajena en un fallo rápido y controlado: se deja de insistir, se activa la alternativa y se reintenta el servicio con medida.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'rf-retry-budget',
+    competencyId: 'resilience-fallback',
+    difficulty: 2,
+    prompt: 'Reintentas hasta tres veces por paso, y hay pasos que se encadenan. ¿Qué riesgo hay?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que el tiempo total se multiplique sin control',
+        correct: true,
+        rationale:
+          'Correcto: tres reintentos en cuatro pasos son muchas más esperas que las previstas.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: los reintentos mejoran la fiabilidad',
+        correct: false,
+        rationale:
+          'Mejoran la fiabilidad por paso y degradan la latencia del conjunto. Hay que presupuestar.',
+      },
+      {
+        id: 'c',
+        text: 'Solo que sube el coste en tokens',
+        correct: false,
+        rationale:
+          'El coste importa, y el problema principal es la espera acumulada del usuario.',
+      },
+    ],
+    explanation:
+      'Los reintentos se presupuestan sobre el conjunto, no por paso. Sin un límite global, tres reintentos encadenados convierten una petición de un segundo en una de nueve.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'rf-fallback-scope',
+    competencyId: 'resilience-fallback',
+    difficulty: 3,
+    prompt: 'El modelo de respaldo es peor en calidad. ¿Qué hay que definir antes de usarlo?',
+    options: [
+      {
+        id: 'a',
+        text: 'Qué tareas no admite ese respaldo',
+        correct: true,
+        rationale:
+          'Correcto: para extracción validada puede servir; para decisiones con efecto, quizá no.',
+      },
+      {
+        id: 'b',
+        text: 'Nada: es mejor que fallar siempre',
+        correct: false,
+        rationale:
+          'Fallar de forma controlada es preferible a responder mal en una tarea crítica sin avisar.',
+      },
+      {
+        id: 'c',
+        text: 'Nada: se usa solo cuando el principal falla',
+        correct: false,
+        rationale:
+          'La condición de uso no dice si el resultado es admisible en esa tarea concreta.',
+      },
+    ],
+    explanation:
+      'Un respaldo es un modelo distinto, no una versión degradada del mismo. Su alcance se define por tarea: dónde su calidad basta y dónde es mejor no responder.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'rf-error-classification',
+    competencyId: 'resilience-fallback',
+    difficulty: 3,
+    prompt: '¿Cómo distingues un error transitorio de uno permanente?',
+    options: [
+      {
+        id: 'a',
+        text: 'Por el tipo de error y la respuesta anterior',
+        correct: true,
+        rationale:
+          'Correcto: límite de tasa o tiempo agotado son transitorios; validación o permisos, no.',
+      },
+      {
+        id: 'b',
+        text: 'Por la latencia que tuvo la llamada',
+        correct: false,
+        rationale:
+          'La latencia no clasifica el error. Un fallo rápido de validación es permanente.',
+      },
+      {
+        id: 'c',
+        text: 'Reintentando y viendo qué pasa',
+        correct: false,
+        rationale:
+          'Reintentar es la consecuencia, no la clasificación. Sin criterio, se reintenta lo que nunca funcionará.',
+      },
+    ],
+    explanation:
+      'La clasificación se hace antes del reintento, con el código de error y el contexto. Reintentar un error determinista solo gasta presupuesto y retrasa el diagnóstico.',
+    referenceId: 'ref-rules-ml',
+  },
 ];
