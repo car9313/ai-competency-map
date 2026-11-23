@@ -26,7 +26,16 @@ const DOMAIN_IMPORT_PATTERNS = [
 
 export default tseslint.config(
   {
-    ignores: ['node_modules/**', '.next/**', 'out/**', 'next-env.d.ts', 'pnpm-lock.yaml'],
+    // public/** son activos que se copian tal cual (entre ellos el service worker, que se
+    // ejecuta en un contexto con sus propios globales). No se lintean como código fuente.
+    ignores: [
+      'node_modules/**',
+      '.next/**',
+      'out/**',
+      'public/**',
+      'next-env.d.ts',
+      'pnpm-lock.yaml',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

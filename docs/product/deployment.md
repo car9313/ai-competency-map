@@ -77,6 +77,39 @@ desplegar.
 | Consola sin errores | Sin violaciones de CSP |
 | 404 | `/ruta-que-no-existe` muestra la página propia |
 
+## Instalable y sin conexión (PWA)
+
+Sale de tres piezas estáticas, sin build aparte:
+
+| Pieza | Archivo | Nota |
+|---|---|---|
+| Manifest | `public/manifest.webmanifest` | Nombre, iconos, `display: standalone` |
+| Iconos | `public/icons/` | 192, 512 y una variante *maskable* |
+| Service worker | `public/sw.js` | Estrategia por tipo de recurso |
+
+**Estrategia**, que no es una sola para todo:
+
+- `/_next/static/**` e `/icons/**` → *cache-first*. Llevan el hash del contenido en el
+  nombre, así que lo cacheado no puede quedarse obsoleto.
+- Navegaciones (HTML) → *network-first* con vuelta a caché. Una versión nueva llega al
+  recargar; sin conexión se sirve lo último visto.
+- Todo lo demás → red, y si falla no hay respuesta inventada.
+
+**Dos cabeceras importan** y están en `vercel.json`:
+
+- `/sw.js` con `max-age=0, must-revalidate`. Un service worker cacheado es un service
+  worker que no se actualiza, y el fallo se ve semanas después.
+- `/manifest.webmanifest` con `application/manifest+json`.
+
+**Al desplegar una versión nueva** que cambie la estrategia, sube `VERSION` en `sw.js`.
+El `activate` borra las cachés que no sean la actual.
+
+**Cómo comprobarlo:**
+
+1. Abre la app, navega por tres o cuatro páginas.
+2. DevTools → Application → Service Workers: debe aparecer activo.
+3. Application → Cache Storage: `acm-v1` con las rutas visitadas.
+4. DevTools → Network → *Offline*, recarga: la página sale del caché.
 ## Otros hosts
 
 Sirve `out/` como estático. Dos detalles:

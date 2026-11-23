@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ThemeToggle } from '@/shared/ui/ThemeToggle';
 import { SidebarToday } from '@/features/assessment/presentation/SidebarToday';
 import { contentIndex } from '@/content';
+import { ServiceWorkerRegister } from './ServiceWorkerRegister';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
   },
   description:
     'Mapa de competencias de AI Engineering donde el progreso se deriva de evidencia, no de casillas marcadas.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: { capable: true, title: 'AI Competency Map', statusBarStyle: 'black-translucent' },
 };
 
 const NAV = [
@@ -56,6 +59,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="min-h-screen">
+        <ServiceWorkerRegister />
         <a
           href="#contenido"
           className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-accent-bg focus:px-4 focus:py-2 focus:text-white"

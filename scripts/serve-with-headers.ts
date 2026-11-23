@@ -22,12 +22,14 @@ const CSP = JSON.parse(readFileSync('vercel.json', 'utf8')).headers[0].headers a
 
 const TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript',
   '.css': 'text/css',
   '.svg': 'image/svg+xml',
   '.json': 'application/json',
   '.woff2': 'font/woff2',
   '.ico': 'image/x-icon',
+  '.png': 'image/png',
+  '.webmanifest': 'application/manifest+json',
+  '.js': 'text/javascript',
   '.txt': 'text/plain; charset=utf-8',
 };
 
