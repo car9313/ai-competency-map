@@ -517,4 +517,522 @@ export const ITEMS_AREA_01: readonly Item[] = [
       'En sistemas híbridos, la regla de oro es que exista un punto único donde se decide y que la validación sea determinista. El modelo propone; algo verificable dispone.',
     referenceId: 'ref-rules-ml',
   },
+
+  // ── segunda tanda: hasta 8 ítems por competencia ────────────────────────────
+
+  {
+    id: 'ml-unstructured-data',
+    competencyId: 'ai-ml-dl-boundaries',
+    difficulty: 2,
+    prompt: '¿Qué tipo de dato hace que el deep learning sea la opción natural?',
+    options: [
+      {
+        id: 'a',
+        text: 'Texto o imagen crudos, sin variables definidas',
+        correct: true,
+        rationale:
+          'Correcto: sin variables dadas de antemano, las capas aprenden representaciones. Ese es su terreno.',
+      },
+      {
+        id: 'b',
+        text: 'Una tabla de ventas con veinte columnas',
+        correct: false,
+        rationale:
+          'Con variables ya significativas, el machine learning clásico suele rendir igual y cuesta menos operar.',
+      },
+      {
+        id: 'c',
+        text: 'Un cálculo con reglas contables estables',
+        correct: false,
+        rationale:
+          'Eso pide reglas, no un modelo: es determinista, auditable y no necesita aprender nada.',
+      },
+    ],
+    explanation:
+      'El deep learning brilla cuando el dato es no estructurado y abundante: texto, audio, imagen. Donde las variables ya vienen dadas, su ventaja desaparece y su coste de operación sigue ahí.',
+    referenceId: 'ref-dl-book',
+  },
+  {
+    id: 'ml-explainability-demand',
+    competencyId: 'ai-ml-dl-boundaries',
+    difficulty: 3,
+    prompt: 'Un regulador exige explicar por qué se denegó un crédito. ¿Qué implica para el sistema?',
+    options: [
+      {
+        id: 'a',
+        text: 'Lógica explícita, o modelo explicable con validación fuera',
+        correct: true,
+        rationale:
+          'Correcto: hay que poder justificar el caso concreto, no solo el promedio del modelo.',
+      },
+      {
+        id: 'b',
+        text: 'Cualquier modelo, siempre que su precisión sea alta',
+        correct: false,
+        rationale:
+          'La precisión describe el promedio. El requisito habla de una decisión individual y de sus razones.',
+      },
+      {
+        id: 'c',
+        text: 'Basta con documentar el conjunto de entrenamiento',
+        correct: false,
+        rationale:
+          'Documentar los datos no explica por qué esa solicitud se denegó. Faltan las razones del caso.',
+      },
+    ],
+    explanation:
+      'Explicar una decisión exige trazabilidad sobre ese caso: qué reglas o qué factores intervinieron. Si el modelo es imprescindible, la explicación se construye alrededor y se valida, no se supone.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ml-model-not-magic',
+    competencyId: 'ai-ml-dl-boundaries',
+    difficulty: 1,
+    prompt: 'El equipo espera que el modelo «descubra» solo qué es fraude. ¿Qué falta en ese plan?',
+    options: [
+      {
+        id: 'a',
+        text: 'Ejemplos de fraude ya etiquetados como tales',
+        correct: true,
+        rationale:
+          'Correcto: sin ejemplos de lo que quieres detectar no hay señal que imitar, solo intuición.',
+      },
+      {
+        id: 'b',
+        text: 'Más capacidad de cálculo para el modelo',
+        correct: false,
+        rationale:
+          'El cómputo acelera el entrenamiento de algo que ya está definido. No define el objetivo.',
+      },
+      {
+        id: 'c',
+        text: 'Un prompt mejor escrito sobre el problema',
+        correct: false,
+        rationale:
+          'Un prompt describe la tarea, no la enseña. Sin ejemplos, el modelo adivina qué cuenta como fraude.',
+      },
+    ],
+    explanation:
+      'Un modelo aprende de ejemplos, no de intenciones. Si nadie ha marcado qué operaciones fueron fraude, el sistema no tiene contra qué ajustarse y el resultado será una definición implícita y no auditada.',
+    referenceId: 'ref-isl',
+  },
+  {
+    id: 'ml-probability-reading',
+    competencyId: 'ai-ml-dl-boundaries',
+    difficulty: 3,
+    prompt: 'El modelo devuelve 0,82 para una clase. ¿Qué significa exactamente?',
+    options: [
+      {
+        id: 'a',
+        text: 'Una estimación con error, no una garantía',
+        correct: true,
+        rationale:
+          'Correcto: es una probabilidad asignada por el modelo, con su calibración y su margen de error.',
+      },
+      {
+        id: 'b',
+        text: 'Que acertará el 82 % de las veces que diga eso',
+        correct: false,
+        rationale:
+          'Solo sería cierto si el modelo estuviera bien calibrado, y eso hay que comprobarlo aparte.',
+      },
+      {
+        id: 'c',
+        text: 'Que hay 82 casos de esa clase en los datos',
+        correct: false,
+        rationale:
+          'Es una probabilidad por caso, no un recuento del conjunto de entrenamiento.',
+      },
+    ],
+    explanation:
+      'Un 0,82 es una estimación, y su utilidad depende de la calibración: de que cuando el modelo dice 0,8, acierte de verdad en torno al 80 % de las veces. Si la decisión exige certeza, la validación va fuera.',
+    referenceId: 'ref-dl-book',
+  },
+
+  {
+    id: 'sup-regression-vs-classification',
+    competencyId: 'supervised-vs-unsupervised',
+    difficulty: 1,
+    prompt: 'Quieres predecir el precio de una vivienda a partir de sus características. ¿Qué tarea es?',
+    options: [
+      {
+        id: 'a',
+        text: 'Regresión supervisada: un número continuo',
+        correct: true,
+        rationale:
+          'Correcto: hay respuesta conocida (precios históricos) y el objetivo es un valor, no una categoría.',
+      },
+      {
+        id: 'b',
+        text: 'Clasificación: hay que elegir una clase',
+        correct: false,
+        rationale:
+          'Clasificar es elegir entre categorías. Un precio no es una clase, es un número con orden y distancia.',
+      },
+      {
+        id: 'c',
+        text: 'Agrupación: no hay etiqueta que predecir',
+        correct: false,
+        rationale:
+          'Sí hay etiqueta: el precio. Y no buscas grupos, buscas el valor de un caso concreto.',
+      },
+    ],
+    explanation:
+      'Con etiqueta y salida numérica se habla de regresión; con etiqueta y salida categórica, de clasificación. La distinción importa porque cambia la métrica y el tratamiento del error.',
+    referenceId: 'ref-isl',
+  },
+  {
+    id: 'sup-reward-delay',
+    competencyId: 'supervised-vs-unsupervised',
+    difficulty: 3,
+    prompt: '¿Qué hace difícil de verdad el aprendizaje por refuerzo?',
+    options: [
+      {
+        id: 'a',
+        text: 'La recompensa llega tarde y hay que explorar',
+        correct: true,
+        rationale:
+          'Correcto: el agente no sabe qué acción fue la buena y debe probar opciones sin saber el resultado.',
+      },
+      {
+        id: 'b',
+        text: 'Necesita más datos etiquetados que el supervisado',
+        correct: false,
+        rationale:
+          'Justo lo contrario: no usa etiquetas. Su problema es atribuir la recompensa a acciones pasadas.',
+      },
+      {
+        id: 'c',
+        text: 'Solo funciona con imágenes y con vídeo',
+        correct: false,
+        rationale:
+          'Funciona con cualquier entorno donde se actúe y se mida. El tipo de dato no es la dificultad.',
+      },
+    ],
+    explanation:
+      'El refuerzo aprende de consecuencias diferidas: la señal llega después de varias decisiones, así que asignar el mérito es el problema central. Y explorar cuesta, porque las malas acciones también se ejecutan.',
+    referenceId: 'ref-isl',
+  },
+  {
+    id: 'sup-partial-labels',
+    competencyId: 'supervised-vs-unsupervised',
+    difficulty: 2,
+    prompt: 'Tienes etiquetas del 10 % de tus datos y el resto sin marcar. ¿Qué haces primero?',
+    options: [
+      {
+        id: 'a',
+        text: 'Entrenar con ese 10 % y medir cuánto aguanta',
+        correct: true,
+        rationale:
+          'Correcto: se empieza con lo que hay y se mide la calidad para decidir cuánto más etiquetar.',
+      },
+      {
+        id: 'b',
+        text: 'Esperar a tener etiquetado el 100 %',
+        correct: false,
+        rationale:
+          'Bloquea el proyecto indefinidamente sin saber si hace falta tanto. Primero se mide la necesidad.',
+      },
+      {
+        id: 'c',
+        text: 'Usar agrupación para predecir la etiqueta',
+        correct: false,
+        rationale:
+          'Confunde agrupar con predecir. Los grupos no son las clases y no rellenan la etiqueta que falta.',
+      },
+    ],
+    explanation:
+      'Etiquetar es caro y su valor es empírico: se estima cuánto mejora el sistema por cada tanda. Empezar con una muestra y medir evita gastar en etiquetas que no cambian ninguna decisión.',
+    referenceId: 'ref-isl',
+  },
+  {
+    id: 'sup-anomaly-no-labels',
+    competencyId: 'supervised-vs-unsupervised',
+    difficulty: 2,
+    prompt: 'Quieres detectar comportamientos raros y no tienes ejemplos de «raro». ¿Qué enfoque encaja?',
+    options: [
+      {
+        id: 'a',
+        text: 'Detección de anomalías no supervisada',
+        correct: true,
+        rationale:
+          'Correcto: aprende la forma de lo normal y señala lo que se aleja, sin necesitar ejemplos del fallo.',
+      },
+      {
+        id: 'b',
+        text: 'Un clasificador binario entrenado al efecto',
+        correct: false,
+        rationale:
+          'Necesitaría ejemplos de ambas clases. Sin ejemplos de lo raro, no puede aprender a reconocerlo.',
+      },
+      {
+        id: 'c',
+        text: 'Una regresión sobre el valor esperado',
+        correct: false,
+        rationale:
+          'Estimaría un valor continuo, no la rareza de un caso. No responde a la pregunta que haces.',
+      },
+    ],
+    explanation:
+      'Cuando la clase que buscas es rara o no está etiquetada, modelar lo normal es más práctico que buscar ejemplos del fallo. Es el caso típico de fraude o de averías con pocos antecedentes.',
+    referenceId: 'ref-isl',
+  },
+
+  {
+    id: 'gen-more-data',
+    competencyId: 'generalization-overfitting',
+    difficulty: 1,
+    prompt: 'El modelo sobreajusta y tienes pocos datos. ¿Qué ataca la causa?',
+    options: [
+      {
+        id: 'a',
+        text: 'Más datos, o menos capacidad en el modelo',
+        correct: true,
+        rationale:
+          'Correcto: el sobreajuste nace del desequilibrio entre capacidad y datos. Se corrige por ese lado.',
+      },
+      {
+        id: 'b',
+        text: 'Más épocas de entrenamiento sobre lo mismo',
+        correct: false,
+        rationale:
+          'Alarga la memorización del mismo conjunto. Empeora justo lo que quieres resolver.',
+      },
+      {
+        id: 'c',
+        text: 'Cambiar la métrica con la que evalúas',
+        correct: false,
+        rationale:
+          'La métrica no cambia el modelo. Solo cambia lo que ves, y puede esconder el problema.',
+      },
+    ],
+    explanation:
+      'El sobreajuste se combate reduciendo la capacidad de memorizar o aumentando la evidencia disponible: más datos, más regularización, menos parámetros. Más entrenamiento va en la dirección contraria.',
+    referenceId: 'ref-isl',
+  },
+  {
+    id: 'gen-imbalanced-accuracy',
+    competencyId: 'generalization-overfitting',
+    difficulty: 2,
+    prompt: 'Aciertas el 99 % prediciendo siempre la clase mayoritaria. ¿Qué le falta a esa medición?',
+    options: [
+      {
+        id: 'a',
+        text: 'Una métrica que mire la clase minoritaria',
+        correct: true,
+        rationale:
+          'Correcto: con clases desequilibradas, la exactitud alta puede convivir con no detectar nunca lo importante.',
+      },
+      {
+        id: 'b',
+        text: 'Más datos de la clase mayoritaria',
+        correct: false,
+        rationale:
+          'Refuerza el desequilibrio que causa el problema. El modelo ya la acierta sin esfuerzo.',
+      },
+      {
+        id: 'c',
+        text: 'Subir la capacidad del modelo actual',
+        correct: false,
+        rationale:
+          'Con un 99 % trivial, más capacidad no aporta. Falta medir lo que de verdad importa.',
+      },
+    ],
+    explanation:
+      'La exactitud es engañosa con clases desequilibradas. Hay que mirar precisión y exhaustividad de la clase que importa, y decidir qué error es peor en ese dominio.',
+    referenceId: 'ref-isl',
+  },
+  {
+    id: 'gen-cross-validation',
+    competencyId: 'generalization-overfitting',
+    difficulty: 2,
+    prompt: '¿Para qué sirve la validación cruzada?',
+    options: [
+      {
+        id: 'a',
+        text: 'Para estimar sin depender de un solo reparto',
+        correct: true,
+        rationale:
+          'Correcto: repite el reparto y promedia, así la estimación no depende del azar de una partición.',
+      },
+      {
+        id: 'b',
+        text: 'Para entrenar el modelo mucho más rápido',
+        correct: false,
+        rationale:
+          'Entrena varias veces, así que es más lento. Lo que gana es fiabilidad de la estimación.',
+      },
+      {
+        id: 'c',
+        text: 'Para aumentar la cantidad de datos útiles',
+        correct: false,
+        rationale:
+          'No crea datos. Reutiliza los mismos en turnos distintos para medir mejor.',
+      },
+    ],
+    explanation:
+      'Con pocos datos, una única partición da una estimación de alta varianza. La validación cruzada reparte varias veces y permite ver la dispersión, que es lo que hace decidible el resultado.',
+    referenceId: 'ref-isl',
+  },
+  {
+    id: 'gen-temporal-leak',
+    competencyId: 'generalization-overfitting',
+    difficulty: 3,
+    prompt: 'Predices el futuro y partes los datos al azar. ¿Qué está mal?',
+    options: [
+      {
+        id: 'a',
+        text: 'Entrenas con datos posteriores a los de prueba',
+        correct: true,
+        rationale:
+          'Correcto: la partición aleatoria mezcla pasado y futuro. El modelo ve mañana antes de predecirlo.',
+      },
+      {
+        id: 'b',
+        text: 'El modelo se queda sin datos suficientes',
+        correct: false,
+        rationale:
+          'La cantidad no es el problema. El problema es el orden temporal de lo que entra en cada parte.',
+      },
+      {
+        id: 'c',
+        text: 'La partición es demasiado pequeña para medir',
+        correct: false,
+        rationale:
+          'El tamaño afecta a la precisión de la medida. Aquí el fallo es de fuga: la medida es inválida.',
+      },
+    ],
+    explanation:
+      'Con datos temporales, la partición se hace por fecha: entrenas con el pasado y evalúas con lo posterior. Barajar rompe esa garantía y produce métricas optimistas que no se sostienen en producción.',
+    referenceId: 'ref-isl',
+  },
+
+  {
+    id: 'det-test-repeatability',
+    competencyId: 'deterministic-vs-learned',
+    difficulty: 1,
+    prompt: '¿Qué te permite afirmar un test sobre lógica determinista?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que la misma entrada da la misma salida',
+        correct: true,
+        rationale:
+          'Correcto: sin esa garantía, un test verde no significa nada porque mañana podría dar otra cosa.',
+      },
+      {
+        id: 'b',
+        text: 'Que el modelo acierta más que las reglas',
+        correct: false,
+        rationale:
+          'Un test comprueba comportamiento esperado, no compara estrategias. Eso se mide de otra forma.',
+      },
+      {
+        id: 'c',
+        text: 'Que el sistema escala mejor con carga',
+        correct: false,
+        rationale:
+          'El escalado es una propiedad operativa distinta, y no se deduce de la reproducibilidad.',
+      },
+    ],
+    explanation:
+      'El determinismo es lo que hace que un test sea una garantía: misma entrada, misma salida, hoy y dentro de un año. Sin él, los tests se convierten en observaciones del momento.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'det-volume-cost',
+    competencyId: 'deterministic-vs-learned',
+    difficulty: 2,
+    prompt: 'Un cálculo exacto se ejecuta 10 000 veces al día. ¿Qué importa además de acertar?',
+    options: [
+      {
+        id: 'a',
+        text: 'El coste por ejecución y la latencia',
+        correct: true,
+        rationale:
+          'Correcto: a ese volumen, un coste pequeño por llamada se convierte en la factura del mes.',
+      },
+      {
+        id: 'b',
+        text: 'La marca del proveedor del modelo',
+        correct: false,
+        rationale:
+          'La marca no dice nada del coste ni de la latencia en tu caso. Se mide, no se supone.',
+      },
+      {
+        id: 'c',
+        text: 'El tamaño del conjunto de entrenamiento',
+        correct: false,
+        rationale:
+          'Si el cálculo es determinista, no hay entrenamiento. La pregunta no aplica.',
+      },
+    ],
+    explanation:
+      'A gran volumen, la aritmética cambia: lo que por llamada parecía irrelevante domina la factura. Es el argumento decisivo para resolver con reglas lo que se ejecuta miles de veces.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'det-rules-growth',
+    competencyId: 'deterministic-vs-learned',
+    difficulty: 3,
+    prompt: 'La tabla de reglas crece hasta 500 condiciones que se contradicen entre sí. ¿Qué señal es?',
+    options: [
+      {
+        id: 'a',
+        text: 'El espacio ya no es enumerable: replantea',
+        correct: true,
+        rationale:
+          'Correcto: cuando las reglas se pisan, mantenerlas cuesta más que aprender de ejemplos.',
+      },
+      {
+        id: 'b',
+        text: 'Hay que escribir todavía más reglas',
+        correct: false,
+        rationale:
+          'Es la trampa clásica: cada regla nueva resuelve un caso y rompe otro. El coste crece sin techo.',
+      },
+      {
+        id: 'c',
+        text: 'El problema pide un modelo más grande',
+        correct: false,
+        rationale:
+          'Pide cambiar de enfoque, no de tamaño. Un modelo mayor con el mismo problema falla igual.',
+      },
+    ],
+    explanation:
+      'La frontera no es tecnológica sino de mantenibilidad: cuando enumerar las reglas deja de ser posible, el problema pasa a describirse mejor con ejemplos. Ese es el momento de cambiar de técnica.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'det-decision-question',
+    competencyId: 'deterministic-vs-learned',
+    difficulty: 2,
+    prompt: '¿Qué pregunta decide de verdad entre escribir reglas o entrenar un modelo?',
+    options: [
+      {
+        id: 'a',
+        text: 'Si puedes enumerar las reglas que resuelven el caso',
+        correct: true,
+        rationale:
+          'Correcto: si puedes escribirlas y sostenerlas, ganas determinismo y trazabilidad gratis.',
+      },
+      {
+        id: 'b',
+        text: 'Cuántos datos históricos tienes disponibles',
+        correct: false,
+        rationale:
+          'Tener datos no obliga a usarlos. La pregunta es si las reglas cubren el problema o no.',
+      },
+      {
+        id: 'c',
+        text: 'Qué modelo es el más reciente del mercado',
+        correct: false,
+        rationale:
+          'La novedad no es un criterio técnico. Se elige por ajuste al problema, no por fecha.',
+      },
+    ],
+    explanation:
+      'La prueba de enumerabilidad es la que decide: si las reglas caben en la cabeza y en un archivo, escríbelas. Si el espacio de entradas es abierto, ninguna lista de reglas lo cubrirá.',
+    referenceId: 'ref-rules-ml',
+  },
 ];
