@@ -40,6 +40,7 @@ const ROUTES = [
   '/diagnostico',
   '/repaso',
   '/acerca',
+  '/guia',
 ];
 
 /**

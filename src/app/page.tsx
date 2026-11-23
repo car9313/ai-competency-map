@@ -36,6 +36,20 @@ export default function HomePage() {
 
       <TodayQueue items={items} titles={titles} competencies={competencies} />
 
+      <div className="rounded-xl border border-accent/30 bg-surface p-4">
+        <h2 className="text-sm font-semibold">¿Primera vez aquí?</h2>
+        <p className="mt-1 text-xs text-muted">
+          Hay una guía escrita para quien nunca ha usado esto, sin dar nada por sabido: qué
+          significan los estados, por qué te vuelve a preguntar y cómo guardar tu progreso.
+        </p>
+        <Link
+          href="/guia"
+          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:text-accent"
+        >
+          Leer la guía de uso
+        </Link>
+      </div>
+
       <div className="rounded-xl border border-border bg-surface p-4">
         <h2 className="text-sm font-semibold">¿Ya sabes algo de esto?</h2>
         <p className="mt-1 text-xs text-muted">

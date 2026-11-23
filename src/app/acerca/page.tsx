@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { contentIndex } from '@/content';
 import { AreaProgress } from '@/features/assessment/presentation/AreaProgress';
 import { DataPanel } from '@/features/assessment/presentation/DataPanel';
@@ -62,6 +63,15 @@ export default function AcercaPage() {
         </a>
         . Es el mismo archivo que valida el build, así que no puede desviarse de lo que ves aquí.
         Licencia CC BY-SA 4.0.
+      </p>
+
+      <p className="text-sm text-muted">
+        Si es tu primera vez, la{' '}
+        <Link href="/guia" className="text-accent underline underline-offset-4">
+          guía de uso
+        </Link>{' '}
+        explica sin tecnicismos cómo responder, qué significan los estados y cómo guardar tu
+        progreso.
       </p>
 
       <DataPanel />

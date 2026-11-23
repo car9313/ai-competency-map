@@ -102,14 +102,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="flex min-w-0 flex-1 flex-col">
             <header className="sticky top-0 z-30 border-b border-border bg-bg/90 backdrop-blur-md">
               <div className="mx-auto flex h-14 w-full max-w-[1280px] items-center justify-between gap-4 px-4 sm:px-8">
-                {/* En escritorio la navegación vive en la sidebar; aquí solo para móvil. */}
+                {/* En escritorio la navegación vive en la sidebar; aquí solo para móvil.
+                    Con seis secciones no caben en 390 px: el contenedor se desplaza en
+                    horizontal en lugar de empujar la página, que es lo que provocaba
+                    desbordamiento en todas las rutas. */}
                 <nav aria-label="Navegación" className="min-w-0 lg:hidden">
-                  <ul className="flex items-center gap-1">
+                  <ul className="-mx-1 flex items-center gap-0.5 overflow-x-auto px-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-1 [&::-webkit-scrollbar]:hidden">
                     {NAV.map((item) => (
-                      <li key={item.href}>
+                      <li key={item.href} className="shrink-0">
                         <Link
                           href={item.href}
-                          className="rounded px-2.5 py-1.5 text-sm text-muted transition-colors hover:bg-surface-2 hover:text-fg"
+                          className="block rounded px-2 py-1.5 text-[13px] whitespace-nowrap text-muted transition-colors hover:bg-surface-2 hover:text-fg sm:px-2.5 sm:text-sm"
                         >
                           {item.label}
                         </Link>
