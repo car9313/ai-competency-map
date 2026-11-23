@@ -666,4 +666,522 @@ export const ITEMS_AREA_06: readonly Item[] = [
       'Un control posterior es un registro, y los registros son útiles y no protegen. Si el efecto es irreversible, la aprobación tiene que estar antes o no es una puerta.',
     referenceId: 'ref-rules-ml',
   },
+
+  // ── segunda tanda: hasta 8 ítems por competencia ────────────────────────────
+
+  {
+    id: 'tr-who-approves',
+    competencyId: 'tool-registry-allowlist',
+    difficulty: 2,
+    prompt: '¿Quién debería aprobar añadir una herramienta nueva al catálogo?',
+    options: [
+      {
+        id: 'a',
+        text: 'Quien responde del sistema y de su riesgo',
+        correct: true,
+        rationale:
+          'Correcto: conceder una capacidad es una decisión con dueño, igual que abrir un permiso.',
+      },
+      {
+        id: 'b',
+        text: 'Cualquiera del equipo que la necesite',
+        correct: false,
+        rationale:
+          'Convierte la lista de permitidas en un cajón. Nadie responde de lo que se concedió.',
+      },
+      {
+        id: 'c',
+        text: 'El propio agente, si la considera útil',
+        correct: false,
+        rationale:
+          'El que usa la capacidad no puede ser quien la autoriza. Se cerraría el círculo del permiso.',
+      },
+    ],
+    explanation:
+      'Una herramienta es una capacidad concedida al agente. Necesita el mismo trato que cualquier permiso: alguien con autoridad decide, y queda registrado quién y por qué.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'tr-read-write-split',
+    competencyId: 'tool-registry-allowlist',
+    difficulty: 2,
+    prompt: 'Una herramienta sirve para leer y para escribir. ¿Qué conviene hacer?',
+    options: [
+      {
+        id: 'a',
+        text: 'Separarlas: son dos permisos distintos',
+        correct: true,
+        rationale:
+          'Correcto: leer y escribir tienen riesgos distintos. Juntas obligan a conceder el mayor.',
+      },
+      {
+        id: 'b',
+        text: 'Dejarla junta: es más simple de declarar',
+        correct: false,
+        rationale:
+          'Simple para quien la declara, arriesgado para quien la concede: da escritura a quien solo necesitaba lectura.',
+      },
+      {
+        id: 'c',
+        text: 'Ponerle un nombre que deje claro qué hace',
+        correct: false,
+        rationale:
+          'El nombre no separa permisos. Un agente que solo debe leer tendría igualmente la capacidad de escribir.',
+      },
+    ],
+    explanation:
+      'El mínimo privilegio se aplica por operación, no por herramienta. Mezclar lectura y escritura obliga a conceder más de lo necesario, y eso se paga el día del incidente.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tr-auditability',
+    competencyId: 'tool-registry-allowlist',
+    difficulty: 3,
+    prompt: '¿Qué hace realmente auditable la lista de permitidas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Registrar quién la cambió, cuándo y por qué',
+        correct: true,
+        rationale:
+          'Correcto: sin el historial de cambios no se puede responder cuándo se abrió esa capacidad.',
+      },
+      {
+        id: 'b',
+        text: 'Tenerla en un fichero versionado del repositorio',
+        correct: false,
+        rationale:
+          'Es un buen comienzo y no basta: hace falta que cada cambio quede con autor y motivo.',
+      },
+      {
+        id: 'c',
+        text: 'Revisarla entera una vez al año',
+        correct: false,
+        rationale:
+          'La revisión anual llega tarde a lo que ya ocurrió y no dice quién amplió qué.',
+      },
+    ],
+    explanation:
+      'Auditar es poder reconstruir decisiones. Para eso la lista necesita historial con autor y motivo, no solo un estado final correcto en el momento de la revisión.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tr-dependency-tools',
+    competencyId: 'tool-registry-allowlist',
+    difficulty: 3,
+    prompt: 'Actualizas una dependencia y añade herramientas nuevas. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Tratarlas como capacidades nuevas a revisar',
+        correct: true,
+        rationale:
+          'Correcto: el catálogo del agente cambió por una actualización. Es un cambio de permisos encubierto.',
+      },
+      {
+        id: 'b',
+        text: 'Confiar en la versión: si el paquete es serio',
+        correct: false,
+        rationale:
+          'La reputación del paquete no dice qué expone. Lo que hay que revisar es la capacidad concreta.',
+      },
+      {
+        id: 'c',
+        text: 'Activarlas y medir si el agente las usa',
+        correct: false,
+        rationale:
+          'Para medir hay que permitir primero. El orden correcto es revisar y después conceder.',
+      },
+    ],
+    explanation:
+      'Las actualizaciones son una vía por la que entran capacidades sin que nadie las apruebe. Comparar el catálogo antes y después de actualizar es parte del mantenimiento.',
+    referenceId: 'ref-anthropic-system',
+  },
+
+  {
+    id: 'sb-sensitive-file',
+    competencyId: 'sandboxing-isolation',
+    difficulty: 2,
+    prompt: 'El agente necesita un dato de un fichero con información sensible. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Copiar solo lo necesario a su espacio de trabajo',
+        correct: true,
+        rationale:
+          'Correcto: se concede el dato, no el acceso. El resto del fichero no entra en el alcance.',
+      },
+      {
+        id: 'b',
+        text: 'Darle permiso sobre el directorio que lo contiene',
+        correct: false,
+        rationale:
+          'Concede lectura de todo lo que haya al lado. El mínimo necesario era un dato, no una carpeta.',
+      },
+      {
+        id: 'c',
+        text: 'Montar el disco entero en modo lectura',
+        correct: false,
+        rationale:
+          'Es el máximo privilegio disfrazado de seguridad. Leer todo el disco no es inocuo.',
+      },
+    ],
+    explanation:
+      'El aislamiento útil concede el dato, no el contenedor del dato. Copiar lo imprescindible al espacio de trabajo reduce el alcance sin impedir la tarea.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'sb-credentials',
+    competencyId: 'sandboxing-isolation',
+    difficulty: 2,
+    prompt: 'El código aislado necesita una credencial. ¿Cómo se la pasas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Solo la imprescindible y con vida corta',
+        correct: true,
+        rationale:
+          'Correcto: una credencial de alcance mínimo y caducidad limita el daño si se filtra.',
+      },
+      {
+        id: 'b',
+        text: 'En una variable de entorno global del proceso',
+        correct: false,
+        rationale:
+          'Queda disponible para todo lo que se ejecute, incluido el contenido que no debería verla.',
+      },
+      {
+        id: 'c',
+        text: 'Escrita en el prompt, para que el agente sepa usarla',
+        correct: false,
+        rationale:
+          'El prompt se registra y se reenvía. La credencial acabaría en los logs y en el contexto.',
+      },
+    ],
+    explanation:
+      'Las credenciales dentro de un entorno aislado siguen siendo un secreto expuesto. Se acotan en alcance y duración, y se separan del contexto del modelo.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'sb-resource-limits',
+    competencyId: 'sandboxing-isolation',
+    difficulty: 3,
+    prompt: '¿Por qué limitar CPU y memoria del código ejecutado?',
+    options: [
+      {
+        id: 'a',
+        text: 'Un bucle consume la máquina además del dinero',
+        correct: true,
+        rationale:
+          'Correcto: los límites de recursos protegen el servicio, no solo la factura del modelo.',
+      },
+      {
+        id: 'b',
+        text: 'Para ahorrar únicamente en la factura del proveedor',
+        correct: false,
+        rationale:
+          'El proveedor cobra tokens, no CPU. El riesgo de los recursos es la caída del propio servicio.',
+      },
+      {
+        id: 'c',
+        text: 'Por justicia en el reparto entre usuarios',
+        correct: false,
+        rationale:
+          'Es una consecuencia deseable, no la razón principal: un proceso desbocado puede tumbar el sistema.',
+      },
+    ],
+    explanation:
+      'El aislamiento no es solo de datos: también de consumo. Sin límites de CPU y memoria, un bucle infinito o una fuga de memoria afectan a todo lo que comparte la máquina.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'sb-allowed-effects',
+    competencyId: 'sandboxing-isolation',
+    difficulty: 3,
+    prompt: 'Con un aislamiento perfecto, ¿qué sigue siendo un riesgo?',
+    options: [
+      {
+        id: 'a',
+        text: 'Los efectos que sí está permitido hacer',
+        correct: true,
+        rationale:
+          'Correcto: el aislamiento acota el alcance y no decide la intención. Lo permitido se puede usar mal.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: si no puede escapar, no hay riesgo',
+        correct: false,
+        rationale:
+          'Dentro de lo permitido hay daño posible: borrar su espacio, gastar presupuesto o producir datos falsos.',
+      },
+      {
+        id: 'c',
+        text: 'Solo el aumento de latencia del aislamiento',
+        correct: false,
+        rationale:
+          'La latencia es un coste menor. El riesgo real es el uso indebido de lo que sí se autorizó.',
+      },
+    ],
+    explanation:
+      'El sandbox define el perímetro, no el criterio. Dentro del perímetro siguen haciendo falta herramientas acotadas, validación y aprobación para lo grave.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'cp-effects-not-steps',
+    competencyId: 'checkpoints-recovery',
+    difficulty: 2,
+    prompt: 'Registras los pasos pero no los efectos ya aplicados. ¿Qué riesgo hay al reanudar?',
+    options: [
+      {
+        id: 'a',
+        text: 'Repetir un envío o un cobro ya hecho',
+        correct: true,
+        rationale:
+          'Correcto: sin registro de efectos, el paso parece pendiente y se vuelve a ejecutar.',
+      },
+      {
+        id: 'b',
+        text: 'Perder el registro de lo ocurrido en el log',
+        correct: false,
+        rationale:
+          'El log es para leerlo después. El riesgo es de efecto duplicado, no de documentación.',
+      },
+      {
+        id: 'c',
+        text: 'Aumentar la latencia de la reanudación',
+        correct: false,
+        rationale:
+          'La latencia es irrelevante frente a un cobro duplicado que alguien tendrá que deshacer.',
+      },
+    ],
+    explanation:
+      'Lo que hay que registrar no es la actividad, sino el efecto: qué se cobró, qué se envió, qué se borró. Los pasos sin efecto son reintentables; los otros, no.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'cp-what-counts-as-step',
+    competencyId: 'checkpoints-recovery',
+    difficulty: 2,
+    prompt: '¿Qué conviene registrar como paso recuperable?',
+    options: [
+      {
+        id: 'a',
+        text: 'Acciones con efecto, no lecturas ni consultas',
+        correct: true,
+        rationale:
+          'Correcto: una lectura se puede repetir sin consecuencias; una escritura, no.',
+      },
+      {
+        id: 'b',
+        text: 'Cada consulta interna y cada llamada al modelo',
+        correct: false,
+        rationale:
+          'Llena el registro de ruido y no distingue lo que no se puede repetir de lo que sí.',
+      },
+      {
+        id: 'c',
+        text: 'Cada token generado durante la ejecución',
+        correct: false,
+        rationale:
+          'Es el nivel de detalle más alto y el menos útil: no dice nada sobre el estado del trabajo.',
+      },
+    ],
+    explanation:
+      'El registro se diseña por rejugabilidad: lo que puede repetirse sin daño no necesita marca. Lo que no puede repetirse es exactamente lo que hay que anotar.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'cp-undo',
+    competencyId: 'checkpoints-recovery',
+    difficulty: 3,
+    prompt: 'Un paso con efecto ya se ejecutó y hay que volver atrás. ¿Qué es posible?',
+    options: [
+      {
+        id: 'a',
+        text: 'Solo si el efecto se puede compensar o revertir',
+        correct: true,
+        rationale:
+          'Correcto: un correo enviado no se desenvía. Se compensa con otro mensaje, si procede.',
+      },
+      {
+        id: 'b',
+        text: 'Siempre: basta con restaurar el checkpoint anterior',
+        correct: false,
+        rationale:
+          'El checkpoint guarda tu estado, no el del mundo. El envío ya salió de la máquina.',
+      },
+      {
+        id: 'c',
+        text: 'Nunca: una vez ejecutado, el sistema pierde el control',
+        correct: false,
+        rationale:
+          'Demasiado pesimista. Hay efectos reversibles: un borrado lógico, una reserva cancelable.',
+      },
+    ],
+    explanation:
+      'La reversibilidad depende de la naturaleza del efecto, no del checkpoint. Por eso se clasifican los pasos antes: los reversibles se compensan, los irreversibles exigen aprobación previa.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'cp-reason-code',
+    competencyId: 'checkpoints-recovery',
+    difficulty: 3,
+    prompt: 'Reanudas un trabajo guardado con una versión anterior del código. ¿Qué cuidado hace falta?',
+    options: [
+      {
+        id: 'a',
+        text: 'Comprobar que el estado guardado aún encaja',
+        correct: true,
+        rationale:
+          'Correcto: el formato y las reglas pueden haber cambiado. Reanudar a ciegas puede corromper.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: el estado es un dato y los datos no cambian',
+        correct: false,
+        rationale:
+          'El dato no cambia, el código que lo interpreta sí. Un campo que ahora significa otra cosa rompe todo.',
+      },
+      {
+        id: 'c',
+        text: 'Reiniciar el trabajo desde el principio por seguridad',
+        correct: false,
+        rationale:
+          'Tira el progreso sin necesidad. Se migra o se valida, y solo si no encaja se reinicia.',
+      },
+    ],
+    explanation:
+      'Un checkpoint es un contrato con la versión que lo escribió. Al reanudar con código nuevo hay que versionar el estado y verificar compatibilidad, como con cualquier migración.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'hg-authority',
+    competencyId: 'human-approval-gates',
+    difficulty: 2,
+    prompt: '¿Quién debe aprobar una acción con consecuencias legales?',
+    options: [
+      {
+        id: 'a',
+        text: 'Quien tiene autoridad sobre ese efecto',
+        correct: true,
+        rationale:
+          'Correcto: la aprobación es una firma. Debe hacerla quien responde de la consecuencia.',
+      },
+      {
+        id: 'b',
+        text: 'Quien esté disponible en ese momento',
+        correct: false,
+        rationale:
+          'Convierte la barrera en un trámite de guardia. Nadie responde del efecto aprobado.',
+      },
+      {
+        id: 'c',
+        text: 'El agente con más confianza del sistema',
+        correct: false,
+        rationale:
+          'Un agente no tiene autoridad legal ni responsabilidad. La firma es de una persona.',
+      },
+    ],
+    explanation:
+      'Una puerta de aprobación traslada responsabilidad, y la responsabilidad no se delega a un modelo. Quien firma tiene que poder responder de lo que firma.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'hg-timeout-default',
+    competencyId: 'human-approval-gates',
+    difficulty: 2,
+    prompt: 'Nadie responde a la solicitud de aprobación en el plazo. ¿Qué debe pasar por defecto?',
+    options: [
+      {
+        id: 'a',
+        text: 'Se cancela: sin aprobación no hay efecto',
+        correct: true,
+        rationale:
+          'Correcto: el valor por defecto de una barrera es no actuar. La ausencia de respuesta no es permiso.',
+      },
+      {
+        id: 'b',
+        text: 'Se ejecuta igual, para no bloquear el flujo',
+        correct: false,
+        rationale:
+          'Convierte la puerta en decoración. El silencio pasa a ser una aprobación implícita.',
+      },
+      {
+        id: 'c',
+        text: 'Se reintenta la aprobación indefinidamente',
+        correct: false,
+        rationale:
+          'La acción queda en el limbo para siempre. El flujo necesita una salida explícita.',
+      },
+    ],
+    explanation:
+      'Una barrera necesita un comportamiento por defecto, y ese comportamiento solo puede ser no ejecutar. Si el silencio aprueba, la puerta no protege nada.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'hg-approval-record',
+    competencyId: 'human-approval-gates',
+    difficulty: 3,
+    prompt: '¿Qué hay que registrar de una aprobación?',
+    options: [
+      {
+        id: 'a',
+        text: 'Quién, qué aprobó, cuándo y sobre qué datos',
+        correct: true,
+        rationale:
+          'Correcto: sin esos cuatro datos la aprobación no se puede auditar ni defender después.',
+      },
+      {
+        id: 'b',
+        text: 'Solo que hubo una aprobación válida',
+        correct: false,
+        rationale:
+          'No permite reconstruir la decisión. Un «fue aprobado» sin más no responde a ninguna auditoría.',
+      },
+      {
+        id: 'c',
+        text: 'El prompt completo que recibió el modelo',
+        correct: false,
+        rationale:
+          'Explica el contexto interno, no la decisión humana. La firma es sobre el efecto concreto.',
+      },
+    ],
+    explanation:
+      'La aprobación es el punto donde una persona asume el efecto. El registro tiene que permitir responder qué se le mostró, qué decidió y sobre qué información.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'hg-bulk-approval',
+    competencyId: 'human-approval-gates',
+    difficulty: 3,
+    prompt: 'Cuarenta acciones iguales esperan aprobación. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Agrupar con un resumen y detalle a un clic',
+        correct: true,
+        rationale:
+          'Correcto: se mantiene la decisión informada y se evita la fatiga de cuarenta confirmaciones.',
+      },
+      {
+        id: 'b',
+        text: 'Aprobar una por una, como cualquier otra',
+        correct: false,
+        rationale:
+          'Cuarenta confirmaciones seguidas se aprueban sin leer. La barrera deja de informar.',
+      },
+      {
+        id: 'c',
+        text: 'Autoaprobar por volumen, para no atascar',
+        correct: false,
+        rationale:
+          'Elimina la puerta justo cuando hay más efecto acumulado. Es lo contrario del criterio.',
+      },
+    ],
+    explanation:
+      'La aprobación es un recurso escaso: atención humana. Con volumen, la solución es agrupar con contexto suficiente —un resumen y el detalle disponible— no multiplicar confirmaciones.',
+    referenceId: 'ref-rules-ml',
+  },
 ];
