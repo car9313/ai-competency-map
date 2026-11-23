@@ -29,9 +29,11 @@ interface CompetencyGroup {
 interface Props {
   readonly items: readonly Item[];
   readonly groups: readonly CompetencyGroup[];
+  /** Pista de primer nivel por competencia. */
+  readonly hints?: Readonly<Record<string, string>>;
 }
 
-export function DiagnosticSession({ items, groups }: Props) {
+export function DiagnosticSession({ items, groups, hints }: Props) {
   const [index, setIndex] = useState(0);
   const [attempts, setAttempts] = useState<readonly Attempt[] | null>(null);
 
@@ -124,6 +126,7 @@ export function DiagnosticSession({ items, groups }: Props) {
         key={actual.id}
         item={actual}
         context={`Diagnóstico · ${grupo?.title ?? actual.competencyId}`}
+        hint={hints?.[actual.competencyId]}
         onNext={() => setIndex((value) => value + 1)}
         nextLabel={index + 1 >= items.length ? 'Ver resultado' : 'Siguiente ítem'}
       />

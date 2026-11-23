@@ -34,6 +34,13 @@ export interface ItemRunnerProps {
   /** Enlace de escape (por ejemplo, volver a la lección). */
   escapeHref?: string;
   escapeLabel?: string;
+  /**
+   * Pista de primer nivel: el modo de fallo de la competencia.
+   *
+   * No revela la respuesta y por eso puede ofrecerse sin condiciones. El segundo nivel
+   * descarta una opción concreta enseñando por qué ese razonamiento no vale.
+   */
+  hint?: string;
 }
 
 interface Presentation {
@@ -50,6 +57,7 @@ export function ItemRunner({
   nextLabel = 'Siguiente ítem',
   escapeHref,
   escapeLabel,
+  hint,
 }: ItemRunnerProps) {
   const [presentation] = useState<Presentation>(() => {
     const attemptId = randomId();
@@ -65,6 +73,8 @@ export function ItemRunner({
   const [confidence, setConfidence] = useState<Confidence | null>(null);
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<SubmitAttemptResult | null>(null);
+  const [hintLevel, setHintLevel] = useState<0 | 1 | 2>(0);
+  const [discardedId, setDiscardedId] = useState<string | null>(null);
   const feedbackRef = useRef<HTMLHeadingElement | null>(null);
 
   useEffect(() => {
@@ -84,12 +94,28 @@ export function ItemRunner({
       durationMs: Date.now() - presentation.startedAt,
       deviceId: getDeviceId(),
       attemptId: presentation.attemptId,
+      hinted: hintLevel > 0,
       clock: systemClock,
     });
 
     forgetAttempts();
     setPending(false);
     setResult(submitted);
+  };
+
+  /** Segundo nivel: descarta una opción que no puede ser correcta, con su porqué. */
+  const discardOne = () => {
+    const descartable = presentation.optionIds.find((optionId) => {
+      const option = item.options.find((entry) => entry.id === optionId);
+
+      return option !== undefined && !option.correct && optionId !== selected;
+    });
+
+    if (descartable) {
+      setDiscardedId(descartable);
+    }
+
+    setHintLevel(2);
   };
 
   if (result) {
@@ -201,14 +227,20 @@ export function ItemRunner({
 
             if (!option) return null;
 
+            const descartada = discardedId === optionId;
+
             return (
               <label
                 key={optionId}
                 className={cn(
-                  'flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition-colors',
-                  selected === optionId
-                    ? 'border-accent bg-accent-soft'
-                    : 'border-border bg-surface hover:border-accent/40',
+                  'flex items-start gap-3 rounded-xl border p-3 text-sm transition-colors',
+                  descartada
+                    ? 'cursor-not-allowed border-border bg-surface opacity-55'
+                    : 'cursor-pointer',
+                  !descartada &&
+                    (selected === optionId
+                      ? 'border-accent bg-accent-soft'
+                      : 'border-border bg-surface hover:border-accent/40'),
                 )}
               >
                 <input
@@ -216,15 +248,71 @@ export function ItemRunner({
                   name="opcion"
                   value={optionId}
                   checked={selected === optionId}
+                  disabled={descartada}
                   onChange={() => setSelected(optionId)}
                   className="mt-0.5 h-4 w-4 accent-[var(--accent)]"
                 />
-                <span>{option.text}</span>
+                <span className={cn(descartada && 'line-through')}>{option.text}</span>
               </label>
             );
           })}
         </div>
       </fieldset>
+
+      {/* Pistas graduadas: primero el modo de fallo de la competencia, después descartar
+          una opción concreta explicando por qué ese razonamiento no vale. Ninguna de las
+          dos dice cuál es la correcta. La pista ya revelada no se retira al pasar al
+          segundo nivel: quitarle al alumno lo que ya leyó sería una jugarreta. */}
+      {hint && (
+        <div className="space-y-2">
+          {hintLevel >= 1 && (
+            <div
+              aria-live="polite"
+              className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-sm"
+            >
+              <p className="font-mono text-[10px] tracking-wide text-amber-700 uppercase dark:text-amber-300">
+                Pista
+              </p>
+              <p className="mt-1 leading-relaxed text-muted">{hint}</p>
+            </div>
+          )}
+
+          {hintLevel < 2 && (
+            <button
+              type="button"
+              onClick={() => (hintLevel === 0 ? setHintLevel(1) : discardOne())}
+              className="cursor-pointer text-xs text-muted underline underline-offset-4 hover:text-accent"
+            >
+              {hintLevel === 0 ? 'Pedir una pista' : 'Descartar una opción'}
+            </button>
+          )}
+        </div>
+      )}
+
+      {discardedId && (
+        <div
+          aria-live="polite"
+          className="rounded-xl border border-border bg-surface-2 p-3 text-sm"
+        >
+          <p className="font-mono text-[10px] tracking-wide text-muted uppercase">
+            Opción descartada
+          </p>
+          <p className="mt-1 leading-relaxed text-muted">
+            <span className="line-through">
+              {item.options.find((option) => option.id === discardedId)?.text}
+            </span>
+            {' — '}
+            {item.options.find((option) => option.id === discardedId)?.rationale}
+          </p>
+        </div>
+      )}
+
+      {hintLevel === 2 && (
+        <p className="text-xs text-muted">
+          No hay más pistas: quedan dos opciones y la decisión es tuya. Usar pistas queda
+          registrado en el intento.
+        </p>
+      )}
 
       <fieldset className="space-y-2">
         <legend className="text-sm font-semibold">¿Cómo de seguro estás?</legend>

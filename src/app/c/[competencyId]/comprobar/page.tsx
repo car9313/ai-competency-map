@@ -56,6 +56,7 @@ export default async function ComprobarPage({ params }: { params: Promise<Params
         competencyId={competency.id}
         title={competency.title}
         items={items}
+        hint={contentIndex.lessonByCompetency.get(competency.id)?.problem}
         prerequisites={competency.prerequisites.map((id) => ({
           id,
           title: contentIndex.competencyById.get(id)?.title ?? id,

@@ -37,6 +37,13 @@ export interface Attempt {
   /** Orden de opciones que se mostró, para poder reproducir el intento. */
   presentedOptionIds: readonly string[];
   durationMs: number;
+  /**
+   * 	rue si el alumno pidió alguna pista antes de responder.
+   *
+   * Se guarda para no perder la diferencia entre recordar y reconocer con ayuda, aunque el
+   * planificador todavía no la use: el dato no se puede reconstruir después.
+   */
+  hinted?: boolean;
 }
 
 /**

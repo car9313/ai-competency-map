@@ -49,9 +49,12 @@ function tabClass(active: boolean): string {
 export function ReviewSession({
   items,
   titles,
+  hints,
 }: {
   items: readonly Item[];
   titles: Record<string, string>;
+  /** Pista de primer nivel por competencia. */
+  hints: Record<string, string>;
 }) {
   const params = useSearchParams();
   const mode: Mode = params.get('modo') === 'fallos' ? 'mistakes' : 'due';
@@ -161,6 +164,7 @@ export function ReviewSession({
         key={`${state.item.id}-${round}-${mode}`}
         item={state.item}
         context={titles[state.competencyId] ?? 'Repaso'}
+        hint={hints[state.competencyId]}
         onNext={() => setRound((value) => value + 1)}
         nextLabel={mode === 'mistakes' ? 'Siguiente fallo' : 'Siguiente de la cola'}
         escapeHref="/"

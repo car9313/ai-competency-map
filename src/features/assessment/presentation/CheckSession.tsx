@@ -39,11 +39,14 @@ export function CheckSession({
   title,
   items,
   prerequisites,
+  hint,
 }: {
   competencyId: string;
   title: string;
   items: readonly Item[];
   prerequisites: readonly PrerequisiteGate[];
+  /** Modo de fallo de la competencia, para la pista de primer nivel. */
+  hint?: string;
 }) {
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [round, setRound] = useState(0);
@@ -198,6 +201,7 @@ export function CheckSession({
       key={`${state.item.id}-${round}`}
       item={state.item}
       context={title}
+      hint={hint}
       onNext={() => setRound((value) => value + 1)}
       nextLabel="Siguiente ítem"
       escapeHref={`/c/${competencyId}`}

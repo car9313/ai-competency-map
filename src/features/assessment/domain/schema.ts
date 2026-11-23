@@ -19,6 +19,8 @@ export const attemptSchema = z.object({
   confidence: z.enum(['confident', 'doubtful']),
   presentedOptionIds: z.array(z.string().min(1)).min(1),
   durationMs: z.number().int().nonnegative(),
+  /* Opcional: los intentos guardados antes de que existieran las pistas no lo tienen. */
+  hinted: z.boolean().optional(),
 });
 
 export const attemptListSchema = z.array(attemptSchema);

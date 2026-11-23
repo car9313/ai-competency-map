@@ -28,6 +28,16 @@ export default function DiagnosticoPage() {
     items: contentIndex.itemsByCompetency.get(competencyId) ?? [],
   }));
 
+  const hints: Record<string, string> = {};
+
+  for (const competencyId of idsDeCompetencia) {
+    const lesson = contentIndex.lessonByCompetency.get(competencyId);
+
+    if (lesson) {
+      hints[competencyId] = lesson.problem;
+    }
+  }
+
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -42,7 +52,7 @@ export default function DiagnosticoPage() {
         </p>
       </header>
 
-      <DiagnosticSession items={seleccion} groups={grupos} />
+      <DiagnosticSession items={seleccion} groups={grupos} hints={hints} />
     </div>
   );
 }

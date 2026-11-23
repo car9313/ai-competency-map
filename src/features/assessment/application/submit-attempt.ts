@@ -24,6 +24,8 @@ export interface SubmitAttemptInput {
   durationMs: number;
   deviceId: string;
   attemptId: string;
+  /** 	rue si se usó alguna pista antes de responder. */
+  hinted?: boolean;
   clock: Clock;
 }
 
@@ -62,6 +64,7 @@ export async function submitAttempt(
     confidence,
     presentedOptionIds: [...presentedOptionIds],
     durationMs,
+    ...(input.hinted ? { hinted: true } : {}),
   };
 
   const before = await store.list();

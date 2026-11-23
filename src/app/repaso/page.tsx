@@ -11,9 +11,19 @@ export const metadata: Metadata = {
 
 export default function RepasoPage() {
   const titles: Record<string, string> = {};
+  const hints: Record<string, string> = {};
 
   for (const competency of contentIndex.competencies) {
     titles[competency.id] = competency.title;
+  }
+
+  // La pista de primer nivel es el modo de fallo de la competencia: no revela la respuesta.
+  for (const competency of contentIndex.competencies) {
+    const lesson = contentIndex.lessonByCompetency.get(competency.id);
+
+    if (lesson) {
+      hints[competency.id] = lesson.problem;
+    }
   }
 
   return (
@@ -28,7 +38,7 @@ export default function RepasoPage() {
 
       {/* useSearchParams no existe durante la exportación estática: hace falta el límite. */}
       <Suspense fallback={<p className="text-sm text-muted">Mirando qué toca repasar…</p>}>
-        <ReviewSession items={[...contentIndex.itemById.values()]} titles={titles} />
+        <ReviewSession items={[...contentIndex.itemById.values()]} titles={titles} hints={hints} />
       </Suspense>
     </div>
   );
