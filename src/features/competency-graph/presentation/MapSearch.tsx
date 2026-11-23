@@ -37,13 +37,14 @@ export function MapSearch({ listId }: { listId: string }) {
     }
 
     // Las áreas sin ninguna tarjeta visible desaparecen enteras, para no dejar cabeceras
-    // sueltas sin contenido debajo.
+    // sueltas sin contenido debajo. Se respeta lo que haya ocultado el filtro de área: si no,
+    // limpiar el buscador volvería a mostrar áreas ya descartadas por el filtro.
     for (const area of lista.querySelectorAll<HTMLElement>('[data-area]')) {
       const conContenido = [...area.querySelectorAll<HTMLElement>('[data-search]')].some(
         (tarjeta) => !tarjeta.hidden,
       );
 
-      area.hidden = !conContenido;
+      area.hidden = area.dataset.filteredOut === 'true' || !conContenido;
     }
 
     /*

@@ -9,6 +9,7 @@ import { MapDiagram } from './MapDiagram';
 import { VISUAL } from './state-visual';
 import { NodeStateChip } from './NodeStateChip';
 import { MapSearch } from './MapSearch';
+import { AreaFilter } from './AreaFilter';
 
 /**
  * Contenido del mapa en dos vistas.
@@ -82,6 +83,21 @@ export function MapContent({ view }: { view: MapView }) {
           </ul>
         </nav>
       </header>
+
+      {/* En tarjetas, el filtro de área oculta bloques ya renderizados en el servidor. */}
+      {view === 'tarjetas' && (
+        <Suspense fallback={null}>
+          <AreaFilter
+            areas={map.areas.map((area) => ({
+              id: area.id,
+              index: area.index,
+              name: area.name,
+            }))}
+            basePath="/mapa/tarjetas"
+            listId="lista-competencias"
+          />
+        </Suspense>
+      )}
 
       {/* El buscador solo tiene sentido sobre las tarjetas: el grafo es una imagen única. */}
       {view === 'tarjetas' && (

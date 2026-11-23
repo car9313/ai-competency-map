@@ -339,7 +339,7 @@ export function MapDiagram({
                 markerHeight="5"
                 orient="auto-start-reverse"
               >
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--border)" />
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)" />
               </marker>
               <marker
                 id="arrow-trail"
@@ -371,9 +371,9 @@ export function MapDiagram({
                     key={`${fromId}-${node.id}`}
                     d={`M ${from.x} ${from.y + NODE_RADIUS + 14} C ${from.x} ${midY}, ${to.x} ${midY}, ${to.x} ${to.y - NODE_RADIUS - 4}`}
                     fill="none"
-                    stroke={onTrail ? 'var(--accent)' : 'var(--border)'}
-                    strokeWidth={onTrail ? 2.5 : 1.5}
-                    opacity={dimmed || faded ? 0.1 : onTrail ? 0.9 : 0.5}
+                    stroke={onTrail ? 'var(--accent)' : 'var(--edge)'}
+                    strokeWidth={onTrail ? 3 : 2}
+                    opacity={dimmed || faded ? 0.15 : onTrail ? 1 : 0.85}
                     markerEnd={onTrail ? 'url(#arrow-trail)' : 'url(#arrow)'}
                     pathLength={onTrail ? 1 : undefined}
                     className={cn('acm-edge', onTrail && 'acm-draw')}

@@ -9,6 +9,8 @@
   --surface: #ffffff;
   --surface-2: #f1f5f9;
   --border: #e2e8f0;
+  /* Aristas del grafo: más contraste que el borde de las tarjetas, porque son información. */
+  --edge: #94a3b8;
   --text: #0f172a;
   /* Oscurecido desde #64748b: sobre surface-2 daba 4,3:1 y el mínimo es 4,5. */
   --text-muted: #475569;
@@ -24,6 +26,7 @@
   --surface: #131129;
   --surface-2: #191636;
   --border: rgba(255, 255, 255, 0.1);
+  --edge: rgba(255, 255, 255, 0.34);
   --text: #f1f5f9;
   --text-muted: #94a3b8;
   /* Aclarado: sobre el fondo oscuro #8b5cf6 se quedaba corto como texto. */
@@ -42,6 +45,7 @@
   --color-accent: var(--accent);
   --color-accent-bg: var(--accent-bg);
   --color-accent-soft: var(--accent-soft);
+  --color-edge: var(--edge);
 
   --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
