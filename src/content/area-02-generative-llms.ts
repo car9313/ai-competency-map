@@ -830,4 +830,780 @@ export const ITEMS_AREA_02: readonly Item[] = [
       'Temperatura cero hace más probable el token más probable, no obliga a un resultado reproducible entre ejecuciones. Si el sistema exige reproducibilidad, hay que verificarla, no suponerla.',
     referenceId: 'ref-openai-tokens',
   },
+
+  // ── segunda tanda: hasta 8 ítems por competencia ────────────────────────────
+
+  {
+    id: 'ctx-window-vs-knowledge',
+    competencyId: 'tokens-and-context-window',
+    difficulty: 1,
+    prompt: 'Un modelo anuncia 128 000 tokens de ventana. ¿Qué implica exactamente?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que puede procesar eso de una vez, no que lo recuerde',
+        correct: true,
+        rationale:
+          'Correcto: la ventana es espacio de trabajo por llamada, no almacenamiento entre llamadas.',
+      },
+      {
+        id: 'b',
+        text: 'Que sabe 128 000 tokens de conocimiento útil',
+        correct: false,
+        rationale:
+          'Confunde ventana con memoria. Lo que sabe está en los pesos; lo que ve, en el contexto.',
+      },
+      {
+        id: 'c',
+        text: 'Que el coste es cero hasta llegar a ese límite',
+        correct: false,
+        rationale:
+          'Se paga por token procesado desde el primero. El límite no es una franquicia gratuita.',
+      },
+    ],
+    explanation:
+      'La ventana es cuánto texto cabe en una llamada. Olvidar esa distinción lleva a esperar memoria entre sesiones y a diseñar como si el modelo recordara lo de ayer.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'ctx-output-reservation',
+    competencyId: 'tokens-and-context-window',
+    difficulty: 2,
+    prompt: 'Presupuestas el contexto solo para la entrada. ¿Qué falla en ese cálculo?',
+    options: [
+      {
+        id: 'a',
+        text: 'La salida ocupa el mismo presupuesto',
+        correct: true,
+        rationale:
+          'Correcto: entrada y salida comparten ventana. Si no reservas, la respuesta se corta a mitad.',
+      },
+      {
+        id: 'b',
+        text: 'Nada: la salida va por otro canal aparte',
+        correct: false,
+        rationale:
+          'No hay canal aparte. Es el mismo presupuesto y el recorte afecta a la respuesta.',
+      },
+      {
+        id: 'c',
+        text: 'El modelo recorta la salida por su cuenta',
+        correct: false,
+        rationale:
+          'El modelo no decide recortar. Se queda sin espacio y la generación termina donde puede.',
+      },
+    ],
+    explanation:
+      'El error de presupuesto más común: llenar la ventana con documentos y descubrir que no queda sitio para contestar. La salida se reserva primero, y el resto se reparte.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'ctx-more-documents',
+    competencyId: 'tokens-and-context-window',
+    difficulty: 2,
+    prompt: 'En vez de tres documentos relevantes metes veinte «por si acaso». ¿Qué ocurre?',
+    options: [
+      {
+        id: 'a',
+        text: 'Diluyes lo importante y encareces la llamada',
+        correct: true,
+        rationale:
+          'Correcto: más ruido alrededor de la aguja y más tokens pagados en cada petición.',
+      },
+      {
+        id: 'b',
+        text: 'Mejor: el modelo tiene más información disponible',
+        correct: false,
+        rationale:
+          'Más contexto no es mejor contexto. La señal se pierde entre material que no aplica.',
+      },
+      {
+        id: 'c',
+        text: 'Nada: el modelo descarta lo que no necesita',
+        correct: false,
+        rationale:
+          'No hay un filtro así. Todo lo que envías se procesa, y todo compite por la atención.',
+      },
+    ],
+    explanation:
+      'Recuperar bien consiste tanto en dejar fuera como en meter dentro. Un contexto corto y elegido rinde más que uno largo y genérico, y cuesta menos.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'ctx-summary-risk',
+    competencyId: 'tokens-and-context-window',
+    difficulty: 3,
+    prompt: 'Resumes el historial para liberar contexto. ¿Qué riesgo asumes?',
+    options: [
+      {
+        id: 'a',
+        text: 'Perder el detalle que la tarea necesitaba',
+        correct: true,
+        rationale:
+          'Correcto: el resumen decide qué se conserva, y esa decisión puede tirar lo que hacía falta.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: el resumen conserva todo lo importante',
+        correct: false,
+        rationale:
+          'Conserva lo que quien resume consideró importante. Eso no siempre coincide con lo necesario.',
+      },
+      {
+        id: 'c',
+        text: 'Gastar más tokens que sin resumir',
+        correct: false,
+        rationale:
+          'Resumir cuesta una llamada y ahorra muchas. El problema es de contenido, no de coste.',
+      },
+    ],
+    explanation:
+      'Resumir es una decisión editorial irreversible: lo que se cae del resumen desaparece del contexto. Conviene fijar explícitamente qué datos no se pueden perder —nombres, cifras, restricciones—.',
+    referenceId: 'ref-anthropic-system',
+  },
+
+  {
+    id: 'tok-numbers-split',
+    competencyId: 'tokenization-mechanics',
+    difficulty: 2,
+    prompt: 'Un identificador numérico de doce dígitos consume varios tokens. ¿Por qué?',
+    options: [
+      {
+        id: 'a',
+        text: 'Los dígitos se agrupan en fragmentos, no de uno en uno',
+        correct: true,
+        rationale:
+          'Correcto: el vocabulario aprende grupos frecuentes, y una cifra larga rara se parte en varios.',
+      },
+      {
+        id: 'b',
+        text: 'Cada dígito es siempre exactamente un token',
+        correct: false,
+        rationale:
+          'A veces sí y a veces no. Depende de si ese grupo de dígitos estaba en el vocabulario.',
+      },
+      {
+        id: 'c',
+        text: 'Los números no pasan por el tokenizador',
+        correct: false,
+        rationale:
+          'Todo el texto pasa por el tokenizador, incluidos los números y la puntuación.',
+      },
+    ],
+    explanation:
+      'Los números no tienen un tratamiento especial: se trocean como cualquier texto. Por eso comparar identificadores largos por texto es frágil, y por eso los códigos cuestan más de lo que parece.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'tok-code-cost',
+    competencyId: 'tokenization-mechanics',
+    difficulty: 2,
+    prompt: 'Un fragmento de código con indentación consume mucho. ¿Qué lo encarece?',
+    options: [
+      {
+        id: 'a',
+        text: 'Espacios, símbolos y nombres partidos en trozos',
+        correct: true,
+        rationale:
+          'Correcto: la indentación y la puntuación se fragmentan, y los identificadores raros se rompen.',
+      },
+      {
+        id: 'b',
+        text: 'Que el modelo compila el código antes de leerlo',
+        correct: false,
+        rationale:
+          'No hay compilación. El modelo procesa el texto igual que cualquier otro contenido.',
+      },
+      {
+        id: 'c',
+        text: 'El tipo de archivo del que proviene el texto',
+        correct: false,
+        rationale:
+          'La extensión no llega al tokenizador. Solo cuenta el texto que se envía.',
+      },
+    ],
+    explanation:
+      'El código es denso en símbolos poco frecuentes en prosa, así que se fragmenta más. De ahí que enviar un archivo entero cueste bastante más que enviar solo la función relevante.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'tok-language-bias',
+    competencyId: 'tokenization-mechanics',
+    difficulty: 3,
+    prompt: 'El mismo contenido cuesta distinto en dos idiomas. ¿Cuál es la causa?',
+    options: [
+      {
+        id: 'a',
+        text: 'El vocabulario se aprendió con más texto de un idioma',
+        correct: true,
+        rationale:
+          'Correcto: lo sobrerrepresentado en el corpus se parte menos. Lo demás paga el peaje.',
+      },
+      {
+        id: 'b',
+        text: 'Un idioma es intrínsecamente más complejo que otro',
+        correct: false,
+        rationale:
+          'La complejidad lingüística no interviene. Interviene la frecuencia en el corpus de entrenamiento.',
+      },
+      {
+        id: 'c',
+        text: 'La codificación UTF-8 ocupa más bytes en un idioma',
+        correct: false,
+        rationale:
+          'Los bytes del archivo no son tokens. El conteo depende del vocabulario, no de la codificación.',
+      },
+    ],
+    explanation:
+      'El tokenizador es un reflejo de su corpus: lo que aparece mucho se comprime, lo que aparece poco se fragmenta. Es una desigualdad medible, y conviene medirla en lugar de suponerla.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'tok-emoji-cost',
+    competencyId: 'tokenization-mechanics',
+    difficulty: 1,
+    prompt: 'Un emoji dentro del texto. ¿Cuántos tokens suele ocupar?',
+    options: [
+      {
+        id: 'a',
+        text: 'Varios: no suele estar en el vocabulario',
+        correct: true,
+        rationale:
+          'Correcto: al no ser frecuente en el corpus, se parte en fragmentos y cuesta más de lo que aparenta.',
+      },
+      {
+        id: 'b',
+        text: 'Siempre uno, como cualquier carácter',
+        correct: false,
+        rationale:
+          'Un carácter no equivale a un token. Los símbolos poco frecuentes se fragmentan.',
+      },
+      {
+        id: 'c',
+        text: 'Ninguno: el tokenizador los descarta',
+        correct: false,
+        rationale:
+          'No se descarta nada del texto enviado. Se cuenta y se cobra como el resto.',
+      },
+    ],
+    explanation:
+      'La regla general del tokenizador: cuanto menos frecuente es un fragmento en su corpus, más tokens cuesta. Los emojis y los símbolos raros pagan esa diferencia.',
+    referenceId: 'ref-openai-tokens',
+  },
+
+  {
+    id: 'att-what-attention-does',
+    competencyId: 'attention-and-transformers',
+    difficulty: 2,
+    prompt: '¿Qué hace la atención dentro de una capa del transformer?',
+    options: [
+      {
+        id: 'a',
+        text: 'Pondera qué tokens importan para cada posición',
+        correct: true,
+        rationale:
+          'Correcto: cada posición calcula cuánto peso dar a las demás, y de ahí sale su representación.',
+      },
+      {
+        id: 'b',
+        text: 'Guarda el texto en una base de datos interna',
+        correct: false,
+        rationale:
+          'No hay base de datos. La atención es un cálculo sobre el contexto de esa llamada.',
+      },
+      {
+        id: 'c',
+        text: 'Corrige la ortografía y la gramática del texto',
+        correct: false,
+        rationale:
+          'No corrige nada: pondera relaciones. La fluidez viene de haber visto mucho texto, no de un corrector.',
+      },
+    ],
+    explanation:
+      'La atención es el mecanismo que permite que una palabra dependa de las demás: el significado de cada posición se construye pesando el resto del contexto.',
+    referenceId: 'ref-attention',
+  },
+  {
+    id: 'att-prefill-vs-generate',
+    competencyId: 'attention-and-transformers',
+    difficulty: 2,
+    prompt: '¿Por qué procesar la entrada es más rápido que generar la salida?',
+    options: [
+      {
+        id: 'a',
+        text: 'La entrada va en paralelo; la salida, token a token',
+        correct: true,
+        rationale:
+          'Correcto: la entrada se procesa de una vez y la salida necesita un paso por cada token.',
+      },
+      {
+        id: 'b',
+        text: 'Porque la entrada siempre es más corta que la salida',
+        correct: false,
+        rationale:
+          'Suele ser al contrario: entradas largas con respuestas cortas son el caso habitual.',
+      },
+      {
+        id: 'c',
+        text: 'Porque la salida la genera un modelo distinto',
+        correct: false,
+        rationale:
+          'Es el mismo modelo en dos fases: procesar el contexto y emitir tokens uno detrás de otro.',
+      },
+    ],
+    explanation:
+      'Esa asimetría es la que explica la latencia: la espera la marca la generación, porque cada token necesita su paso. La longitud de la respuesta decide la experiencia.',
+    referenceId: 'ref-attention',
+  },
+  {
+    id: 'att-contextual-meaning',
+    competencyId: 'attention-and-transformers',
+    difficulty: 3,
+    prompt: 'La misma palabra en dos frases distintas. ¿Qué representación tiene para el modelo?',
+    options: [
+      {
+        id: 'a',
+        text: 'Distinta: depende del contexto que la rodea',
+        correct: true,
+        rationale:
+          'Correcto: la atención mezcla la información de las demás posiciones, así que el vector cambia.',
+      },
+      {
+        id: 'b',
+        text: 'Idéntica: cada palabra tiene un vector fijo',
+        correct: false,
+        rationale:
+          'Eso describiría un diccionario estático. Aquí el vector se construye con el contexto de la frase.',
+      },
+      {
+        id: 'c',
+        text: 'Depende solo del idioma en que esté escrita',
+        correct: false,
+        rationale:
+          'El idioma importa, pero dentro de un idioma la representación sigue cambiando con la frase.',
+      },
+    ],
+    explanation:
+      'Es la diferencia entre un diccionario y un transformer: aquí no hay un vector por palabra, sino uno por palabra en una posición concreta de un contexto concreto.',
+    referenceId: 'ref-attention',
+  },
+  {
+    id: 'att-why-invents',
+    competencyId: 'attention-and-transformers',
+    difficulty: 3,
+    prompt: '¿Por qué el modelo puede inventar un dato que suena perfectamente correcto?',
+    options: [
+      {
+        id: 'a',
+        text: 'Predice lo más probable, no lo verdadero',
+        correct: true,
+        rationale:
+          'Correcto: su objetivo es continuar el texto de forma plausible. Verdad y verosimilitud no coinciden.',
+      },
+      {
+        id: 'b',
+        text: 'Consulta fuentes poco fiables de internet',
+        correct: false,
+        rationale:
+          'Por defecto no consulta nada. Lo que inventa no viene de una fuente: viene de su distribución.',
+      },
+      {
+        id: 'c',
+        text: 'Tiene un fallo de caché que mezcla respuestas',
+        correct: false,
+        rationale:
+          'No hay caché de respuestas que mezclar. El mecanismo es la predicción del siguiente token.',
+      },
+    ],
+    explanation:
+      'La alucinación no es un fallo del sistema sino una consecuencia del objetivo: continuar de forma plausible. Por eso la fundamentación con fuentes se construye alrededor, no se supone.',
+    referenceId: 'ref-attention',
+  },
+
+  {
+    id: 'emb-dimension-readable',
+    competencyId: 'embeddings-and-vectors',
+    difficulty: 2,
+    prompt: '¿Puedes leer una dimensión concreta de un vector y saber qué significa?',
+    options: [
+      {
+        id: 'a',
+        text: 'No: ninguna dimensión tiene significado propio',
+        correct: true,
+        rationale:
+          'Correcto: el significado está en la posición conjunta del vector, no en cada coordenada por separado.',
+      },
+      {
+        id: 'b',
+        text: 'Sí: cada dimensión es un atributo identificable',
+        correct: false,
+        rationale:
+          'Es la intuición humana, y es falsa. Las dimensiones no se corresponden con conceptos nombrables.',
+      },
+      {
+        id: 'c',
+        text: 'Solo en los modelos de embeddings más grandes',
+        correct: false,
+        rationale:
+          'El tamaño no cambia la naturaleza del espacio. Las coordenadas siguen sin ser interpretables.',
+      },
+    ],
+    explanation:
+      'El embedding es interpretable como posición relativa, no como etiqueta por dimensión. Esa es la razón de que no se puedan corregir vectores a mano ni explicarlos atributo a atributo.',
+    referenceId: 'ref-attention',
+  },
+  {
+    id: 'emb-whole-document',
+    competencyId: 'embeddings-and-vectors',
+    difficulty: 2,
+    prompt: 'Embeddeas documentos enteros en lugar de fragmentos. ¿Qué pierdes?',
+    options: [
+      {
+        id: 'a',
+        text: 'Precisión: el vector promedia varios temas',
+        correct: true,
+        rationale:
+          'Correcto: un vector de veinte páginas resume todo el documento y no se parece a ninguna parte.',
+      },
+      {
+        id: 'b',
+        text: 'Velocidad: el índice tarda más en construirse',
+        correct: false,
+        rationale:
+          'Se indexan menos vectores, así que es más rápido. Lo que se pierde es la capacidad de acertar.',
+      },
+      {
+        id: 'c',
+        text: 'El idioma original del documento',
+        correct: false,
+        rationale:
+          'El idioma no se pierde: el vector se calcula sobre el texto tal cual llegó.',
+      },
+    ],
+    explanation:
+      'La recuperación funciona porque el vector representa un fragmento concreto. Un vector por documento entero es un promedio que no se parece a nada en particular y devuelve documentos, no respuestas.',
+    referenceId: 'ref-attention',
+  },
+  {
+    id: 'emb-normalization',
+    competencyId: 'embeddings-and-vectors',
+    difficulty: 3,
+    prompt: '¿Por qué se normalizan los vectores antes de compararlos?',
+    options: [
+      {
+        id: 'a',
+        text: 'Para que la longitud del texto no domine',
+        correct: true,
+        rationale:
+          'Correcto: la magnitud suele reflejar cuánto texto hay, y eso distorsionaría el parecido.',
+      },
+      {
+        id: 'b',
+        text: 'Para comprimir el índice y gastar menos disco',
+        correct: false,
+        rationale:
+          'Normalizar no reduce el tamaño del vector. Cambia su longitud, no sus dimensiones.',
+      },
+      {
+        id: 'c',
+        text: 'Para traducir los vectores a un idioma común',
+        correct: false,
+        rationale:
+          'Los vectores no son texto ni tienen idioma. Normalizar es solo un cambio de escala.',
+      },
+    ],
+    explanation:
+      'Normalizar deja a todos los vectores en la misma esfera, así que la comparación mide orientación y no tamaño. Es coherencia matemática: comparar longitudes distintas daría un parecido falso.',
+    referenceId: 'ref-attention',
+  },
+  {
+    id: 'emb-reindex',
+    competencyId: 'embeddings-and-vectors',
+    difficulty: 3,
+    prompt: 'Cambias el modelo de embeddings del proyecto. ¿Qué hay que hacer con el índice?',
+    options: [
+      {
+        id: 'a',
+        text: 'Reindexar todo: es otro espacio vectorial',
+        correct: true,
+        rationale:
+          'Correcto: los vectores antiguos viven en otra geometría. Mezclarlos produce similitudes sin sentido.',
+      },
+      {
+        id: 'b',
+        text: 'Nada: los vectores antiguos siguen sirviendo',
+        correct: false,
+        rationale:
+          'Sirven para el modelo viejo. Comparar contra consultas del nuevo mide distancias que no significan nada.',
+      },
+      {
+        id: 'c',
+        text: 'Reentrenar el corpus con el modelo nuevo',
+        correct: false,
+        rationale:
+          'No se entrena nada: se recalculan los vectores. Reentrenar sería otro trabajo distinto.',
+      },
+    ],
+    explanation:
+      'Cambiar de modelo de embeddings obliga a recalcular todo el corpus, y eso cuesta tiempo y dinero. Es una decisión que conviene pesar antes de elegir el modelo, no después.',
+    referenceId: 'ref-attention',
+  },
+
+  {
+    id: 'inf-cache-savings',
+    competencyId: 'inference-latency-cost',
+    difficulty: 2,
+    prompt: 'Muchas consultas se repiten palabra por palabra. ¿Qué ahorra cachear sus respuestas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Coste y latencia en las consultas repetidas',
+        correct: true,
+        rationale:
+          'Correcto: la segunda vez no se llama al modelo, así que no se paga ni se espera.',
+      },
+      {
+        id: 'b',
+        text: 'Mejora la calidad de las respuestas nuevas',
+        correct: false,
+        rationale:
+          'La caché no cambia lo que el modelo produce. Solo evita volver a pedirlo.',
+      },
+      {
+        id: 'c',
+        text: 'Reduce el contexto necesario en cada llamada',
+        correct: false,
+        rationale:
+          'Donde hay acierto de caché no hay llamada ni contexto. Donde no lo hay, todo sigue igual.',
+      },
+    ],
+    explanation:
+      'La caché es la optimización más barata cuando hay repetición real. Su límite es la tasa de acierto: si las consultas casi nunca coinciden, solo añade complejidad.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'inf-streaming-perception',
+    competencyId: 'inference-latency-cost',
+    difficulty: 2,
+    prompt: '¿Qué cambia el streaming en una respuesta larga?',
+    options: [
+      {
+        id: 'a',
+        text: 'El tiempo hasta ver el primer texto',
+        correct: true,
+        rationale:
+          'Correcto: el total puede ser el mismo, pero el usuario empieza a leer antes.',
+      },
+      {
+        id: 'b',
+        text: 'El coste total de la llamada',
+        correct: false,
+        rationale:
+          'Se generan los mismos tokens, así que se paga lo mismo. Cambia la entrega, no la factura.',
+      },
+      {
+        id: 'c',
+        text: 'La precisión de la respuesta generada',
+        correct: false,
+        rationale:
+          'El texto es el mismo. El streaming no toca el muestreo ni el modelo.',
+      },
+    ],
+    explanation:
+      'La espera percibida no es la duración total sino el tiempo hasta que hay algo que leer. Por eso el streaming mejora la experiencia sin mejorar ni el coste ni la calidad.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'inf-batch-measurement',
+    competencyId: 'inference-latency-cost',
+    difficulty: 3,
+    prompt: 'Procesas 500 documentos en lote por la noche. ¿Qué conviene medir?',
+    options: [
+      {
+        id: 'a',
+        text: 'El coste total y el tiempo de pared del lote',
+        correct: true,
+        rationale:
+          'Correcto: sin usuario esperando, importa cuánto tarda el conjunto y cuánto cuesta entero.',
+      },
+      {
+        id: 'b',
+        text: 'La latencia p50 de una sola llamada',
+        correct: false,
+        rationale:
+          'El percentil de una petición no dice cuándo termina el lote ni lo que cuesta en total.',
+      },
+      {
+        id: 'c',
+        text: 'El número de parámetros del modelo',
+        correct: false,
+        rationale:
+          'El tamaño del modelo no es una medida del trabajo. No dice cuánto tarda ni cuánto cuesta.',
+      },
+    ],
+    explanation:
+      'En lote cambia la métrica que importa: no hay persona esperando una respuesta, sino un proceso con una ventana de tiempo. Se mide duración total y coste agregado, no percentiles de una llamada.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'inf-quality-vs-cost',
+    competencyId: 'inference-latency-cost',
+    difficulty: 1,
+    prompt: 'Tienes un modelo caro muy preciso y otro barato que falla a veces. ¿Cómo eliges?',
+    options: [
+      {
+        id: 'a',
+        text: 'Por tarea: mide calidad y coste en cada una',
+        correct: true,
+        rationale:
+          'Correcto: la decisión depende de cuánto cuesta el error en esa tarea concreta, no del promedio.',
+      },
+      {
+        id: 'b',
+        text: 'El caro siempre: la calidad no se negocia',
+        correct: false,
+        rationale:
+          'Puede costar diez veces más para una tarea donde el error no tiene consecuencias.',
+      },
+      {
+        id: 'c',
+        text: 'El barato siempre: el coste manda',
+        correct: false,
+        rationale:
+          'Si el error se propaga a una decisión importante, el ahorro se paga mucho más caro.',
+      },
+    ],
+    explanation:
+      'La pregunta no es qué modelo es mejor, sino cuánto cuesta equivocarse en esa tarea. Clasificar tickets admite un fallo; calcular una nómina, ninguno.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'ctl-temperature-ideation',
+    competencyId: 'generation-controls',
+    difficulty: 1,
+    prompt: 'Necesitas veinte nombres posibles para un producto. ¿Qué temperatura eliges?',
+    options: [
+      {
+        id: 'a',
+        text: 'Alta: aquí la variedad es el objetivo',
+        correct: true,
+        rationale:
+          'Correcto: no hay una respuesta correcta que buscar. Quieres opciones distintas para elegir.',
+      },
+      {
+        id: 'b',
+        text: 'Cero: así el modelo no se equivoca',
+        correct: false,
+        rationale:
+          'Con cero tenderá a repetir lo más probable, que es justo lo contrario de lo que pides.',
+      },
+      {
+        id: 'c',
+        text: 'Da igual: la temperatura no afecta al contenido',
+        correct: false,
+        rationale:
+          'Afecta directamente a la variedad. Es el parámetro que decide cuánto se arriesga.',
+      },
+    ],
+    explanation:
+      'La temperatura se elige por el tipo de tarea: baja cuando hay una respuesta correcta, alta cuando el objetivo es explorar. Ideación y extracción piden ajustes opuestos.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'ctl-repetition',
+    competencyId: 'generation-controls',
+    difficulty: 2,
+    prompt: 'El modelo repite la misma frase una y otra vez. ¿Qué parámetro miras?',
+    options: [
+      {
+        id: 'a',
+        text: 'La penalización de repetición',
+        correct: true,
+        rationale:
+          'Correcto: castiga tokens ya usados y rompe el bucle de repetir lo mismo.',
+      },
+      {
+        id: 'b',
+        text: 'La longitud máxima de la respuesta',
+        correct: false,
+        rationale:
+          'Limita cuándo se para, no qué se repite. Recortaría el bucle sin resolver la causa.',
+      },
+      {
+        id: 'c',
+        text: 'El valor de top-p del muestreo',
+        correct: false,
+        rationale:
+          'Afecta a cuántos candidatos entran, no a penalizar lo ya dicho. Puede no cambiar nada.',
+      },
+    ],
+    explanation:
+      'La repetición suele aparecer cuando el modelo entra en un bucle probable. La penalización lo desatasca; si persiste, suele indicar un contexto que no da material nuevo.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'ctl-truncated-answer',
+    competencyId: 'generation-controls',
+    difficulty: 2,
+    prompt: 'La respuesta se corta a mitad de frase. ¿Qué falta en la configuración?',
+    options: [
+      {
+        id: 'a',
+        text: 'Un límite de tokens de salida suficiente',
+        correct: true,
+        rationale:
+          'Correcto: se alcanzó el máximo y la generación terminó donde pudo, no donde debía.',
+      },
+      {
+        id: 'b',
+        text: 'Bajar la temperatura de generación',
+        correct: false,
+        rationale:
+          'La temperatura cambia la elección del token, no cuántos caben. El corte seguiría igual.',
+      },
+      {
+        id: 'c',
+        text: 'Otra secuencia de parada más estricta',
+        correct: false,
+        rationale:
+          'Una parada más estricta cortaría antes. El problema es que falta espacio, no que sobre.',
+      },
+    ],
+    explanation:
+      'Un corte a mitad de frase casi siempre es el límite de salida. Se detecta comparando la longitud obtenida con el máximo configurado, y se corrige reservando espacio en la ventana.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'ctl-params-not-quality',
+    competencyId: 'generation-controls',
+    difficulty: 3,
+    prompt: 'Subes top-p y temperatura para «mejorar» la calidad. ¿Qué consigues en realidad?',
+    options: [
+      {
+        id: 'a',
+        text: 'Más variación, no más acierto',
+        correct: true,
+        rationale:
+          'Correcto: cambias la distribución con la que eliges, no lo que el modelo sabe del problema.',
+      },
+      {
+        id: 'b',
+        text: 'Respuestas mejores porque explora más',
+        correct: false,
+        rationale:
+          'Explorar produce diversidad, no corrección. En una tarea con respuesta correcta, la diversidad es error.',
+      },
+      {
+        id: 'c',
+        text: 'Mejor calidad solo si el modelo es grande',
+        correct: false,
+        rationale:
+          'El tamaño no cambia lo que hace el muestreo. La relación entre variación y acierto se mantiene.',
+      },
+    ],
+    explanation:
+      'Los parámetros de muestreo no añaden conocimiento: mueven el equilibrio entre repetir lo probable y arriesgar. La calidad se mejora con mejor contexto, mejores instrucciones o mejor modelo.',
+    referenceId: 'ref-openai-tokens',
+  },
 ];
