@@ -12,6 +12,32 @@ import { MapSearch } from './MapSearch';
 import { AreaFilter } from './AreaFilter';
 
 /**
+ * Texto por el que se puede encontrar una competencia.
+ *
+ * Incluye el enunciado de la lección y no solo el título: quien busca «overfitting» o
+ * «idempotencia» sabe el concepto pero no el nombre de la competencia donde vive. El texto
+ * se resuelve en el servidor y viaja en un atributo, así que el buscador puede filtrar sin
+ * volver a pintar y la lista sigue siendo indexable.
+ */
+function searchTextOf(competencyId: string, title: string, claim: string, areaName: string): string {
+  const lesson = contentIndex.lessonByCompetency.get(competencyId);
+
+  const partes = [
+    title,
+    claim,
+    areaName,
+    lesson?.whatIs ?? '',
+    lesson?.problem ?? '',
+    ...(lesson?.internals ?? []),
+    ...(lesson?.whenToUse ?? []),
+    ...(lesson?.whenNotToUse ?? []),
+    ...(lesson?.pitfalls.map((pitfall) => pitfall.title) ?? []),
+  ];
+
+  return partes.join(' ').toLowerCase();
+}
+
+/**
  * Contenido del mapa en dos vistas.
  *
  * Las pestañas son **rutas reales** (`/mapa` y `/mapa/tarjetas`), no estado en cliente.
@@ -202,7 +228,7 @@ export function MapContent({ view }: { view: MapView }) {
                     return (
                       <li
                         key={node.id}
-                        data-search={`${node.title} ${node.claim} ${area.name}`.toLowerCase()}
+                        data-search={searchTextOf(node.id, node.title, node.claim, area.name)}
                       >
                         <Link
                           href={clickable ? `/c/${node.id}` : '/mapa/tarjetas'}

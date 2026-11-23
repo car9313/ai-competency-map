@@ -67,7 +67,7 @@ export function MapSearch({ listId }: { listId: string }) {
   return (
     <div className="space-y-1">
       <label htmlFor="buscador" className="sr-only">
-        Buscar competencias por título o descripción
+        Buscar competencias por título, descripción o texto de la lección
       </label>
 
       <div className="relative">
@@ -80,7 +80,7 @@ export function MapSearch({ listId }: { listId: string }) {
           type="search"
           value={consulta}
           onChange={(event) => setConsulta(event.target.value)}
-          placeholder="Buscar: rag, tokens, evaluación…"
+          placeholder="Buscar: rag, tokens, overfitting…"
           className="w-full rounded-lg border border-border bg-surface py-1.5 pr-3 pl-8 text-xs placeholder:text-muted focus:border-accent focus:outline-none"
         />
       </div>
