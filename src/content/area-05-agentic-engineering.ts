@@ -994,4 +994,780 @@ export const ITEMS_AREA_05: readonly Item[] = [
       'Empaquetar tiene sentido cuando hay volumen de capacidades o instrucciones largas que no aplican siempre. Para dos reglas simples, la estructura pesa más que el contenido.',
     referenceId: 'ref-anthropic-system',
   },
+
+  // ── segunda tanda: hasta 8 ítems por competencia ────────────────────────────
+
+  {
+    id: 'al-cycle-phases',
+    competencyId: 'bounded-agent-loop',
+    difficulty: 1,
+    prompt: '¿Cuáles son las fases del ciclo de un agente?',
+    options: [
+      {
+        id: 'a',
+        text: 'Percibir, planificar, actuar y observar',
+        correct: true,
+        rationale:
+          'Correcto: el resultado de cada acción vuelve como observación y alimenta el siguiente paso.',
+      },
+      {
+        id: 'b',
+        text: 'Entrenar, validar, probar y desplegar',
+        correct: false,
+        rationale:
+          'Eso es el ciclo de vida de un modelo, no el bucle de ejecución de un agente.',
+      },
+      {
+        id: 'c',
+        text: 'Prompt, modelo, respuesta y registro',
+        correct: false,
+        rationale:
+          'Describe una llamada suelta. Un agente encadena varias con el resultado de la anterior.',
+      },
+    ],
+    explanation:
+      'La diferencia con una llamada normal es el bucle: el agente actúa, lee lo que pasó y decide otra vez. Todo lo que lo hace usable son los límites que se ponen a ese ciclo.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'al-progress-vs-activity',
+    competencyId: 'bounded-agent-loop',
+    difficulty: 2,
+    prompt: 'El agente hace acciones distintas en cada paso pero no termina nunca. ¿Qué miras?',
+    options: [
+      {
+        id: 'a',
+        text: 'Si el estado del mundo cambió de verdad',
+        correct: true,
+        rationale:
+          'Correcto: actividad no es progreso. Si el estado no cambia, el bucle está girando en el vacío.',
+      },
+      {
+        id: 'b',
+        text: 'Cuántos pasos lleva y si queda presupuesto',
+        correct: false,
+        rationale:
+          'El contador dice cuánto queda, no si avanza. Un agente puede gastar todo sin acercarse al objetivo.',
+      },
+      {
+        id: 'c',
+        text: 'Cuánto ha gastado hasta ahora en tokens',
+        correct: false,
+        rationale:
+          'El gasto es la consecuencia. La pregunta es si el trabajo hecho sirve para algo.',
+      },
+    ],
+    explanation:
+      'La detección de progreso es distinta de la de repetición: aquí las acciones varían, pero el resultado no. Se mide sobre el estado observable del mundo, no sobre lo que el agente dice que hace.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'al-budget-exhausted',
+    competencyId: 'bounded-agent-loop',
+    difficulty: 3,
+    prompt: 'Se agota el presupuesto de pasos sin alcanzar el objetivo. ¿Qué devuelves?',
+    options: [
+      {
+        id: 'a',
+        text: 'El estado parcial y dónde se quedó',
+        correct: true,
+        rationale:
+          'Correcto: el trabajo hecho y el punto de parada son lo único que permite continuar o decidir.',
+      },
+      {
+        id: 'b',
+        text: 'Un error genérico de ejecución fallida',
+        correct: false,
+        rationale:
+          'Tira toda la información útil. Quien lo reciba tendrá que repetir lo que ya estaba resuelto.',
+      },
+      {
+        id: 'c',
+        text: 'Otro intento automático con más presupuesto',
+        correct: false,
+        rationale:
+          'Si se agotó con la estrategia actual, más presupuesto repite el mismo camino con más coste.',
+      },
+    ],
+    explanation:
+      'Agotar el presupuesto es un resultado, no una excepción. Devolver el estado parcial convierte el fallo en algo reanudable, que es lo que se espera de un bucle acotado.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'al-human-handoff',
+    competencyId: 'bounded-agent-loop',
+    difficulty: 3,
+    prompt: '¿Cuándo conviene devolver el control a una persona en mitad de un bucle?',
+    options: [
+      {
+        id: 'a',
+        text: 'Al tocar límites o acciones irreversibles',
+        correct: true,
+        rationale:
+          'Correcto: son los dos casos donde seguir decidiendo solo puede empeorar el resultado.',
+      },
+      {
+        id: 'b',
+        text: 'En cada paso intermedio del ciclo',
+        correct: false,
+        rationale:
+          'Convierte al agente en una interfaz lenta. La persona acaba aprobando sin leer, como en cualquier trámite.',
+      },
+      {
+        id: 'c',
+        text: 'Solo cuando el agente termina por completo',
+        correct: false,
+        rationale:
+          'Llega tarde: si el último paso era irreversible, ya no hay nada que aprobar.',
+      },
+    ],
+    explanation:
+      'El traspaso a una persona es una barrera, y las barreras valen cuando son pocas y están donde el riesgo aparece: límites agotados y acciones que no se deshacen.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'ts-stable-result',
+    competencyId: 'tool-schemas-and-selection',
+    difficulty: 2,
+    prompt: 'La herramienta devuelve texto libre que el agente interpreta. ¿Qué problema hay?',
+    options: [
+      {
+        id: 'a',
+        text: 'Falta una forma estable que se pueda leer',
+        correct: true,
+        rationale:
+          'Correcto: con texto libre, cada llamada puede tener una forma distinta y el agente improvisa.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: el modelo entiende el texto sin problema',
+        correct: false,
+        rationale:
+          'Entenderlo no es procesarlo de forma fiable. La variación de formato se convierte en errores de lectura.',
+      },
+      {
+        id: 'c',
+        text: 'Que el agente elegido es demasiado pequeño',
+        correct: false,
+        rationale:
+          'El tamaño no arregla un contrato inexistente. Un modelo mayor también improvisa con texto libre.',
+      },
+    ],
+    explanation:
+      'El resultado de una herramienta es una interfaz, igual que su esquema de entrada. Un formato estable permite al agente y al código tratarlo sin adivinar.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'ts-errors-as-data',
+    competencyId: 'tool-schemas-and-selection',
+    difficulty: 2,
+    prompt: '¿Cómo debe devolver la herramienta un fallo esperado, como «no encontrado»?',
+    options: [
+      {
+        id: 'a',
+        text: 'Como resultado estructurado, no como excepción',
+        correct: true,
+        rationale:
+          'Correcto: un fallo esperado es información. Como excepción, se pierde el detalle y el bucle se rompe.',
+      },
+      {
+        id: 'b',
+        text: 'Como error interno que corte la ejecución',
+        correct: false,
+        rationale:
+          'Convierte un caso normal en una caída. El agente no puede reaccionar a lo que no llega a ver.',
+      },
+      {
+        id: 'c',
+        text: 'Como silencio: sin resultado y sin error',
+        correct: false,
+        rationale:
+          'El agente no puede distinguir «no hay» de «falló». Elegirá la siguiente acción a ciegas.',
+      },
+    ],
+    explanation:
+      'Distinguir fallo esperado de excepción es lo que permite que el bucle continúe: «no encontrado» lleva a otra búsqueda; «la base de datos no responde» lleva a reintentar o abortar.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'ts-create-vs-update',
+    competencyId: 'tool-schemas-and-selection',
+    difficulty: 3,
+    prompt: 'Tienes una herramienta «crea» y otra «actualiza» sin identificadores claros. ¿Qué riesgo hay?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que el agente elija la que duplica el registro',
+        correct: true,
+        rationale:
+          'Correcto: sin forma de saber si ya existe, crear parece lo mismo que actualizar y duplica.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: son herramientas distintas y bien nombradas',
+        correct: false,
+        rationale:
+          'El nombre no resuelve la ambigüedad si el modelo no sabe si el registro existe antes de llamar.',
+      },
+      {
+        id: 'c',
+        text: 'Solo un aumento de latencia en la llamada',
+        correct: false,
+        rationale:
+          'La latencia es lo de menos. El riesgo es el efecto: un duplicado que alguien tendrá que limpiar.',
+      },
+    ],
+    explanation:
+      'Dos herramientas que solo se distinguen por el estado previo obligan al modelo a adivinarlo. Se resuelve con una sola operación idempotente o con una consulta previa explícita.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'ts-selection-trace',
+    competencyId: 'tool-schemas-and-selection',
+    difficulty: 3,
+    prompt: 'El agente falla y no sabes por qué eligió esa herramienta. ¿Qué falta?',
+    options: [
+      {
+        id: 'a',
+        text: 'Registrar la elección, sus argumentos y el resultado',
+        correct: true,
+        rationale:
+          'Correcto: sin esa traza solo queda releer el prompt y suponer qué pasó dentro del bucle.',
+      },
+      {
+        id: 'b',
+        text: 'Un prompt más largo que explique mejor la tarea',
+        correct: false,
+        rationale:
+          'Puede ayudar o no, pero no te dice qué ocurrió. Sin traza, el cambio es a ciegas.',
+      },
+      {
+        id: 'c',
+        text: 'Preguntarle al modelo por qué la eligió',
+        correct: false,
+        rationale:
+          'Te dará una explicación plausible y no necesariamente cierta. La traza es el registro real.',
+      },
+    ],
+    explanation:
+      'En un bucle con herramientas, el fallo suele estar en la elección y en los argumentos. Sin registrarlos, cada incidente se investiga por intuición y no se puede comparar con el siguiente.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'am-compaction-timing',
+    competencyId: 'agent-memory',
+    difficulty: 2,
+    prompt: '¿Cuándo conviene compactar el historial de un agente?',
+    options: [
+      {
+        id: 'a',
+        text: 'Antes de agotar el presupuesto, no después',
+        correct: true,
+        rationale:
+          'Correcto: compactar cuando ya no cabe obliga a recortar sin margen y se pierde lo necesario.',
+      },
+      {
+        id: 'b',
+        text: 'Cuando la llamada falle por falta de espacio',
+        correct: false,
+        rationale:
+          'Es tarde: el fallo ya ocurrió y la compactación se hace con prisa y sin criterio.',
+      },
+      {
+        id: 'c',
+        text: 'Solo al terminar la sesión completa',
+        correct: false,
+        rationale:
+          'La sesión puede no terminar nunca. La compactación es mantenimiento continuo del contexto.',
+      },
+    ],
+    explanation:
+      'La compactación es una decisión editorial sobre qué se conserva. Hacerla con margen permite elegir; hacerla al límite obliga a recortar por longitud, que es exactamente lo que no se debe hacer.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'am-summary-content',
+    competencyId: 'agent-memory',
+    difficulty: 2,
+    prompt: '¿Qué debe conservar el resumen de memoria de una tarea?',
+    options: [
+      {
+        id: 'a',
+        text: 'Decisiones tomadas, restricciones y estado actual',
+        correct: true,
+        rationale:
+          'Correcto: es lo que cambia lo que harás en el siguiente paso. El resto es transcripción.',
+      },
+      {
+        id: 'b',
+        text: 'Todo lo conversado, comprimido en menos palabras',
+        correct: false,
+        rationale:
+          'Comprimir el relato entero conserva lo irrelevante y pierde la estructura de lo decidido.',
+      },
+      {
+        id: 'c',
+        text: 'Solo el último turno de la conversación',
+        correct: false,
+        rationale:
+          'Es lo más reciente, no lo más importante. Se pierden los acuerdos y las restricciones.',
+      },
+    ],
+    explanation:
+      'Un buen resumen de memoria responde a tres preguntas: qué se decidió, qué no se puede hacer y en qué punto está la tarea. Lo demás ocupa espacio sin cambiar decisiones.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'am-stale-memory',
+    competencyId: 'agent-memory',
+    difficulty: 3,
+    prompt: 'La memoria guarda un dato que ya no es cierto. ¿Qué hace falta?',
+    options: [
+      {
+        id: 'a',
+        text: 'Fecha y origen en cada recuerdo, y verificar al usar',
+        correct: true,
+        rationale:
+          'Correcto: sin procedencia ni antigüedad, un dato viejo es indistinguible de uno actual.',
+      },
+      {
+        id: 'b',
+        text: 'Confiar en la memoria: se escribió cuando era cierto',
+        correct: false,
+        rationale:
+          'Que fuera cierto al escribirla no dice nada de ahora. El almacén no se actualiza solo.',
+      },
+      {
+        id: 'c',
+        text: 'Borrar todo el almacén cuando aparezca un dato viejo',
+        correct: false,
+        rationale:
+          'Resuelve un caso y destruye el resto. El problema es la falta de procedencia, no la memoria.',
+      },
+    ],
+    explanation:
+      'La memoria envejece igual que el contexto: lo guardado con autoridad compite con lo actual. Marcar fecha y origen permite decidir cuándo un recuerdo debe verificarse antes de usarlo.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'am-between-sessions',
+    competencyId: 'agent-memory',
+    difficulty: 3,
+    prompt: 'Entre dos sesiones, ¿qué se pierde y cómo se recupera?',
+    options: [
+      {
+        id: 'a',
+        text: 'El contexto de trabajo; se recupera del almacén',
+        correct: true,
+        rationale:
+          'Correcto: el contexto muere con la llamada y la memoria persistente es lo único que sobrevive.',
+      },
+      {
+        id: 'b',
+        text: 'Nada se pierde: el modelo recuerda la sesión anterior',
+        correct: false,
+        rationale:
+          'Confunde el modelo con el sistema. Los pesos no cambian al usarlo ni guardan tus sesiones.',
+      },
+      {
+        id: 'c',
+        text: 'Se pierden los pesos ajustados durante la sesión',
+        correct: false,
+        rationale:
+          'No se ajusta nada durante el uso. Los pesos son los mismos antes y después.',
+      },
+    ],
+    explanation:
+      'La continuidad entre sesiones es un trabajo del sistema: guardar lo que importa, recuperarlo por relevancia y volver a montarlo en el contexto. El modelo, por sí solo, empieza de cero cada vez.',
+    referenceId: 'ref-anthropic-system',
+  },
+
+  {
+    id: 'ma-missing-context',
+    competencyId: 'multi-agent-delegation',
+    difficulty: 2,
+    prompt: 'El subagente falla porque no sabía dónde estaba el fichero. ¿De quién es el fallo?',
+    options: [
+      {
+        id: 'a',
+        text: 'Del coordinador: faltaba en el contrato',
+        correct: true,
+        rationale:
+          'Correcto: el subagente solo sabe lo que recibe. Lo que no se pasó, no existe para él.',
+      },
+      {
+        id: 'b',
+        text: 'Del subagente: debía haberlo buscado',
+        correct: false,
+        rationale:
+          'No se le encargó buscar nada. Sin contexto ni permiso, adivinar no es su trabajo.',
+      },
+      {
+        id: 'c',
+        text: 'Del modelo elegido para la subtarea',
+        correct: false,
+        rationale:
+          'Ningún modelo adivina una ruta que nadie le dio. Con el mismo contrato, fallaría cualquiera.',
+      },
+    ],
+    explanation:
+      'Cada delegación crea un contexto nuevo desde cero. Todo lo que la subtarea necesita —rutas, formato, criterio de éxito— tiene que viajar en la delegación.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ma-when-single-wins',
+    competencyId: 'multi-agent-delegation',
+    difficulty: 2,
+    prompt: '¿En qué caso un solo agente supera a varios?',
+    options: [
+      {
+        id: 'a',
+        text: 'Cuando la tarea es secuencial y comparte estado',
+        correct: true,
+        rationale:
+          'Correcto: si cada paso necesita lo del anterior, varios agentes se pasan contexto sin ganar nada.',
+      },
+      {
+        id: 'b',
+        text: 'Cuando hay prisa por terminar la tarea',
+        correct: false,
+        rationale:
+          'La prisa no decide la arquitectura. Repartir mal una tarea urgente la hace más lenta.',
+      },
+      {
+        id: 'c',
+        text: 'Cuando hay presupuesto suficiente para gastar',
+        correct: false,
+        rationale:
+          'Tener presupuesto no justifica gastarlo. Se elige por estructura de la tarea, no por dinero.',
+      },
+    ],
+    explanation:
+      'El reparto tiene sentido con subtareas independientes y verificables. Cuando todo depende de lo anterior, el estado viaja continuamente y la coordinación cuesta más que el trabajo.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ma-shared-resource',
+    competencyId: 'multi-agent-delegation',
+    difficulty: 3,
+    prompt: 'Varios agentes escriben en el mismo recurso a la vez. ¿Qué hace falta?',
+    options: [
+      {
+        id: 'a',
+        text: 'Un dueño del recurso y turnos claros',
+        correct: true,
+        rationale:
+          'Correcto: o hay un responsable que arbitra, o las escrituras se pisan y nadie sabe cuál vale.',
+      },
+      {
+        id: 'b',
+        text: 'Más agentes para terminar antes',
+        correct: false,
+        rationale:
+          'Aumenta la contención. Más escritores simultáneos sobre lo mismo multiplican los conflictos.',
+      },
+      {
+        id: 'c',
+        text: 'Un modelo más grande coordinando el grupo',
+        correct: false,
+        rationale:
+          'La capacidad no resuelve la concurrencia. Es un problema de propiedad y de orden, no de inteligencia.',
+      },
+    ],
+    explanation:
+      'La concurrencia es un problema de sistemas, no de modelos. Con varios escritores hace falta propiedad exclusiva, turnos o fusión explícita; sin eso, el último en escribir gana al azar.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ma-traceability',
+    competencyId: 'multi-agent-delegation',
+    difficulty: 3,
+    prompt: '¿Qué necesitas para poder explicar un resultado producido por varios agentes?',
+    options: [
+      {
+        id: 'a',
+        text: 'La traza de qué delegó cada uno y qué recibió',
+        correct: true,
+        rationale:
+          'Correcto: sin ese árbol de delegaciones, el resultado final no tiene autor ni justificación.',
+      },
+      {
+        id: 'b',
+        text: 'El prompt inicial que se envió al coordinador',
+        correct: false,
+        rationale:
+          'Explica la intención, no el proceso. Lo que importa es qué se delegó y con qué resultado.',
+      },
+      {
+        id: 'c',
+        text: 'El coste total de la ejecución completa',
+        correct: false,
+        rationale:
+          'El coste dice cuánto se gastó, no cómo se llegó al resultado ni quién decidió qué.',
+      },
+    ],
+    explanation:
+      'Con varios agentes, la explicación es un árbol: quién delegó qué, con qué contrato y qué volvió. Sin esa traza, el sistema produce resultados que nadie puede defender.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'mcp-unexpected-tools',
+    competencyId: 'mcp-protocol',
+    difficulty: 2,
+    prompt: 'Un servidor expone herramientas que no esperabas. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Revisarlas y limitar antes de conectar',
+        correct: true,
+        rationale:
+          'Correcto: lo que expone el servidor es lo que el agente podrá hacer. Se revisa antes del acceso.',
+      },
+      {
+        id: 'b',
+        text: 'Conectar: ya las limitará el modelo al usarlas',
+        correct: false,
+        rationale:
+          'El modelo elige entre lo disponible. Si está disponible, puede usarse y no hay límite real.',
+      },
+      {
+        id: 'c',
+        text: 'Ignorarlas: si no se piden, no se usan',
+        correct: false,
+        rationale:
+          'Quedan en el catálogo y compiten en cada decisión. Estar disponible es poder usarse.',
+      },
+    ],
+    explanation:
+      'Conectar un servidor es conceder capacidades. Se revisa lo que declara, porque el alcance real del agente pasa a incluir todo lo que el servidor ofrezca.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'mcp-when-not',
+    competencyId: 'mcp-protocol',
+    difficulty: 2,
+    prompt: '¿Cuándo es excesivo adoptar un protocolo estándar de herramientas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Con una sola herramienta local y simple',
+        correct: true,
+        rationale:
+          'Correcto: para una función propia, el protocolo añade piezas sin dar interoperabilidad.',
+      },
+      {
+        id: 'b',
+        text: 'Nunca: el estándar siempre compensa',
+        correct: false,
+        rationale:
+          'El estándar compensa cuando hay varias integraciones o varios clientes, no en un caso único.',
+      },
+      {
+        id: 'c',
+        text: 'Solo cuando hay más de diez servidores',
+        correct: false,
+        rationale:
+          'La cifra es inventada. Lo que decide es si vas a reutilizar la integración en más de un sitio.',
+      },
+    ],
+    explanation:
+      'Un protocolo se amortiza con reutilización. Si solo hay una herramienta y un cliente, el pegamento mínimo es más simple y igual de auditable.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'mcp-local-vs-remote',
+    competencyId: 'mcp-protocol',
+    difficulty: 3,
+    prompt: '¿Qué diferencia de riesgo hay entre un servidor local y uno remoto?',
+    options: [
+      {
+        id: 'a',
+        text: 'La superficie de red y el control del proceso',
+        correct: true,
+        rationale:
+          'Correcto: en remoto los datos salen y el proceso no es tuyo; en local cambia el aislamiento.',
+      },
+      {
+        id: 'b',
+        text: 'Solo la velocidad de respuesta del servidor',
+        correct: false,
+        rationale:
+          'La latencia importa, pero la diferencia de fondo es quién ejecuta y por dónde viajan los datos.',
+      },
+      {
+        id: 'c',
+        text: 'Ninguna: el protocolo es el mismo en los dos',
+        correct: false,
+        rationale:
+          'El protocolo se parece, el perímetro no. Cambia qué datos salen del sistema y quién los ve.',
+      },
+    ],
+    explanation:
+      'La forma de hablar puede ser idéntica y el riesgo no serlo: un servidor remoto añade salida de datos y dependencia de un tercero. Se decide con el mismo criterio que cualquier integración externa.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'mcp-version-lock',
+    competencyId: 'mcp-protocol',
+    difficulty: 3,
+    prompt: '¿A qué te compromete adoptar un protocolo común?',
+    options: [
+      {
+        id: 'a',
+        text: 'A su versión y a las capacidades que declares',
+        correct: true,
+        rationale:
+          'Correcto: la versión fija el comportamiento y lo declarado define qué puede hacer el cliente.',
+      },
+      {
+        id: 'b',
+        text: 'A nada: es solo un formato de mensajes',
+        correct: false,
+        rationale:
+          'El formato condiciona el comportamiento. Cambiar de versión puede cambiar el descubrimiento y los permisos.',
+      },
+      {
+        id: 'c',
+        text: 'Al idioma en que se escriban los servidores',
+        correct: false,
+        rationale:
+          'El protocolo es independiente del lenguaje. Los servidores pueden estar escritos en cualquiera.',
+      },
+    ],
+    explanation:
+      'Adoptar un estándar es adoptar su ciclo de vida: versiones, capacidades y compatibilidad. Conviene saber qué se declara, porque eso es lo que el cliente y el agente podrán asumir.',
+    referenceId: 'ref-anthropic-system',
+  },
+
+  {
+    id: 'sk-not-discovered',
+    competencyId: 'agent-skills',
+    difficulty: 2,
+    prompt: 'El agente no usa una habilidad que existe. ¿Cuál es la causa más probable?',
+    options: [
+      {
+        id: 'a',
+        text: 'No está en la lista que el agente consulta',
+        correct: true,
+        rationale:
+          'Correcto: lo que no aparece en el catálogo no existe para él, por bien escrita que esté.',
+      },
+      {
+        id: 'b',
+        text: 'La habilidad tiene un error en su contenido',
+        correct: false,
+        rationale:
+          'Podría ser, pero si nunca se carga, el contenido ni siquiera entra en juego.',
+      },
+      {
+        id: 'c',
+        text: 'El modelo es demasiado pequeño para cargarla',
+        correct: false,
+        rationale:
+          'El tamaño no impide cargar texto. Lo que impide usarla es no saber que existe.',
+      },
+    ],
+    explanation:
+      'La carga bajo demanda depende del descubrimiento: nombre y descripción visibles para decidir. Una habilidad que no se anuncia es una habilidad que no existe.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'sk-loading-cost',
+    competencyId: 'agent-skills',
+    difficulty: 2,
+    prompt: '¿Qué cuesta cargar una habilidad?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que su texto entra en el contexto actual',
+        correct: true,
+        rationale:
+          'Correcto: al cargarla, sus instrucciones ocupan presupuesto en esa llamada y en las siguientes.',
+      },
+      {
+        id: 'b',
+        text: 'Nada: las habilidades viven fuera del modelo',
+        correct: false,
+        rationale:
+          'Viven fuera hasta que se cargan. Al cargarlas, su contenido se paga como cualquier token.',
+      },
+      {
+        id: 'c',
+        text: 'Solo latencia por leer el archivo del disco',
+        correct: false,
+        rationale:
+          'La lectura es lo de menos. Lo que pesa es el texto que entra a formar parte del contexto.',
+      },
+    ],
+    explanation:
+      'La carga bajo demanda ahorra contexto porque no cargas lo que no usas, no porque cargar sea gratis. Una vez cargada, la habilidad compite con el resto del contexto.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'sk-change-risk',
+    competencyId: 'agent-skills',
+    difficulty: 3,
+    prompt: 'Modificas una habilidad que está en uso. ¿Qué riesgo asumes?',
+    options: [
+      {
+        id: 'a',
+        text: 'Cambiar el comportamiento sin haberlo medido',
+        correct: true,
+        rationale:
+          'Correcto: la habilidad es instrucciones. Editarla altera decisiones aunque el código no cambie.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: es solo texto de apoyo',
+        correct: false,
+        rationale:
+          'Ese texto decide qué hace el agente. Un cambio de instrucciones es un cambio de comportamiento.',
+      },
+      {
+        id: 'c',
+        text: 'Solo un cambio en el coste por llamada',
+        correct: false,
+        rationale:
+          'El coste puede variar, pero lo importante es que cambia lo que el agente hace y cómo lo hace.',
+      },
+    ],
+    explanation:
+      'Las habilidades son código con otra sintaxis. Se versionan y se miden contra casos, igual que un prompt: el hecho de que sean texto no las hace inocuas.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'sk-how-to-verify',
+    competencyId: 'agent-skills',
+    difficulty: 3,
+    prompt: '¿Cómo sabes que una habilidad funciona?',
+    options: [
+      {
+        id: 'a',
+        text: 'Ejecutándola con casos propios de su tarea',
+        correct: true,
+        rationale:
+          'Correcto: se comprueba el comportamiento resultante, no la calidad de la redacción.',
+      },
+      {
+        id: 'b',
+        text: 'Leyendo su texto y comprobando que es claro',
+        correct: false,
+        rationale:
+          'La claridad ayuda y no demuestra nada. Un texto claro puede llevar a decisiones equivocadas.',
+      },
+      {
+        id: 'c',
+        text: 'Probándola con el modelo más grande disponible',
+        correct: false,
+        rationale:
+          'Mide otro sistema. La habilidad se valida con el modelo y la configuración que se usan de verdad.',
+      },
+    ],
+    explanation:
+      'Una habilidad es una intervención sobre el comportamiento, y se verifica como cualquier otra: casos representativos, medición antes y después, y atención a las regresiones fuera de su tarea.',
+    referenceId: 'ref-rules-ml',
+  },
 ];
