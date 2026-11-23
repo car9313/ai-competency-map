@@ -830,4 +830,651 @@ export const ITEMS_AREA_04: readonly Item[] = [
       'La verificación de soporte es una comparación semántica entre dos textos: lo afirmado y lo citado. Automatizarla exige un juez, y ese juez también puede equivocarse: por eso se mide.',
     referenceId: 'ref-anthropic-system',
   },
+
+  // ── segunda tanda: hasta 8 ítems por competencia ────────────────────────────
+
+  {
+    id: 'fc-vague-schema',
+    competencyId: 'function-calling-contracts',
+    difficulty: 2,
+    prompt: 'Una herramienta declara un campo llamado «datos» sin tipo ni descripción. ¿Qué falla?',
+    options: [
+      {
+        id: 'a',
+        text: 'El esquema no guía la propuesta del modelo',
+        correct: true,
+        rationale:
+          'Correcto: sin tipo ni descripción, el modelo rellena a ciegas y la validación no puede exigir nada.',
+      },
+      {
+        id: 'b',
+        text: 'Nada: el modelo deduce el tipo del contexto',
+        correct: false,
+        rationale:
+          'Deducirá algo, y probablemente distinto en cada llamada. Un contrato vago produce propuestas vagas.',
+      },
+      {
+        id: 'c',
+        text: 'Cuantos más campos libres, mejor para el modelo',
+        correct: false,
+        rationale:
+          'La libertad de formato es libertad de error. El esquema existe para acotar, no para abrir.',
+      },
+    ],
+    explanation:
+      'El esquema es la interfaz con el modelo: tipos, obligatoriedad y descripción de cada campo. Cuando falta, el modelo improvisa y la validación no tiene con qué rechazar la improvisación.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'fc-tool-count',
+    competencyId: 'function-calling-contracts',
+    difficulty: 2,
+    prompt: 'Le das veinte herramientas a un agente para una tarea que usa tres. ¿Qué efecto tiene?',
+    options: [
+      {
+        id: 'a',
+        text: 'Más opciones equivocadas en cada paso',
+        correct: true,
+        rationale:
+          'Correcto: cada herramienta innecesaria es una decisión más en la que el modelo puede fallar.',
+      },
+      {
+        id: 'b',
+        text: 'Más capacidad: siempre es mejor tener más',
+        correct: false,
+        rationale:
+          'La capacidad no crece con el catálogo. Crece la superficie donde elegir mal y gastar contexto.',
+      },
+      {
+        id: 'c',
+        text: 'Menos coste, porque hay más donde elegir',
+        correct: false,
+        rationale:
+          'Cada declaración ocupa contexto y se paga en todas las llamadas. El coste sube, no baja.',
+      },
+    ],
+    explanation:
+      'El catálogo de herramientas es parte del diseño del agente. Exponer lo que no se necesita añade ruido en cada decisión y consume presupuesto en cada llamada.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'fc-idempotency',
+    competencyId: 'function-calling-contracts',
+    difficulty: 3,
+    prompt: 'Una herramienta crea un pedido y puede reintentarse por un fallo de red. ¿Qué hace falta?',
+    options: [
+      {
+        id: 'a',
+        text: 'Una clave de idempotencia por operación',
+        correct: true,
+        rationale:
+          'Correcto: así el reintento se reconoce como el mismo pedido y no se duplica el efecto.',
+      },
+      {
+        id: 'b',
+        text: 'Reintentar con otra temperatura de generación',
+        correct: false,
+        rationale:
+          'La temperatura no interviene en el efecto de la herramienta. El pedido se duplicaría igual.',
+      },
+      {
+        id: 'c',
+        text: 'Avisar al modelo de que no duplique pedidos',
+        correct: false,
+        rationale:
+          'El modelo no controla la red ni el reintento. Es una garantía que debe dar el sistema.',
+      },
+    ],
+    explanation:
+      'Con efectos irreversibles, el reintento es parte del camino normal: la red falla. La idempotencia es lo que separa «recuperarse de un fallo» de «cobrar dos veces».',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'fc-result-size',
+    competencyId: 'function-calling-contracts',
+    difficulty: 3,
+    prompt: 'La herramienta devuelve 200 KB de JSON y ese resultado vuelve al modelo. ¿Qué problema hay?',
+    options: [
+      {
+        id: 'a',
+        text: 'Se come el contexto y ahoga la decisión',
+        correct: true,
+        rationale:
+          'Correcto: el resultado compite con las instrucciones y con lo que el agente ya sabía.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: cuanta más información, mejor decide',
+        correct: false,
+        rationale:
+          'Más información cruda no es mejor decisión. Sin filtrar, lo relevante se pierde entre el volumen.',
+      },
+      {
+        id: 'c',
+        text: 'Solo encarece el registro de las llamadas',
+        correct: false,
+        rationale:
+          'El coste de registro es menor. El problema real es que esos tokens se pagan y desplazan lo útil.',
+      },
+    ],
+    explanation:
+      'El resultado de una herramienta es contexto, y el contexto tiene presupuesto. Las herramientas deberían devolver lo necesario para decidir, con paginación o resumen, no el volcado completo.',
+    referenceId: 'ref-openai-tokens',
+  },
+
+  {
+    id: 'st-failure-midstream',
+    competencyId: 'streaming-ux',
+    difficulty: 2,
+    prompt: 'La generación falla cuando ya se ha mostrado medio texto. ¿Qué ve el usuario?',
+    options: [
+      {
+        id: 'a',
+        text: 'Un texto incompleto sin saber que falló',
+        correct: true,
+        rationale:
+          'Correcto: el streaming no incluye el final, así que un corte se confunde con una respuesta corta.',
+      },
+      {
+        id: 'b',
+        text: 'Nada: la interfaz borra lo mostrado',
+        correct: false,
+        rationale:
+          'Borrar lo ya leído es peor que avisar. Lo mostrado existe, aunque no se sepa que está incompleto.',
+      },
+      {
+        id: 'c',
+        text: 'La respuesta completa, ya que se guardó entera',
+        correct: false,
+        rationale:
+          'No se guardó nada entero: la generación se interrumpió. Lo que falta no está en ningún sitio.',
+      },
+    ],
+    explanation:
+      'El streaming necesita marcar el final de forma explícita. Sin esa señal, un fallo de red es indistinguible de una respuesta breve, y el usuario actúa sobre texto a medias.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'st-timeout-policy',
+    competencyId: 'streaming-ux',
+    difficulty: 2,
+    prompt: 'Una generación en streaming se alarga mucho. ¿Cuándo la cortas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Con un límite de tiempo explícito y avisando',
+        correct: true,
+        rationale:
+          'Correcto: el límite convierte una espera indefinida en una decisión del sistema, con su mensaje.',
+      },
+      {
+        id: 'b',
+        text: 'Cuando el usuario se canse y recargue',
+        correct: false,
+        rationale:
+          'Deja la decisión al azar del agotamiento. Y quien recarga pierde incluso lo que ya tenía.',
+      },
+      {
+        id: 'c',
+        text: 'Nunca: hay que dejar que termine',
+        correct: false,
+        rationale:
+          'Una generación puede quedarse colgada mucho tiempo. Sin límite, el recurso y la paciencia se agotan.',
+      },
+    ],
+    explanation:
+      'El timeout es parte del contrato de la interfaz: define cuándo algo se considera fallido. Sin él, el sistema no puede distinguir entre lento y roto.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'st-screen-reader',
+    competencyId: 'streaming-ux',
+    difficulty: 3,
+    prompt: 'El texto llega token a token. ¿Qué implica para quien usa lector de pantalla?',
+    options: [
+      {
+        id: 'a',
+        text: 'Anunciar el bloque completo, no cada fragmento',
+        correct: true,
+        rationale:
+          'Correcto: un lector anunciando tokens sueltos es ininteligible. Se anuncia cuando hay contenido legible.',
+      },
+      {
+        id: 'b',
+        text: 'Anunciar cada token conforme llega',
+        correct: false,
+        rationale:
+          'Produce una voz entrecortada imposible de seguir. El streaming visual no se traduce en audio.',
+      },
+      {
+        id: 'c',
+        text: 'Nada: el lector de pantalla lo gestiona solo',
+        correct: false,
+        rationale:
+          'No hay magia. Una región viva que cambia cien veces por segundo es una trampa para el lector.',
+      },
+    ],
+    explanation:
+      'El streaming es una propiedad visual. Para audio, el equivalente es anunciar por bloques o al terminar, en una región viva controlada y no en cada actualización del texto.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'st-batch-context',
+    competencyId: 'streaming-ux',
+    difficulty: 1,
+    prompt: '¿En qué caso el streaming no aporta nada?',
+    options: [
+      {
+        id: 'a',
+        text: 'Cuando el resultado lo consume un proceso por lotes',
+        correct: true,
+        rationale:
+          'Correcto: sin persona leyendo, la entrega parcial no mejora nada y añade complejidad.',
+      },
+      {
+        id: 'b',
+        text: 'Cuando la respuesta es larga y hay que esperar',
+        correct: false,
+        rationale:
+          'Justo ahí es donde más aporta: el usuario empieza a leer antes de que termine.',
+      },
+      {
+        id: 'c',
+        text: 'Cuando el usuario está mirando la pantalla',
+        correct: false,
+        rationale:
+          'Es el caso ideal del streaming. La espera percibida es lo que se reduce.',
+      },
+    ],
+    explanation:
+      'El streaming mejora la percepción de espera de una persona. Si nadie espera delante de una pantalla, solo añade piezas: transporte parcial, estado intermedio y errores a mitad.',
+    referenceId: 'ref-openai-tokens',
+  },
+
+  {
+    id: 'ch-excessive-overlap',
+    competencyId: 'chunking-and-overlap',
+    difficulty: 2,
+    prompt: 'Configuras un solape del 80 % entre fragmentos. ¿Qué efecto tiene?',
+    options: [
+      {
+        id: 'a',
+        text: 'Índice inflado y resultados casi duplicados',
+        correct: true,
+        rationale:
+          'Correcto: casi todo el contenido aparece varias veces, y la recuperación devuelve copias.',
+      },
+      {
+        id: 'b',
+        text: 'Mejor recuperación: nunca se pierde contexto',
+        correct: false,
+        rationale:
+          'Se gana continuidad a costa de duplicar. Los cinco resultados pueden ser el mismo texto repetido.',
+      },
+      {
+        id: 'c',
+        text: 'Menos coste, porque hay menos fragmentos únicos',
+        correct: false,
+        rationale:
+          'Hay muchos más fragmentos, cada uno con su vector. El almacenamiento y el coste suben.',
+      },
+    ],
+    explanation:
+      'El solape evita cortar ideas por la mitad, y pasado cierto punto solo duplica. Un solape moderado —del orden de una frase— resuelve el corte sin llenar el índice de copias.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'ch-section-title',
+    competencyId: 'chunking-and-overlap',
+    difficulty: 2,
+    prompt: 'Guardas el título de la sección en cada fragmento. ¿Para qué sirve?',
+    options: [
+      {
+        id: 'a',
+        text: 'Para que el trozo tenga contexto propio',
+        correct: true,
+        rationale:
+          'Correcto: un párrafo suelto puede no decir de qué habla. El título lo sitúa sin leer el resto.',
+      },
+      {
+        id: 'b',
+        text: 'Para que el índice ocupe menos espacio',
+        correct: false,
+        rationale:
+          'Añade texto a cada fragmento, así que ocupa más. El beneficio es de comprensión, no de tamaño.',
+      },
+      {
+        id: 'c',
+        text: 'Para contar mejor los tokens gastados',
+        correct: false,
+        rationale:
+          'El conteo no lo necesita: se mide sobre lo que se envía. El título sirve al contenido.',
+      },
+    ],
+    explanation:
+      'Un fragmento recuperado se lee aislado. Sin el título de su sección, el modelo tiene que deducir el tema de un párrafo que quizá empieza a mitad de una idea.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'ch-semantic-cuts',
+    competencyId: 'chunking-and-overlap',
+    difficulty: 3,
+    prompt: 'Cortar por unidades de significado en vez de por longitud. ¿Qué se gana?',
+    options: [
+      {
+        id: 'a',
+        text: 'Fragmentos que se entienden por sí solos',
+        correct: true,
+        rationale:
+          'Correcto: el corte respeta la estructura del texto, así que la unidad recuperada tiene sentido.',
+      },
+      {
+        id: 'b',
+        text: 'Un índice bastante más pequeño',
+        correct: false,
+        rationale:
+          'El tamaño depende del contenido, no del criterio de corte. Los dos índices pesan parecido.',
+      },
+      {
+        id: 'c',
+        text: 'Indexar mucho más rápido',
+        correct: false,
+        rationale:
+          'Detectar unidades semánticas cuesta más que cortar cada N caracteres. Se gana calidad.',
+      },
+    ],
+    explanation:
+      'El corte por longitud es barato y rompe ideas. El corte por estructura respeta las unidades que el autor escribió, y por eso los fragmentos recuperados se pueden usar tal cual.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'ch-measuring-chunking',
+    competencyId: 'chunking-and-overlap',
+    difficulty: 3,
+    prompt: '¿Cómo sabes si tu troceado funciona?',
+    options: [
+      {
+        id: 'a',
+        text: 'Midiendo si recuperas lo que responde',
+        correct: true,
+        rationale:
+          'Correcto: la prueba es si el fragmento correcto aparece en los candidatos, no cómo se ve el índice.',
+      },
+      {
+        id: 'b',
+        text: 'Mirando el tamaño medio de los fragmentos',
+        correct: false,
+        rationale:
+          'Un promedio bonito no dice nada del acierto. Se puede trocear mal con un tamaño ideal.',
+      },
+      {
+        id: 'c',
+        text: 'Contando cuántos fragmentos ha generado',
+        correct: false,
+        rationale:
+          'El número habla de coste, no de calidad de recuperación. No informa de si sirve.',
+      },
+    ],
+    explanation:
+      'El troceado se evalúa por su efecto en la recuperación: con un conjunto de preguntas y sus fragmentos correctos, se mide si el troceado los saca. Lo demás son métricas de forma.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'hr-weight-by-measurement',
+    competencyId: 'hybrid-retrieval',
+    difficulty: 2,
+    prompt: '¿Cómo decides cuánto peso dar a la búsqueda léxica frente a la vectorial?',
+    options: [
+      {
+        id: 'a',
+        text: 'Midiéndolo con consultas reales de tu corpus',
+        correct: true,
+        rationale:
+          'Correcto: el equilibrio depende de los datos y de cómo preguntan los usuarios, no de una receta.',
+      },
+      {
+        id: 'b',
+        text: 'Mitad y mitad: es el reparto más justo',
+        correct: false,
+        rationale:
+          'La simetría es una elección estética. En un corpus lleno de códigos, lo léxico debería pesar más.',
+      },
+      {
+        id: 'c',
+        text: 'Todo vectorial: es la técnica más moderna',
+        correct: false,
+        rationale:
+          'La novedad no es criterio. Si los usuarios buscan identificadores exactos, lo vectorial falla.',
+      },
+    ],
+    explanation:
+      'La mezcla óptima es una propiedad del corpus y de las consultas. Se decide con un conjunto de preguntas y midiendo qué combinación recupera mejor la respuesta correcta.',
+    referenceId: 'ref-attention',
+  },
+  {
+    id: 'hr-two-query-kinds',
+    competencyId: 'hybrid-retrieval',
+    difficulty: 2,
+    prompt: 'Los usuarios buscan tanto códigos exactos como preguntas redactadas. ¿Qué implica?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que hacen falta las dos señales a la vez',
+        correct: true,
+        rationale:
+          'Correcto: cada señal cubre un tipo de consulta que la otra no resuelve bien.',
+      },
+      {
+        id: 'b',
+        text: 'Que basta con la búsqueda por lenguaje natural',
+        correct: false,
+        rationale:
+          'Deja sin cubrir las consultas exactas, que son justo donde lo vectorial pierde.',
+      },
+      {
+        id: 'c',
+        text: 'Que hay que normalizar todas las consultas a códigos',
+        correct: false,
+        rationale:
+          'Forzar la forma cambia lo que el usuario quiere decir. Se adapta el sistema, no la consulta.',
+      },
+    ],
+    explanation:
+      'La búsqueda híbrida existe porque los usuarios no preguntan de una sola manera. Elegir una señal obliga a perder la mitad de los casos; combinarlas cubre ambas formas.',
+    referenceId: 'ref-attention',
+  },
+  {
+    id: 'hr-parallel-latency',
+    competencyId: 'hybrid-retrieval',
+    difficulty: 3,
+    prompt: 'Ejecutas las dos búsquedas en paralelo y luego fusionas. ¿Cómo queda la latencia?',
+    options: [
+      {
+        id: 'a',
+        text: 'La de la más lenta, no la suma de ambas',
+        correct: true,
+        rationale:
+          'Correcto: en paralelo se solapan, así que manda la que tarda más más el tiempo de fusión.',
+      },
+      {
+        id: 'b',
+        text: 'La suma de las dos, aunque vayan en paralelo',
+        correct: false,
+        rationale:
+          'En serie se sumarían. En paralelo se solapan, y por eso conviene lanzarlas a la vez.',
+      },
+      {
+        id: 'c',
+        text: 'Se multiplica el tiempo de la más rápida',
+        correct: false,
+        rationale:
+          'No hay multiplicación. El tiempo lo marca la más lenta, más el coste pequeño de fusionar.',
+      },
+    ],
+    explanation:
+      'El paralelismo es lo que hace viable la búsqueda híbrida: dos consultas simultáneas cuestan lo que la más lenta. Hacerlas en serie duplicaría la espera sin mejorar el resultado.',
+    referenceId: 'ref-attention',
+  },
+  {
+    id: 'hr-recall-precision-split',
+    competencyId: 'hybrid-retrieval',
+    difficulty: 3,
+    prompt: 'Recuperas cien candidatos y acabas usando cinco. ¿Qué aporta cada fase?',
+    options: [
+      {
+        id: 'a',
+        text: 'Recuperar da cobertura; reordenar, precisión',
+        correct: true,
+        rationale:
+          'Correcto: la recuperación barata no debe dejar fuera lo importante; el reordenador afina el orden.',
+      },
+      {
+        id: 'b',
+        text: 'Recuperar da precisión; reordenar, cobertura',
+        correct: false,
+        rationale:
+          'Es al revés. Recuperar con cien candidatos prioriza no perder nada; el orden llega después.',
+      },
+      {
+        id: 'c',
+        text: 'Las dos fases hacen exactamente lo mismo',
+        correct: false,
+        rationale:
+          'Si hicieran lo mismo, la segunda sobraría. Se dividen el trabajo por coste y por alcance.',
+      },
+    ],
+    explanation:
+      'La división es económica: recuperar es barato y se permite mirar mucho; reordenar es caro y solo mira unos pocos. Cada fase optimiza una cosa distinta.',
+    referenceId: 'ref-attention',
+  },
+
+  {
+    id: 'gr-abstention-message',
+    competencyId: 'grounding-and-citations',
+    difficulty: 2,
+    prompt: 'El sistema no encuentra respaldo y se abstiene. ¿Qué debería ofrecer?',
+    options: [
+      {
+        id: 'a',
+        text: 'Qué buscó y qué no encontró',
+        correct: true,
+        rationale:
+          'Correcto: la abstención es información útil si dice qué se consultó y qué faltó.',
+      },
+      {
+        id: 'b',
+        text: 'Una disculpa breve y nada más',
+        correct: false,
+        rationale:
+          'Disculparse no ayuda a decidir el siguiente paso. Falta el detalle de qué se intentó.',
+      },
+      {
+        id: 'c',
+        text: 'Una respuesta aproximada, avisando del riesgo',
+        correct: false,
+        rationale:
+          'Rompe la promesa del sistema. Si no hay respaldo, una aproximación es exactamente lo que no se quería.',
+      },
+    ],
+    explanation:
+      'Abstenerse es una respuesta de primera clase, no un fallo: permite al usuario reformular o buscar en otra fuente. Para eso tiene que saber qué se miró y por qué no bastó.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'gr-chunk-identifier',
+    competencyId: 'grounding-and-citations',
+    difficulty: 2,
+    prompt: '¿Qué necesita cada fragmento para poder citarse de forma verificable?',
+    options: [
+      {
+        id: 'a',
+        text: 'Un identificador estable y localizable',
+        correct: true,
+        rationale:
+          'Correcto: sin identificador que resuelva al fragmento, la cita no se puede comprobar.',
+      },
+      {
+        id: 'b',
+        text: 'Su texto completo copiado en la respuesta',
+        correct: false,
+        rationale:
+          'Duplicar el texto infla la salida y no localiza nada. Hace falta la referencia, no la copia.',
+      },
+      {
+        id: 'c',
+        text: 'Su posición exacta en tokens del modelo',
+        correct: false,
+        rationale:
+          'La posición en tokens no le dice nada al lector ni permite volver al documento.',
+      },
+    ],
+    explanation:
+      'Una cita útil resuelve a un fragmento concreto. Eso exige un identificador estable —documento, sección, fragmento— que sobreviva a la reindexación y que el lector pueda abrir.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'gr-partial-support',
+    competencyId: 'grounding-and-citations',
+    difficulty: 3,
+    prompt: 'El fragmento citado respalda la primera mitad de la frase, no la segunda. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Recortar la afirmación a lo respaldado',
+        correct: true,
+        rationale:
+          'Correcto: se ajusta la respuesta a la evidencia disponible, en vez de estirar la cita.',
+      },
+      {
+        id: 'b',
+        text: 'Citarlo igual: la mitad ya está probada',
+        correct: false,
+        rationale:
+          'La cita avalaría una frase que dice más de lo que el fragmento sostiene. Eso es precisamente lo que hay que evitar.',
+      },
+      {
+        id: 'c',
+        text: 'Añadir otra frase para compensar la falta',
+        correct: false,
+        rationale:
+          'Añadir texto sin respaldo agrava el problema. Lo que falta es evidencia, no palabras.',
+      },
+    ],
+    explanation:
+      'La unidad de verificación es la afirmación, no el párrafo. Si la evidencia cubre una parte, la respuesta se recorta a esa parte y se dice qué queda sin cubrir.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'gr-citation-utility',
+    competencyId: 'grounding-and-citations',
+    difficulty: 1,
+    prompt: '¿Qué hace útil una cita para quien la lee?',
+    options: [
+      {
+        id: 'a',
+        text: 'Poder abrir la fuente y comprobarla',
+        correct: true,
+        rationale:
+          'Correcto: la cita sirve si lleva al texto. Su valor es la verificación, no la apariencia.',
+      },
+      {
+        id: 'b',
+        text: 'Que sea extensa y detallada',
+        correct: false,
+        rationale:
+          'Una cita larga puede ser más difícil de comprobar. Lo que importa es que resuelva a la fuente.',
+      },
+      {
+        id: 'c',
+        text: 'Que aparezca siempre al final del texto',
+        correct: false,
+        rationale:
+          'La posición es una decisión de formato. No determina si la cita se puede verificar.',
+      },
+    ],
+    explanation:
+      'Una cita es un puntero verificable. Si el lector no puede llegar al fragmento y leerlo, la cita solo añade apariencia de rigor, que es peor que no citar.',
+    referenceId: 'ref-anthropic-system',
+  },
 ];

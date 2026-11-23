@@ -9,7 +9,7 @@ Generado desde el catálogo. **No editar a mano**: cambia el contenido y ejecuta
 | Competencias publicadas | **39 / 39** |
 | Pendientes | 0 |
 | Lecciones escritas | 39 |
-| Ítems escritos | **156** (objetivo ~156) |
+| Ítems escritos | **240** (objetivo ~156) |
 | Áreas completas | 8 / 8 |
 
 Una competencia cuenta como publicada solo si tiene lección e ítems, y eso lo verifica el
@@ -34,44 +34,44 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 
 ### 01 · Fundamentos de IA — 4/4
 
-- ✅ `ai-ml-dl-boundaries` — lección y 4 ítems
-- ✅ `supervised-vs-unsupervised` — lección y 4 ítems
-- ✅ `generalization-overfitting` — lección y 4 ítems
-- ✅ `deterministic-vs-learned` — lección y 4 ítems
+- ✅ `ai-ml-dl-boundaries` — lección y 8 ítems
+- ✅ `supervised-vs-unsupervised` — lección y 8 ítems
+- ✅ `generalization-overfitting` — lección y 8 ítems
+- ✅ `deterministic-vs-learned` — lección y 8 ítems
 
-<sub>16 ítems en el área · objetivo 16</sub>
+<sub>32 ítems en el área · objetivo 16</sub>
 
 ### 02 · IA generativa y LLMs — 6/6
 
-- ✅ `tokens-and-context-window` — lección y 4 ítems
-- ✅ `tokenization-mechanics` — lección y 4 ítems
-- ✅ `attention-and-transformers` — lección y 4 ítems
-- ✅ `embeddings-and-vectors` — lección y 4 ítems
-- ✅ `inference-latency-cost` — lección y 4 ítems
-- ✅ `generation-controls` — lección y 4 ítems
+- ✅ `tokens-and-context-window` — lección y 8 ítems
+- ✅ `tokenization-mechanics` — lección y 8 ítems
+- ✅ `attention-and-transformers` — lección y 8 ítems
+- ✅ `embeddings-and-vectors` — lección y 8 ítems
+- ✅ `inference-latency-cost` — lección y 8 ítems
+- ✅ `generation-controls` — lección y 8 ítems
 
-<sub>24 ítems en el área · objetivo 24</sub>
+<sub>48 ítems en el área · objetivo 24</sub>
 
 ### 03 · Prompt y context engineering — 6/6
 
-- ✅ `system-instructions-contract` — lección y 4 ítems
-- ✅ `few-shot-examples` — lección y 4 ítems
-- ✅ `context-budgeting` — lección y 4 ítems
-- ✅ `structured-outputs` — lección y 4 ítems
-- ✅ `prompt-evaluation` — lección y 4 ítems
-- ✅ `finetuning-vs-prompting` — lección y 4 ítems
+- ✅ `system-instructions-contract` — lección y 8 ítems
+- ✅ `few-shot-examples` — lección y 8 ítems
+- ✅ `context-budgeting` — lección y 8 ítems
+- ✅ `structured-outputs` — lección y 8 ítems
+- ✅ `prompt-evaluation` — lección y 8 ítems
+- ✅ `finetuning-vs-prompting` — lección y 8 ítems
 
-<sub>24 ítems en el área · objetivo 24</sub>
+<sub>48 ítems en el área · objetivo 24</sub>
 
 ### 04 · Aplicaciones de IA y RAG — 5/5
 
-- ✅ `function-calling-contracts` — lección y 4 ítems
-- ✅ `streaming-ux` — lección y 4 ítems
-- ✅ `chunking-and-overlap` — lección y 4 ítems
-- ✅ `hybrid-retrieval` — lección y 4 ítems
-- ✅ `grounding-and-citations` — lección y 4 ítems
+- ✅ `function-calling-contracts` — lección y 8 ítems
+- ✅ `streaming-ux` — lección y 8 ítems
+- ✅ `chunking-and-overlap` — lección y 8 ítems
+- ✅ `hybrid-retrieval` — lección y 8 ítems
+- ✅ `grounding-and-citations` — lección y 8 ítems
 
-<sub>20 ítems en el área · objetivo 20</sub>
+<sub>40 ítems en el área · objetivo 20</sub>
 
 ### 05 · Ingeniería agéntica — 6/6
 
