@@ -77,6 +77,22 @@ desplegar.
 | Consola sin errores | Sin violaciones de CSP |
 | 404 | `/ruta-que-no-existe` muestra la página propia |
 
+## El catálogo como dato (`/contenido.json`)
+
+`pnpm build` encadena `scripts/export-content.ts`, que escribe `out/contenido.json` con el
+catálogo completo. No es un paso opcional: si falla, falla el build, y por tanto el gate.
+
+| Decisión | Motivo |
+|---|---|
+| Sin `generatedAt` | Una marca de tiempo haría distinto cada build aunque el contenido no cambie |
+| Incluye las respuestas correctas | Es material de estudio, no un examen; ocultarlas pediría un servidor |
+| Versión explícita | `version` da identidad al conjunto sin depender de la fecha |
+
+Cabecera en `vercel.json`: `public, max-age=3600, must-revalidate`. Cambia con cada
+despliegue, así que no conviene cachearlo para siempre.
+
+Para comprobarlo tras desplegar: `curl -s https://<dominio>/contenido.json | head -20` debe
+devolver el sobre con `"kind": "acm.catalog"`.
 ## Instalable y sin conexión (PWA)
 
 Sale de tres piezas estáticas, sin build aparte:

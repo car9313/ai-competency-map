@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && tsx scripts/export-content.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -20,6 +20,7 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "a11y": "tsx scripts/a11y-check.ts",
     "content:status": "tsx scripts/content-status.ts",
+    "export:content": "tsx scripts/export-content.ts",
     "serve:headers": "tsx scripts/serve-with-headers.ts",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm validate:content && pnpm build && pnpm a11y"
   },
@@ -39,6 +40,7 @@
     "axe-core": "^4.14.1",
     "eslint": "^10.15.0",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "fast-check": "^4.11.0",
     "playwright": "^1.65.1",
     "postcss": "^8.5.33",
     "prettier": "^3.10.1",

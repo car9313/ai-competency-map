@@ -7,6 +7,7 @@ export const metadata = {
 };
 
 export default function AcercaPage() {
+  const itemCount = contentIndex.itemById.size;
   const areas = (contentIndex.areas ?? []).map((area) => ({
     id: area.id,
     index: area.index,
@@ -47,6 +48,20 @@ export default function AcercaPage() {
       <p className="text-sm text-muted">
         Sin backend, sin base de datos, sin claves y sin coste de ejecución. El progreso vive en el
         navegador y se puede exportar.
+      </p>
+
+      <p className="text-sm text-muted">
+        El catálogo completo —áreas, competencias, lecciones, {itemCount} ítems con la justificación
+        de cada distractor y las referencias— está publicado como dato abierto en{' '}
+        <a
+          href="/contenido.json"
+          className="text-accent underline underline-offset-4"
+          type="application/json"
+        >
+          contenido.json
+        </a>
+        . Es el mismo archivo que valida el build, así que no puede desviarse de lo que ves aquí.
+        Licencia CC BY-SA 4.0.
       </p>
 
       <DataPanel />

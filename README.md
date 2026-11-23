@@ -96,3 +96,15 @@ scripts/              gates: linter de contenido, auditoría de accesibilidad, e
 - **Contenido pedagógico** (lecciones, ítems, prosa de `docs/`): CC BY-SA 4.0 ([`LICENSE-CONTENT`](LICENSE-CONTENT)).
 
 Son dos cosas con ciclos distintos: la herramienta cuanto más libre mejor; el currículo, para que las mejoras vuelvan.
+
+## El catálogo como dato
+
+`/contenido.json` publica el catálogo completo —8 áreas, 39 competencias, 39 lecciones,
+312 ítems con la justificación de cada distractor y las referencias— como un único archivo
+estático. Se genera en cada build, así que no puede desviarse de lo que valida el linter.
+
+```json
+{ "kind": "acm.catalog", "version": 1, "lang": "es", "counts": { … }, "items": [ … ] }
+```
+
+Licencia CC BY-SA 4.0: atribución al repositorio y las obras derivadas comparten licencia.

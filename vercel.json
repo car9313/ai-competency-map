@@ -30,6 +30,10 @@
       "headers": [{ "key": "Content-Type", "value": "application/manifest+json" }]
     },
     {
+      "source": "/contenido.json",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, must-revalidate" }]
+    },
+    {
       "source": "/icons/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000" }]
     }
