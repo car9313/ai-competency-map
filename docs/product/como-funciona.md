@@ -176,7 +176,7 @@ Se evalúan en este orden; gana el primero que se cumpla:
 | **A un ítem** | Todos intentados y solo uno sin el último acierto |
 | **En aprendizaje** | Cualquier otro caso |
 
-«A un ítem» existe por un problema concreto: con cuatro ítems, fallar uno dejaba la competencia en «en aprendizaje», que se lee como *no sé nada* cuando en realidad están tres de cuatro resueltos. **La regla de consolidación no se ha relajado** —sigue exigiendo los cuatro—, pero el estado deja de mentir sobre cuánto falta.
+«A un ítem» existe por un problema concreto: con pocos ítems, fallar uno dejaba la competencia en «en aprendizaje», que se lee como *no sé nada* cuando en realidad casi todo estaba resuelto. **La regla de consolidación no se ha relajado** —sigue exigiendo los cuatro—, pero el estado deja de mentir sobre cuánto falta.
 
 Detalle fino: «consolidada» **no** exige que todos los ítems estén en fase `review`. Un acierto con dudas deja el ítem en `learning` y sigue siendo un acierto válido. Se mide evidencia, no fases.
 
@@ -227,7 +227,7 @@ Se descartó bloquear por área temática porque el grafo no está particionado:
 ### Fase 2 — contenido
 
 - Las 36 competencias que aún no tienen lección ni ítems.
-- De 12 ítems a ~156 (3–4 por competencia).
+- De 12 ítems a 312 (8 por competencia).
 - Linter de contenido creciendo con el catálogo.
 
 ### Fase 3 — pitch y pulido
@@ -244,7 +244,7 @@ No es «más adelante», es **diferido con condición**:
 
 | Diferido | Se reconsidera cuando |
 |---|---|
-| Generar ítems con IA | Existan los 156 escritos a mano y el pipeline esté probado |
+| Generar ítems con IA | Existan los 312 escritos a mano y el pipeline esté probado |
 | Cuentas y servidor | Alguien que no es el autor lo use más de una semana |
 | Contenido en inglés | Fase 3 cerrada y una razón que no sea simetría |
 

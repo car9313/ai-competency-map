@@ -212,10 +212,10 @@ No son requisito del producto (el grafo ya define el orden), pero sirven de guí
 | Competencias              | 39                       |
 | Lecciones                 | 39 (una por competencia) |
 | Ítems mínimos (regla R4)  | 3 por competencia = 117  |
-| Ítems objetivo            | 4 por competencia = 156  |
+| Ítems objetivo            | 8 por competencia = 312  |
 | Ítems por ruta completa   | ~40                      |
 
-Con 156 ítems el producto es útil de verdad; con los 117 mínimos, funcional pero repetitivo. El techo razonable son 6 por competencia: más suele indicar que la competencia debería dividirse.
+Con 312 ítems el producto es útil de verdad; con los mínimos, funcional pero repetitivo. El techo razonable son 6 por competencia: más suele indicar que la competencia debería dividirse.
 
 ---
 
@@ -233,7 +233,7 @@ Con 156 ítems el producto es útil de verdad; con los 117 mínimos, funcional p
 
 ## 16. Preguntas abiertas
 
-1. **¿Una sola raíz es demasiado estrecha?** Un alumno con experiencia debe recorrer fundamentos antes de llegar a lo que necesita. Mitigación posible: una **evaluación de entrada** que, respondiendo 3–4 ítems, marque la competencia con evidencia y la salte. Es funcionalidad nueva, no contenido: se decide en la fase 2.
+1. **¿Una sola raíz es demasiado estrecha?** Un alumno con experiencia debe recorrer fundamentos antes de llegar a lo que necesita. **Resuelto**: el diagnóstico de entrada (`/diagnostico`) reparte doce ítems por áreas y cada acierto es evidencia real que desbloquea lo que dependa de él.
 2. **¿Las áreas 05 y 06 deben ser dos?** Agentes (razonamiento y herramientas) y harness (política y contención) son disciplinas distintas, pero comparten vocabulario. Se mantienen separadas porque el harness es sobre **límites**, no sobre capacidades.
 3. **Una sola competencia de interfaz, ¿es suficiente?** Es el reparto honesto, no una omisión. Si al escribir el contenido aparecen más temas genuinamente de cliente (estados de error, percepción de latencia, incertidumbre en la UI), se añaden; rellenar por simetría sería peor.
 4. **¿37 es el número correcto?** Es una propuesta, no una medida. Se valida escribiendo los primeros 10 ítems de tres competencias: si cuesta llegar a 3, la competencia era demasiado estrecha; si sobran ideas, era demasiado amplia.

@@ -76,9 +76,9 @@ En el archivo del área, `src/content/area-NN-*.ts`:
 La lección es el **preámbulo de la evaluación**, no un artículo. Si ocupa más de
 una pantalla, probablemente sobra la mitad.
 
-### 3. Escribe cuatro ítems
+### 3. Escribe ocho ítems
 
-En el mismo archivo. Cuatro por competencia: tres o cuatro opciones, **una sola
+En el mismo archivo. Ocho por competencia: tres o cuatro opciones, **una sola
 correcta**, y cada distractor con su propia justificación.
 
 ```ts

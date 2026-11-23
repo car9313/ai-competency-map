@@ -2,7 +2,7 @@
 
 > Un mapa de competencias de AI Engineering donde el progreso se **deriva de evidencia**, no se declara.
 
-**Estado:** fases 1 y 2 completas. **39 competencias · 39 lecciones · 156 ítems · 186 tests · 6 gates en CI.** Coste de infraestructura: cero.
+**Estado:** fases 1 y 2 completas. **39 competencias · 39 lecciones · 312 ítems · 208 tests · 6 gates en CI.** Coste de infraestructura: cero.
 
 ```bash
 pnpm install

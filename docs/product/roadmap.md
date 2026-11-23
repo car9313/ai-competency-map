@@ -38,13 +38,13 @@ La regla organizadora: **cada fase tiene que ser demostrable por sí sola**. Una
 | Se construye                                                          | Por qué                                                          |
 | --------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | Grafo de competencias: 39 competencias en 8 áreas, con eje de capa (`núcleo` / `servicio` / `interfaz`) | Es el mapa por el que navega el alumno |
-| ~156 ítems con justificación por distractor                            | Es el suministro de evidencia                                     |
+| 312 ítems con justificación por distractor                             | Es el suministro de evidencia                                     |
 | Linter de contenido (R1–R7) conectado a CI                             | Evita que la calidad decaiga según crece el contenido             |
 | UI completa del grafo con cuatro estados, filtros y URLs compartibles  | Navegación y capacidad de compartir                               |
 | SEO: metadatos por competencia, generación estática                    | Descubribilidad, y argumento de portfolio                         |
 | Flujo de autoría de contenido documentado                              | Para que el modelo sea repetible                                  |
 
-**Estado: completada.** 39 de 39 competencias publicadas, con lección y 4 ítems cada una: 39 lecciones y 156 ítems, con 0 errores y 0 avisos del linter. El mapa no muestra ningún nodo «próximamente».
+**Estado: completada.** 39 de 39 competencias publicadas, con lección y 8 ítems cada una: 39 lecciones y 312 ítems, con 0 errores y 0 avisos del linter. El mapa no muestra ningún nodo «próximamente».
 
 El **estado detallado** por área está en [content-status.md](content-status.md), que se genera desde el catálogo con `pnpm content:status` y por tanto no se puede quedar desactualizado.
 
@@ -53,7 +53,7 @@ El contenido se escribe **un archivo por área** (`src/content/area-NN-*.ts`) qu
 **Criterios de salida**
 
 - El linter rechaza un ítem roto a propósito en CI (esto es en sí una escena de la demo). ✅
-- Toda competencia tiene ≥ 1 lección y ≥ 3 ítems, verificado por regla, no por confianza. ✅ 39 lecciones, 156 ítems
+- Toda competencia tiene ≥ 1 lección y ≥ 3 ítems, verificado por regla, no por confianza. ✅ 39 lecciones, 312 ítems
 - Toda URL es compartible y se renderiza en primera carga sin estado de cliente. ✅
 - El guion de demo completo corre de principio a fin.
 
@@ -87,7 +87,7 @@ Estas son las cosas con más probabilidad de matar el proyecto. No son "más ade
 
 | Diferido                    | Condición para reconsiderarlo                                       |
 | --------------------------- | ------------------------------------------------------------------- |
-| Generación de ítems con IA  | Que existan los 156 ítems escritos a mano y el pipeline de fixtures esté probado |
+| Generación de ítems con IA  | Que existan los 312 ítems escritos a mano y el pipeline de fixtures esté probado |
 | Contenido en inglés         | Fase 3 cerrada, y una razón más allá de la simetría                  |
 | Cuentas y sincronización    | Que alguien que no sea el autor lo use más de una semana             |
 | Labs con ejecución de código| Nunca, en este producto. Otro producto, otra amenaza                 |

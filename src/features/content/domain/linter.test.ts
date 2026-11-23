@@ -110,13 +110,28 @@ function validCatalog(): Catalog {
     areas,
     competencies,
     lessons: [makeLesson('base'), makeLesson('avanzada')],
+    /*
+     * Ocho ítems por competencia: es el mínimo que exige el linter (R4). Con cuatro, la
+     * regla de consolidación dependía demasiado de un solo fallo. El fixture tiene que
+     * reflejar el listón actual, o el test pasaría por estar midiendo otra cosa.
+     */
     items: [
       makeItem('item-b1', 'base'),
       makeItem('item-b2', 'base'),
       makeItem('item-b3', 'base'),
+      makeItem('item-b4', 'base'),
+      makeItem('item-b5', 'base'),
+      makeItem('item-b6', 'base'),
+      makeItem('item-b7', 'base'),
+      makeItem('item-b8', 'base'),
       makeItem('item-a1', 'avanzada'),
       makeItem('item-a2', 'avanzada'),
       makeItem('item-a3', 'avanzada'),
+      makeItem('item-a4', 'avanzada'),
+      makeItem('item-a5', 'avanzada'),
+      makeItem('item-a6', 'avanzada'),
+      makeItem('item-a7', 'avanzada'),
+      makeItem('item-a8', 'avanzada'),
     ],
     references,
   };

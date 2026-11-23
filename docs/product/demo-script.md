@@ -50,7 +50,7 @@ vuelve) antes de dar al récord.
 **Haz:** baja despacio hasta las tarjetas de errores.
 
 > «Cada error describe el razonamiento equivocado, no la respuesta correcta. Ese
-> detalle se repite en las 156 preguntas.»
+> detalle se repite en las 312 preguntas.»
 
 ---
 

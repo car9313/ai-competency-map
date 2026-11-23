@@ -118,7 +118,7 @@ items: [...ITEMS, ...ITEMS_AREA_01, ...ITEMS_AREA_02],
 Motivos:
 
 - Una persona cierra un área completa, que es una unidad de trabajo con sentido.
-- El archivo no crece sin límite: `items.ts` ya tiene 400 líneas y no escala a 156 ítems.
+- El archivo no crece sin límite: `items.ts` ya tenía 400 líneas con 12 ítems y no escala a 312.
 - Activar un área es cambiar tres `published: false` a `true`; el linter hace el resto.
 
 Al terminar un área:

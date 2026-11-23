@@ -10,7 +10,7 @@ import { writeFile } from 'node:fs/promises';
 import { CATALOG } from '@/content';
 
 const OUT = 'docs/product/content-status.md';
-const ITEMS_PER_COMPETENCY = 4;
+const ITEMS_PER_COMPETENCY = 8;
 
 const lessonOf = new Set(CATALOG.lessons.map((lesson) => lesson.competencyId));
 const itemsOf = new Map<string, number>();

@@ -31,7 +31,7 @@ export const LIMITS = {
   maxOptionsPerItem: 4,
   minRationaleLength: 40,
   minExplanationLength: 80,
-  minItemsPerCompetency: 3,
+  minItemsPerCompetency: 8,
   minLessonsPerCompetency: 1,
   /** La opción correcta no puede superar este múltiplo de la media de las incorrectas. */
   maxLengthRatio: 1.5,

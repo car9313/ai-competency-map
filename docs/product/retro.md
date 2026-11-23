@@ -11,7 +11,7 @@ evalúe el proyecto, no para quien lo celebre.
 |---|---|
 | Competencias publicadas | 39 de 39, en 8 áreas |
 | Lecciones | 39 |
-| Ítems de evaluación | 156, con justificación por distractor |
+| Ítems de evaluación | 312, con justificación por distractor |
 | Tests | 186 |
 | Gates en CI | 6 (tipos, lint, tests, contenido, build, accesibilidad) |
 | Páginas estáticas | 85 |

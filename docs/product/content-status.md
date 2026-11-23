@@ -9,7 +9,7 @@ Generado desde el catálogo. **No editar a mano**: cambia el contenido y ejecuta
 | Competencias publicadas | **39 / 39** |
 | Pendientes | 0 |
 | Lecciones escritas | 39 |
-| Ítems escritos | **312** (objetivo ~156) |
+| Ítems escritos | **312** (objetivo ~312) |
 | Áreas completas | 8 / 8 |
 
 Una competencia cuenta como publicada solo si tiene lección e ítems, y eso lo verifica el
@@ -39,7 +39,7 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 - ✅ `generalization-overfitting` — lección y 8 ítems
 - ✅ `deterministic-vs-learned` — lección y 8 ítems
 
-<sub>32 ítems en el área · objetivo 16</sub>
+<sub>32 ítems en el área · objetivo 32</sub>
 
 ### 02 · IA generativa y LLMs — 6/6
 
@@ -50,7 +50,7 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 - ✅ `inference-latency-cost` — lección y 8 ítems
 - ✅ `generation-controls` — lección y 8 ítems
 
-<sub>48 ítems en el área · objetivo 24</sub>
+<sub>48 ítems en el área · objetivo 48</sub>
 
 ### 03 · Prompt y context engineering — 6/6
 
@@ -61,7 +61,7 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 - ✅ `prompt-evaluation` — lección y 8 ítems
 - ✅ `finetuning-vs-prompting` — lección y 8 ítems
 
-<sub>48 ítems en el área · objetivo 24</sub>
+<sub>48 ítems en el área · objetivo 48</sub>
 
 ### 04 · Aplicaciones de IA y RAG — 5/5
 
@@ -71,7 +71,7 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 - ✅ `hybrid-retrieval` — lección y 8 ítems
 - ✅ `grounding-and-citations` — lección y 8 ítems
 
-<sub>40 ítems en el área · objetivo 20</sub>
+<sub>40 ítems en el área · objetivo 40</sub>
 
 ### 05 · Ingeniería agéntica — 6/6
 
@@ -82,7 +82,7 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 - ✅ `mcp-protocol` — lección y 8 ítems
 - ✅ `agent-skills` — lección y 8 ítems
 
-<sub>48 ítems en el área · objetivo 24</sub>
+<sub>48 ítems en el área · objetivo 48</sub>
 
 ### 06 · Harness engineering — 4/4
 
@@ -91,7 +91,7 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 - ✅ `checkpoints-recovery` — lección y 8 ítems
 - ✅ `human-approval-gates` — lección y 8 ítems
 
-<sub>32 ítems en el área · objetivo 16</sub>
+<sub>32 ítems en el área · objetivo 32</sub>
 
 ### 07 · Arquitectura de software IA — 4/4
 
@@ -100,7 +100,7 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 - ✅ `orchestration-patterns` — lección y 8 ítems
 - ✅ `resilience-fallback` — lección y 8 ítems
 
-<sub>32 ítems en el área · objetivo 16</sub>
+<sub>32 ítems en el área · objetivo 32</sub>
 
 ### 08 · Calidad y producción — 4/4
 
@@ -109,7 +109,7 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 - ✅ `observability-cost` — lección y 8 ítems
 - ✅ `prompt-injection-defense` — lección y 8 ítems
 
-<sub>32 ítems en el área · objetivo 16</sub>
+<sub>32 ítems en el área · objetivo 32</sub>
 
 ## Qué falta, en orden
 
@@ -118,6 +118,6 @@ Nada: todas las competencias están publicadas.
 ## Criterio de cierre de la fase 2
 
 - [ ] Las 39 competencias publicadas.
-- [ ] ~156 ítems, con justificación por distractor.
+- [ ] ~312 ítems, con justificación por distractor.
 - [ ] `pnpm validate:content` en cero, ejecutándose en CI.
 - [ ] Ningún nodo del mapa queda como «próximamente».
