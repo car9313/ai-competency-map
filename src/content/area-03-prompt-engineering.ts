@@ -830,4 +830,780 @@ export const ITEMS_AREA_03: readonly Item[] = [
       'Un modelo ajustado es un artefacto con dueño y ciclo de vida. Elegirlo es aceptar que cada cambio de proceso implica datos nuevos, validación y despliegue.',
     referenceId: 'ref-rules-ml',
   },
+
+  // ── segunda tanda: hasta 8 ítems por competencia ────────────────────────────
+
+  {
+    id: 'sys-precedence',
+    competencyId: 'system-instructions-contract',
+    difficulty: 2,
+    prompt: 'El sistema exige responder en JSON y el usuario pide «cuéntame una historia libre». ¿Qué manda?',
+    options: [
+      {
+        id: 'a',
+        text: 'La instrucción de sistema: es el contrato',
+        correct: true,
+        rationale:
+          'Correcto: el sistema define el marco y el usuario opera dentro. El contrato no se negocia por turno.',
+      },
+      {
+        id: 'b',
+        text: 'El usuario: siempre debe poder pedir lo que quiera',
+        correct: false,
+        rationale:
+          'Confunde servicio con sumisión. Si el formato es un requisito del producto, se mantiene.',
+      },
+      {
+        id: 'c',
+        text: 'El modelo decide cuál ignorar según el caso',
+        correct: false,
+        rationale:
+          'Dejar la precedencia al criterio del modelo la vuelve impredecible, que es lo contrario de un contrato.',
+      },
+    ],
+    explanation:
+      'La jerarquía es explícita: el sistema fija el marco, el usuario opera dentro. Cuando eso no se puede sostener, el comportamiento correcto es responder dentro del formato quejándose o indicando el límite, no romperlo.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'sys-only-prohibitions',
+    competencyId: 'system-instructions-contract',
+    difficulty: 2,
+    prompt: 'Un contrato con veinte prohibiciones y ninguna instrucción positiva. ¿Qué falla?',
+    options: [
+      {
+        id: 'a',
+        text: 'Dice qué no hacer, no qué hacer',
+        correct: true,
+        rationale:
+          'Correcto: sin la parte positiva, el modelo tiene que adivinar el comportamiento deseado.',
+      },
+      {
+        id: 'b',
+        text: 'Veinte prohibiciones son demasiadas para leerlas',
+        correct: false,
+        rationale:
+          'La cantidad molesta, pero el problema es de fondo: falta la conducta esperada.',
+      },
+      {
+        id: 'c',
+        text: 'Nada: prohibir cosas ya define el comportamiento',
+        correct: false,
+        rationale:
+          'Definir el borde no define el centro. Muchas conductas caben dentro de lo no prohibido.',
+      },
+    ],
+    explanation:
+      'Un contrato útil dice qué hacer, con qué formato y qué hacer cuando no se puede. Las prohibiciones acotan el espacio; no indican la salida esperada.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'sys-role-inflation',
+    competencyId: 'system-instructions-contract',
+    difficulty: 3,
+    prompt: 'El contrato empieza con «eres el mejor experto del mundo». ¿Cuánto aporta?',
+    options: [
+      {
+        id: 'a',
+        text: 'Poco: no cambia criterios, formato ni límites',
+        correct: true,
+        rationale:
+          'Correcto: el elogio ocupa contexto y no modifica ninguna de las decisiones que importan.',
+      },
+      {
+        id: 'b',
+        text: 'Mucho: activa capacidades expertas del modelo',
+        correct: false,
+        rationale:
+          'No activa nada. El modelo no guarda un experto dormido que despierte con un halago.',
+      },
+      {
+        id: 'c',
+        text: 'Bastante, si se repite varias veces',
+        correct: false,
+        rationale:
+          'Repetirlo gasta más contexto sin añadir información. El efecto no crece con la insistencia.',
+      },
+    ],
+    explanation:
+      'Un contrato sirve para reducir ambigüedad: qué tarea, qué formato, qué límites, qué hacer ante el fallo. El papel que se le pide interpretar no es ninguno de esos cuatro.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'sys-changing-contract',
+    competencyId: 'system-instructions-contract',
+    difficulty: 3,
+    prompt: 'Vas a cambiar el contrato de sistema de un servicio que ya está en producción. ¿Qué haces antes?',
+    options: [
+      {
+        id: 'a',
+        text: 'Medirlo contra el conjunto de casos actual',
+        correct: true,
+        rationale:
+          'Correcto: un contrato es código. Se cambia con evidencia de que no rompe lo que funcionaba.',
+      },
+      {
+        id: 'b',
+        text: 'Desplegarlo: el cambio es solo de texto',
+        correct: false,
+        rationale:
+          'Es texto con efectos. Un cambio de contrato altera todas las respuestas del servicio.',
+      },
+      {
+        id: 'c',
+        text: 'Avisar al equipo y desplegar al día siguiente',
+        correct: false,
+        rationale:
+          'Avisar no mide. Sin casos ejecutados, la regresión se descubre con usuarios delante.',
+      },
+    ],
+    explanation:
+      'El contrato de sistema es la pieza de código con más alcance del sistema: afecta a todas las llamadas. Cambiarlo sin medir es desplegar sin tests a la vista de todos.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'few-cost-per-call',
+    competencyId: 'few-shot-examples',
+    difficulty: 2,
+    prompt: 'Pones cinco ejemplos largos en cada llamada. ¿Qué coste tiene?',
+    options: [
+      {
+        id: 'a',
+        text: 'Ocupan contexto y se pagan en cada petición',
+        correct: true,
+        rationale:
+          'Correcto: los ejemplos viajan en cada llamada. No se guardan ni se cobran una sola vez.',
+      },
+      {
+        id: 'b',
+        text: 'Solo se cobran la primera vez que se envían',
+        correct: false,
+        rationale:
+          'No hay memoria de la llamada anterior. Cada petición paga sus propios tokens.',
+      },
+      {
+        id: 'c',
+        text: 'Ninguno: los ejemplos son parte del modelo',
+        correct: false,
+        rationale:
+          'Los ejemplos viven en el prompt, no en los pesos. Van y se facturan en cada envío.',
+      },
+    ],
+    explanation:
+      'Los ejemplos son el recurso más caro por token útil: ocupan sitio en cada llamada y desplazan documentos. Su número y su longitud se eligen con el mismo criterio que el resto del presupuesto.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'few-negative-cases',
+    competencyId: 'few-shot-examples',
+    difficulty: 2,
+    prompt: 'Solo das ejemplos de lo que es válido. ¿Qué falta en ese conjunto?',
+    options: [
+      {
+        id: 'a',
+        text: 'Casos de lo que debe rechazar o corregir',
+        correct: true,
+        rationale:
+          'Correcto: sin contraejemplos, el modelo no sabe dónde está el límite de lo aceptable.',
+      },
+      {
+        id: 'b',
+        text: 'Más ejemplos positivos, para reforzar el patrón',
+        correct: false,
+        rationale:
+          'Refuerza el patrón sin enseñar el borde. El modelo aceptará cualquier cosa parecida.',
+      },
+      {
+        id: 'c',
+        text: 'Nada: con ejemplos positivos ya se deduce el resto',
+        correct: false,
+        rationale:
+          'Deducir el límite es justo lo que no se puede esperar. Lo que no se muestra, no se aprende.',
+      },
+    ],
+    explanation:
+      'Un conjunto de ejemplos enseña fronteras. Si todos son válidos, el modelo aprende el centro pero no el borde, y aceptará entradas que deberían rechazarse o marcarse.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'few-example-vs-instruction',
+    competencyId: 'few-shot-examples',
+    difficulty: 3,
+    prompt: 'El formato de los ejemplos no coincide con lo que dice la instrucción. ¿Qué gana?',
+    options: [
+      {
+        id: 'a',
+        text: 'El ejemplo: es lo que el modelo imita',
+        correct: true,
+        rationale:
+          'Correcto: lo concreto pesa más que lo declarado. El modelo copia lo que ve, no lo que se le dice.',
+      },
+      {
+        id: 'b',
+        text: 'La instrucción: es la norma escrita',
+        correct: false,
+        rationale:
+          'Es lo deseable, no lo que pasa. El modelo aprende del patrón observable de los ejemplos.',
+      },
+      {
+        id: 'c',
+        text: 'Ninguno: se anulan y la salida es impredecible',
+        correct: false,
+        rationale:
+          'Rara vez se anulan. Normalmente el ejemplo gana y la contradicción se descubre tarde.',
+      },
+    ],
+    explanation:
+      'Cuando instrucción y ejemplos se contradicen, la salida sigue al ejemplo. Por eso hay que revisar la coherencia entre ambos: es un error que no aparece en la revisión del texto, solo en la salida.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'few-synthetic-examples',
+    competencyId: 'few-shot-examples',
+    difficulty: 3,
+    prompt: 'Generas ejemplos con otro modelo y los usas como few-shot. ¿Qué riesgo asumes?',
+    options: [
+      {
+        id: 'a',
+        text: 'Heredas sus errores y su estilo',
+        correct: true,
+        rationale:
+          'Correcto: el modelo ajustado imitará también los fallos del generador de ejemplos.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: son datos nuevos y variados',
+        correct: false,
+        rationale:
+          'Son variados, no verificados. Sin revisión, su calidad es la del modelo que los produjo.',
+      },
+      {
+        id: 'c',
+        text: 'Gastas menos contexto al generarlos',
+        correct: false,
+        rationale:
+          'Generarlos cuesta una llamada y usarlos cuesta contexto en cada una. El ahorro no está ahí.',
+      },
+    ],
+    explanation:
+      'Los ejemplos sintéticos son una forma legítima de arrancar, y trasladan los sesgos del generador al sistema que los usa. Conviene revisar una muestra contra criterio humano.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'budget-measure',
+    competencyId: 'context-budgeting',
+    difficulty: 1,
+    prompt: '¿Cómo sabes cuánto contexto estás gastando de verdad?',
+    options: [
+      {
+        id: 'a',
+        text: 'Midiendo tokens con el tokenizador del modelo',
+        correct: true,
+        rationale:
+          'Correcto: es la única medida que corresponde a lo que el modelo procesa y a lo que se paga.',
+      },
+      {
+        id: 'b',
+        text: 'Contando palabras del texto que envías',
+        correct: false,
+        rationale:
+          'Las palabras no son tokens. En español el error es sistemático y grande, no aleatorio.',
+      },
+      {
+        id: 'c',
+        text: 'Mirando la longitud de la respuesta obtenida',
+        correct: false,
+        rationale:
+          'La respuesta es solo la salida. No dice nada del contexto de entrada que ya se consumió.',
+      },
+    ],
+    explanation:
+      'El presupuesto se gestiona con la misma unidad en la que se factura. Estimar por palabras o caracteres da una falsa sensación de control y falla justo en los casos densos.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'budget-priority-order',
+    competencyId: 'context-budgeting',
+    difficulty: 2,
+    prompt: '¿En qué orden conviene repartir el presupuesto de contexto?',
+    options: [
+      {
+        id: 'a',
+        text: 'Salida, instrucciones y después los documentos',
+        correct: true,
+        rationale:
+          'Correcto: se reserva lo no negociable y se reparte el resto entre el material recuperado.',
+      },
+      {
+        id: 'b',
+        text: 'Documentos primero, el resto cabe de algún modo',
+        correct: false,
+        rationale:
+          'Es lo que llena la ventana y deja sin sitio a la respuesta y a las reglas del sistema.',
+      },
+      {
+        id: 'c',
+        text: 'Por orden de llegada del contenido al sistema',
+        correct: false,
+        rationale:
+          'El orden de llegada no expresa importancia. Deja el reparto en manos del azar del flujo.',
+      },
+    ],
+    explanation:
+      'El reparto es una decisión de prioridades: primero lo que no puede faltar, luego lo que aporta. Hacerlo al revés produce respuestas cortadas o contratos ignorados.',
+    referenceId: 'ref-openai-tokens',
+  },
+  {
+    id: 'budget-retrieve-vs-dump',
+    competencyId: 'context-budgeting',
+    difficulty: 2,
+    prompt: '¿Qué diferencia hay entre recuperar y volcar documentos en el contexto?',
+    options: [
+      {
+        id: 'a',
+        text: 'Recuperar elige por relevancia; volcar mete todo',
+        correct: true,
+        rationale:
+          'Correcto: recuperar decide qué entra con un criterio. Volcar traslada la decisión al modelo.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguna: en los dos casos el modelo ve texto',
+        correct: false,
+        rationale:
+          'Ve texto en ambos casos, pero la cantidad y la señal cambian por completo el resultado.',
+      },
+      {
+        id: 'c',
+        text: 'Volcar es más preciso porque no descarta nada',
+        correct: false,
+        rationale:
+          'No descartar no es precisión: es ruido. Lo relevante compite con decenas de documentos que no aplican.',
+      },
+    ],
+    explanation:
+      'Volcar es delegar la selección al modelo dentro de una ventana limitada. Recuperar es hacerla antes, con un criterio explícito y medible, y enviar solo lo elegido.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'budget-what-to-drop',
+    competencyId: 'context-budgeting',
+    difficulty: 3,
+    prompt: 'El contexto no alcanza para todo lo que querías incluir. ¿Qué decisión es aceptable?',
+    options: [
+      {
+        id: 'a',
+        text: 'Elegir qué se deja fuera y decirlo',
+        correct: true,
+        rationale:
+          'Correcto: el recorte es una decisión editorial. Hacerla explícita permite evaluarla y corregirla.',
+      },
+      {
+        id: 'b',
+        text: 'Recortar al azar hasta que quepa',
+        correct: false,
+        rationale:
+          'El azar no distingue lo prescindible de lo esencial. El corte aleatorio se nota en la calidad.',
+      },
+      {
+        id: 'c',
+        text: 'Enviar la mitad de cada documento',
+        correct: false,
+        rationale:
+          'Corta todas las ideas por la mitad. Peor que perder documentos completos que no hacían falta.',
+      },
+    ],
+    explanation:
+      'Todo recorte es una decisión sobre el contenido, y por tanto debe poder justificarse. Recortar por longitud sin criterio garantiza perder la parte que sí importaba.',
+    referenceId: 'ref-anthropic-system',
+  },
+
+  {
+    id: 'so-retry-with-error',
+    competencyId: 'structured-outputs',
+    difficulty: 2,
+    prompt: 'La salida no cumple el esquema. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Rechazarla y pedir de nuevo con el error',
+        correct: true,
+        rationale:
+          'Correcto: el error concreto es la información que permite corregir en el segundo intento.',
+      },
+      {
+        id: 'b',
+        text: 'Aceptarla igualmente: casi cumple',
+        correct: false,
+        rationale:
+          '«Casi cumple» es un fallo silencioso. El consumidor recibirá un objeto que no espera.',
+      },
+      {
+        id: 'c',
+        text: 'Parsearla a mano con expresiones regulares',
+        correct: false,
+        rationale:
+          'Sustituye un contrato por una adivinanza. Funcionará hasta el siguiente formato distinto.',
+      },
+    ],
+    explanation:
+      'Un rechazo con motivo es recuperable; uno silencioso no. Reintentar incluyendo el error de validación convierte el fallo en información para el modelo y suele resolverlo.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'so-type-mismatch',
+    competencyId: 'structured-outputs',
+    difficulty: 2,
+    prompt: 'El esquema pide un número y llega el texto «diez». ¿Qué falla?',
+    options: [
+      {
+        id: 'a',
+        text: 'El tipo: la validación debe rechazarlo',
+        correct: true,
+        rationale:
+          'Correcto: un campo numérico con texto rompe al consumidor aunque sea legible para una persona.',
+      },
+      {
+        id: 'b',
+        text: 'Nada: se entiende perfectamente qué significa',
+        correct: false,
+        rationale:
+          'Entenderlo no es cumplirlo. El programa que lo consume espera un número y fallará.',
+      },
+      {
+        id: 'c',
+        text: 'Que el modelo elegido es demasiado pequeño',
+        correct: false,
+        rationale:
+          'El tamaño no sustituye a la validación. Un modelo mayor también puede devolver texto.',
+      },
+    ],
+    explanation:
+      'La validación de tipos es la primera línea del contrato: convierte «se entiende» en «se puede usar». Sin ella, cada consumidor tendría que defenderse por su cuenta.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'so-enumeration',
+    competencyId: 'structured-outputs',
+    difficulty: 2,
+    prompt: 'Un campo debe tomar uno de cuatro valores fijos. ¿Cómo lo expresses en el esquema?',
+    options: [
+      {
+        id: 'a',
+        text: 'Como una enumeración con los cuatro valores',
+        correct: true,
+        rationale:
+          'Correcto: se enumeran las opciones y cualquier otro valor se rechaza automáticamente.',
+      },
+      {
+        id: 'b',
+        text: 'Como texto libre con una nota en la descripción',
+        correct: false,
+        rationale:
+          'La nota es una sugerencia. Sin enumeración, cualquier variante pasa la validación.',
+      },
+      {
+        id: 'c',
+        text: 'Como un booleano para cada posible opción',
+        correct: false,
+        rationale:
+          'Permitiría combinaciones imposibles, como dos valores a la vez o ninguno.',
+      },
+    ],
+    explanation:
+      'La enumeración convierte una convención en una restricción comprobable. Es la diferencia entre pedir por favor que sea uno de cuatro y garantizar que no pueda ser otra cosa.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'so-where-schema-lives',
+    competencyId: 'structured-outputs',
+    difficulty: 3,
+    prompt: '¿Dónde debe vivir el esquema de salida: en el prompt o en la validación?',
+    options: [
+      {
+        id: 'a',
+        text: 'En los dos: se pide y se comprueba',
+        correct: true,
+        rationale:
+          'Correcto: el prompt enseña el formato y la validación lo exige. Una sola de las dos mitades falla.',
+      },
+      {
+        id: 'b',
+        text: 'Solo en el prompt: describirlo ya es suficiente',
+        correct: false,
+        rationale:
+          'Sin comprobación, un incumplimiento pasa inadvertido hasta que rompe al consumidor.',
+      },
+      {
+        id: 'c',
+        text: 'Solo en la validación: el modelo lo deduce',
+        correct: false,
+        rationale:
+          'El modelo no ve el validador. Sin el esquema en el prompt, acierta por casualidad.',
+      },
+    ],
+    explanation:
+      'El prompt y la validación son las dos caras del mismo contrato: uno lo comunica, el otro lo exige. Tener solo una es confiar en que la otra parte acierte siempre.',
+    referenceId: 'ref-anthropic-system',
+  },
+
+  {
+    id: 'pe-baseline',
+    competencyId: 'prompt-evaluation',
+    difficulty: 1,
+    prompt: 'Antes de «mejorar» un prompt, ¿qué necesitas tener?',
+    options: [
+      {
+        id: 'a',
+        text: 'Una medida de cómo rinde el actual',
+        correct: true,
+        rationale:
+          'Correcto: sin línea base no hay mejora demostrable, solo una impresión de mejora.',
+      },
+      {
+        id: 'b',
+        text: 'Una versión más larga y detallada',
+        correct: false,
+        rationale:
+          'La longitud no es una referencia. Sin medida previa no sabrás si eso es mejor.',
+      },
+      {
+        id: 'c',
+        text: 'El modelo más reciente del mercado',
+        correct: false,
+        rationale:
+          'Cambiar dos cosas a la vez impide atribuir la diferencia. Primero se mide lo que hay.',
+      },
+    ],
+    explanation:
+      'Sin línea base, cualquier cambio parece una mejora porque solo se mira el caso que motivó el cambio. La medida previa es lo que convierte una opinión en una comparación.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'pe-judge-calibration',
+    competencyId: 'prompt-evaluation',
+    difficulty: 2,
+    prompt: 'Un juez automático puntúa mejor el prompt nuevo. ¿Qué falta para fiarte?',
+    options: [
+      {
+        id: 'a',
+        text: 'Comprobar que coincide con juicio humano',
+        correct: true,
+        rationale:
+          'Correcto: un juez sin calibrar mide su propio sesgo, no la calidad de lo que evalúa.',
+      },
+      {
+        id: 'b',
+        text: 'Nada: si un modelo lo dice, es objetivo',
+        correct: false,
+        rationale:
+          'Un modelo juez tiene sesgos conocidos: prefiere respuestas largas y su propio estilo.',
+      },
+      {
+        id: 'c',
+        text: 'Subir la temperatura del juez para variar',
+        correct: false,
+        rationale:
+          'Más variación no es más justicia. Un juez variable da notas distintas a lo mismo.',
+      },
+    ],
+    explanation:
+      'Automatizar la evaluación es necesario para iterar rápido, y solo vale si se sabe cuánto se desvía del criterio humano. La muestra puntuada a mano es la referencia.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'pe-eval-cost',
+    competencyId: 'prompt-evaluation',
+    difficulty: 2,
+    prompt: '¿Qué cuesta mantener un conjunto de evaluación de prompts?',
+    options: [
+      {
+        id: 'a',
+        text: 'Tokens y tiempo en cada cambio que se mide',
+        correct: true,
+        rationale:
+          'Correcto: cada evaluación son llamadas reales. El coste se paga en cada iteración, no una vez.',
+      },
+      {
+        id: 'b',
+        text: 'Nada: los casos son texto y el texto es gratis',
+        correct: false,
+        rationale:
+          'Los casos son gratis; ejecutarlos no. Cada pasada son llamadas al modelo por caso.',
+      },
+      {
+        id: 'c',
+        text: 'Solo el almacenamiento de los resultados',
+        correct: false,
+        rationale:
+          'El almacenamiento es lo de menos. Lo que cuesta es volver a ejecutar el conjunto.',
+      },
+    ],
+    explanation:
+      'Un conjunto de evaluación se paga en cada uso, y eso condiciona su tamaño: lo bastante grande para informar, lo bastante pequeño para ejecutarlo en cada cambio.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'pe-variance',
+    competencyId: 'prompt-evaluation',
+    difficulty: 3,
+    prompt: 'Con temperatura alta, dos ejecuciones del mismo prompt dan resultados distintos. ¿Cómo evalúas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Repitiendo varias veces y mirando la dispersión',
+        correct: true,
+        rationale:
+          'Correcto: con variación, una sola pasada mide suerte. La media y la dispersión miden el prompt.',
+      },
+      {
+        id: 'b',
+        text: 'Con una sola pasada: es lo que verá el usuario',
+        correct: false,
+        rationale:
+          'Un usuario ve una salida, pero tu decisión la tomas sobre una muestra de tamaño uno.',
+      },
+      {
+        id: 'c',
+        text: 'Bajando la temperatura para que no varíe',
+        correct: false,
+        rationale:
+          'Evalúa el sistema tal como funciona. Cambiar el parámetro cambia el objeto de la medida.',
+      },
+    ],
+    explanation:
+      'La variación es una propiedad del sistema, no un estorbo: un prompt que a veces falla es peor que uno que falla siempre de forma predecible. Para verlo hay que repetir.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  {
+    id: 'ft-data-volume',
+    competencyId: 'finetuning-vs-prompting',
+    difficulty: 2,
+    prompt: '¿Cuántos ejemplos necesita un ajuste fino para ser útil?',
+    options: [
+      {
+        id: 'a',
+        text: 'Depende de la tarea; sin medir no se sabe',
+        correct: true,
+        rationale:
+          'Correcto: el número sale de la curva de mejora por tanda etiquetada, no de una cifra universal.',
+      },
+      {
+        id: 'b',
+        text: 'Cien exactos, ese es el umbral estándar',
+        correct: false,
+        rationale:
+          'No existe ese umbral. Depende de la tarea, del formato y de lo lejos que esté el modelo base.',
+      },
+      {
+        id: 'c',
+        text: 'Millones, como en los modelos fundacionales',
+        correct: false,
+        rationale:
+          'Eso es preentrenamiento. El ajuste para una tarea concreta parte de un modelo ya entrenado.',
+      },
+    ],
+    explanation:
+      'La pregunta correcta no es cuántos ejemplos hacen falta en abstracto, sino cuánto mejora cada tanda etiquetada. Se mide etiquetando poco a poco y observando la curva.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ft-base-vs-instruct',
+    competencyId: 'finetuning-vs-prompting',
+    difficulty: 3,
+    prompt: '¿Qué diferencia hay entre ajustar un modelo base y uno ya instruido?',
+    options: [
+      {
+        id: 'a',
+        text: 'El punto de partida y el formato de los datos',
+        correct: true,
+        rationale:
+          'Correcto: el instruido ya sigue órdenes, así que se ajusta con pares de instrucción y respuesta.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguna: el proceso es idéntico en los dos',
+        correct: false,
+        rationale:
+          'El proceso se parece, el material no. Un modelo base necesita aprender también a responder.',
+      },
+      {
+        id: 'c',
+        text: 'Solo cambia el precio por token de la inferencia',
+        correct: false,
+        rationale:
+          'El precio depende del proveedor y del tamaño, no de si el modelo estaba instruido.',
+      },
+    ],
+    explanation:
+      'Ajustar un modelo base exige enseñarle la tarea y la forma de responder. Sobre uno instruido se ajusta el comportamiento concreto, que es mucho menos trabajo y menos datos.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ft-hallucination',
+    competencyId: 'finetuning-vs-prompting',
+    difficulty: 3,
+    prompt: '¿El ajuste fino elimina las alucinaciones?',
+    options: [
+      {
+        id: 'a',
+        text: 'No: cambia el estilo, no la verdad',
+        correct: true,
+        rationale:
+          'Correcto: el modelo sigue prediciendo lo probable. Un ajuste puede incluso dar más seguridad al error.',
+      },
+      {
+        id: 'b',
+        text: 'Sí, si se entrena con datos correctos',
+        correct: false,
+        rationale:
+          'Enseña un patrón, no una garantía. Fuera de los datos vistos vuelve a predecir lo plausible.',
+      },
+      {
+        id: 'c',
+        text: 'Solo en los modelos pequeños y especializados',
+        correct: false,
+        rationale:
+          'El tamaño no resuelve el mecanismo. La alucinación nace de predecir, no de la escala.',
+      },
+    ],
+    explanation:
+      'La alucinación es una consecuencia del objetivo del modelo, no un defecto que el entrenamiento elimine. Se combate con fundamentación en fuentes y validación, no con más ajuste.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ft-hidden-cost',
+    competencyId: 'finetuning-vs-prompting',
+    difficulty: 2,
+    prompt: '¿Qué coste del ajuste fino se olvida con más frecuencia?',
+    options: [
+      {
+        id: 'a',
+        text: 'Mantener el dataset y volver a entrenar',
+        correct: true,
+        rationale:
+          'Correcto: cada cambio de proceso exige datos nuevos y un ciclo completo de validación y despliegue.',
+      },
+      {
+        id: 'b',
+        text: 'El coste por token de la inferencia',
+        correct: false,
+        rationale:
+          'Es visible en la factura mensual. El que se olvida es el trabajo de mantener el modelo vivo.',
+      },
+      {
+        id: 'c',
+        text: 'El precio de la GPU durante el entrenamiento',
+        correct: false,
+        rationale:
+          'Es un gasto puntual y conocido. El mantenimiento es recurrente y no aparece en ningún presupuesto.',
+      },
+    ],
+    explanation:
+      'El ajuste fino no se termina: se mantiene. Cada cambio de proceso obliga a reetiquetar, reentrenar y volver a validar, y ese ciclo no siempre tiene dueño asignado.',
+    referenceId: 'ref-rules-ml',
+  },
 ];
