@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 import { contentIndex } from '@/content';
 import { CompetencyProgress } from '@/features/assessment/presentation/CompetencyProgress';
 import { CompetencyChecklist } from '@/features/assessment/presentation/CompetencyChecklist';
+import { NotesPanel } from '@/features/assessment/presentation/NotesPanel';
 
 export const dynamicParams = false;
 
@@ -143,6 +144,8 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
               Esta competencia todavía no tiene lección escrita.
             </p>
           )}
+
+          <NotesPanel competencyId={competency.id} title={competency.title} />
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-accent/40 bg-surface p-4">
             <div>

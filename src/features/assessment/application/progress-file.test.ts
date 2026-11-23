@@ -46,6 +46,42 @@ describe('exportar e importar', () => {
     expect(Object.keys(file).sort()).toEqual(['attempts', 'exportedAt', 'kind', 'version']);
   });
 
+
+  it('incluye las notas cuando las hay, y no las mezcla con los intentos', () => {
+    const notas = {
+      'tokens-and-context-window': {
+        text: 'El contexto es un presupuesto, no memoria.',
+        updatedAt: '2026-11-20T10:00:00.000Z',
+      },
+    };
+
+    const file = JSON.parse(serializeProgress([attempt('a1')], NOW, notas)) as Record<string, unknown>;
+
+    expect(file.notes).toEqual(notas);
+    expect((file.attempts as unknown[]).length).toBe(1);
+  });
+
+  it('no escribe la clave de notas si no hay ninguna (I15 intacto)', () => {
+    const file = JSON.parse(serializeProgress([attempt('a1')], NOW, {})) as Record<string, unknown>;
+
+    expect(Object.keys(file).sort()).toEqual(['attempts', 'exportedAt', 'kind', 'version']);
+  });
+
+  it('al importar recupera las notas del archivo', () => {
+    const notas = {
+      'bounded-agent-loop': { text: 'Un bucle sin tope no es autonomía.', updatedAt: '2026-11-20T10:00:00.000Z' },
+    };
+
+    const result = parseProgressFile(serializeProgress([attempt('a1')], NOW, notas));
+
+    expect(result.ok && result.notes).toEqual(notas);
+  });
+
+  it('un archivo antiguo sin notas importa igual, con notas vacías', () => {
+    const result = parseProgressFile(serializeProgress([attempt('a1')], NOW));
+
+    expect(result.ok && result.notes).toEqual({});
+  });
   it('rechaza JSON inválido', () => {
     expect(parseProgressFile('{no es json')).toEqual({
       ok: false,

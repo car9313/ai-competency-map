@@ -10,6 +10,7 @@
  */
 import type { IsoTimestamp } from '@/shared/time/clock';
 import { parseAttempts } from '../domain/schema';
+import { parseNotes, type NotesMap } from '../infrastructure/notes-store';
 import type { Attempt } from '../domain/types';
 
 export const PROGRESS_KIND = 'acm.progress';
@@ -20,21 +21,33 @@ export interface ProgressFile {
   version: number;
   exportedAt: IsoTimestamp;
   attempts: Attempt[];
+  /**
+   * Notas personales, opcionales. No son evidencia: no entran en ningún cálculo.
+   *
+   * Solo aparece la clave cuando hay alguna, para que un progreso sin notas siga teniendo
+   * exactamente la forma de siempre (lo comprueba la prueba de I15).
+   */
+  notes?: NotesMap;
 }
 
-export function serializeProgress(attempts: readonly Attempt[], now: IsoTimestamp): string {
+export function serializeProgress(
+  attempts: readonly Attempt[],
+  now: IsoTimestamp,
+  notes: NotesMap = {},
+): string {
   const file: ProgressFile = {
     kind: PROGRESS_KIND,
     version: PROGRESS_VERSION,
     exportedAt: now,
     attempts: [...attempts],
+    ...(Object.keys(notes).length > 0 ? { notes } : {}),
   };
 
   return `${JSON.stringify(file, null, 2)}\n`;
 }
 
 export type ImportResult =
-  | { ok: true; attempts: Attempt[] }
+  | { ok: true; attempts: Attempt[]; notes: NotesMap }
   | { ok: false; reason: string };
 
 /** Lee un archivo exportado. Rechaza lo que no sea un archivo de progreso. */
@@ -70,5 +83,5 @@ export function parseProgressFile(text: string): ImportResult {
     return { ok: false, reason: 'El archivo no contiene intentos válidos.' };
   }
 
-  return { ok: true, attempts };
+  return { ok: true, attempts, notes: parseNotes(JSON.stringify(envelope.notes ?? {})) };
 }

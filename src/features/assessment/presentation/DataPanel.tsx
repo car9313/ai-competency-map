@@ -5,6 +5,7 @@ import { Download, Trash2, Upload } from 'lucide-react';
 import { systemClock } from '@/shared/time/clock';
 import { openAttemptStore } from '../infrastructure/local-storage-attempt-store';
 import { parseProgressFile, serializeProgress } from '../application/progress-file';
+import { countNotes, loadNotes, replaceNotes } from '../infrastructure/notes-store';
 
 /**
  * Panel de datos del alumno.
@@ -47,7 +48,8 @@ export function DataPanel() {
   const handleExport = async () => {
     const { store } = openAttemptStore();
     const list = await store.list();
-    const blob = new Blob([serializeProgress(list, systemClock.now())], {
+    // Las notas viajan en el mismo archivo: es la única copia de seguridad posible.
+    const blob = new Blob([serializeProgress(list, systemClock.now(), loadNotes())], {
       type: 'application/json',
     });
     const url = URL.createObjectURL(blob);
@@ -57,7 +59,7 @@ export function DataPanel() {
     anchor.download = `ai-competency-map-${systemClock.today()}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
-    setMessage(`Exportados ${list.length} intentos.`);
+    setMessage(`Exportados ${list.length} intentos y ${countNotes()} nota(s).`);
   };
 
   const handleImport = async (file: File) => {
@@ -72,18 +74,28 @@ export function DataPanel() {
     const { store } = openAttemptStore();
 
     await store.append(result.attempts);
+
+    // Las notas se sustituyen, no se mezclan: un archivo es una foto del estado, y fusionar
+    // textos distintos por competencia obligaría a decidir cuál gana sin criterio.
+    if (Object.keys(result.notes).length > 0) {
+      replaceNotes(result.notes);
+    }
+
     const list = await store.list();
 
     setAttempts(list.length);
-    setMessage(`Importados ${result.attempts.length} intentos (total ${list.length}).`);
+    setMessage(
+      `Importados ${result.attempts.length} intentos (total ${list.length}) y ${Object.keys(result.notes).length} nota(s).`,
+    );
   };
 
   const handleClear = async () => {
     const { store } = openAttemptStore();
 
     await store.clear();
+    replaceNotes({});
     setAttempts(0);
-    setMessage('Historial borrado.');
+    setMessage('Historial y notas borrados.');
   };
 
   return (
