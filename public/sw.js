@@ -1,41 +1,133 @@
 /**
- * Service worker: la app se puede usar sin conexión.
+ * Service worker: la app se puede usar sin conexión, incluidas las navegaciones dentro de
+ * la app.
  *
- * Estrategia por tipo de recurso, y no una sola para todo:
+ * La primera versión cacheaba los assets y las navegaciones de documento, y no bastaba: al
+ * pulsar un enlace, Next no pide un documento, pide el payload RSC de la ruta destino
+ * (`/ruta.txt`, unos 300 KB). Sin él, el router se queda esperando y la navegación falla
+ * aunque la app siga pintada.
  *
- * - **Assets con hash** (`/_next/static/…`): cache-first. El nombre incluye el hash del
- *   contenido, así que un asset cacheado nunca queda obsoleto.
- * - **Navegaciones** (HTML): network-first con vuelta a caché. Así una versión nueva llega
- *   al recargar, y sin conexión se sirve lo último que se vio.
- * - **Todo lo demás**: red, y si falla, nada. No se inventan respuestas.
+ * Estrategia por tipo de recurso:
  *
- * El nombre de la caché lleva versión. Cambiarlo es la forma de forzar la limpieza: en
- * `activate` se borran todas las cachés que no sean la actual.
+ * - **Assets con hash** (`/_next/static/**`, `/icons/**`): cache-first. El nombre lleva el
+ *   hash del contenido, así que lo cacheado no puede quedarse obsoleto.
+ * - **Todo lo demás del mismo origen**: network-first con vuelta a caché. Cubre HTML,
+ *   payloads RSC, `contenido.json` y cualquier cosa que Next invente más adelante.
+ * - **Navegaciones sin copia**: se sirve el inicio, que está precargado.
+ *
+ * El precacheo es corto a propósito: las ocho rutas de primer nivel con su payload, más los
+ * assets. Son unos 6 MB. Precachear las 88 páginas serían más de 100 MB: la app en el móvil
+ * no debe costar eso. Las rutas profundas se cachean al visitarlas, y como Next precarga los
+ * enlaces al mostrarlos, en la práctica basta con usar la app para tenerlas.
  */
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = `acm-${VERSION}`;
 
-/** Rutas que se precargan para que la primera visita sin conexión ya sirva. */
-const PRECACHE = ['/', '/mapa', '/mapa/tarjetas', '/repaso', '/manifest.webmanifest'];
+/**
+ * Rutas de primer nivel: su HTML y su payload RSC.
+ *
+ * Cada navegación de la barra lateral necesita las dos piezas: el HTML para una recarga
+ * completa y el `.txt` para la transición del router.
+ */
+const ROUTES = [
+  '/',
+  '/mapa',
+  '/mapa/tarjetas',
+  '/repaso',
+  '/rutas',
+  '/diagnostico',
+  '/historial',
+  '/acerca',
+];
+
+const RSC_PAYLOADS = [
+  '/index.txt',
+  '/mapa.txt',
+  '/mapa/tarjetas.txt',
+  '/repaso.txt',
+  '/rutas.txt',
+  '/diagnostico.txt',
+  '/historial.txt',
+  '/acerca.txt',
+  '/_not-found.txt',
+];
+
+const PRECACHE = [...ROUTES, ...RSC_PAYLOADS, '/manifest.webmanifest', '/contenido.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(CACHE)
-      .then((cache) => cache.addAll(PRECACHE))
-      .then(() => self.skipWaiting()),
+    (async () => {
+      const cache = await caches.open(CACHE);
+
+      /*
+       * Uno a uno y no `addAll`: `addAll` es todo o nada, así que un solo recurso que falle
+       * dejaría la app sin precacheo completo. Con `allSettled` se guarda lo que se pueda.
+       */
+      await Promise.allSettled(
+        PRECACHE.map((url) => cache.add(new Request(url, { cache: 'reload' }))),
+      );
+
+      await self.skipWaiting();
+    })(),
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim()),
+    (async () => {
+      const keys = await caches.keys();
+
+      await Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)));
+      await self.clients.claim();
+    })(),
   );
 });
+
+const IMMUTABLE = ['/_next/static/', '/icons/'];
+
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE);
+  const hit = await cache.match(request);
+
+  if (hit) return hit;
+
+  const response = await fetch(request);
+
+  if (response.ok) cache.put(request, response.clone());
+
+  return response;
+}
+
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE);
+
+  try {
+    const response = await fetch(request);
+
+    // Solo se guarda lo que salió bien: cachear un 500 convierte un fallo pasajero en uno
+    // permanente hasta la siguiente versión.
+    if (response.ok) cache.put(request, response.clone());
+
+    return response;
+  } catch {
+    const hit = await cache.match(request);
+
+    if (hit) return hit;
+
+    // Navegar a una ruta nunca visitada sin conexión: al menos se llega a algún sitio.
+    if (request.mode === 'navigate') {
+      const inicio = await cache.match('/');
+
+      if (inicio) return inicio;
+    }
+
+    return new Response('Sin conexión y sin copia guardada de esta página.', {
+      status: 503,
+      headers: { 'content-type': 'text/plain; charset=utf-8' },
+    });
+  }
+}
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
@@ -44,42 +136,9 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
-  // Las fuentes de Google se cachean aparte: no son del origen y su URL no cambia.
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.startsWith('/_next/static/') || url.pathname.startsWith('/icons/')) {
-    event.respondWith(
-      caches.match(request).then(
-        (hit) =>
-          hit ??
-          fetch(request).then((response) => {
-            const copy = response.clone();
+  const immutable = IMMUTABLE.some((prefix) => url.pathname.startsWith(prefix));
 
-            void caches.open(CACHE).then((cache) => cache.put(request, copy));
-
-            return response;
-          }),
-      ),
-    );
-
-    return;
-  }
-
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-
-          void caches.open(CACHE).then((cache) => cache.put(request, copy));
-
-          return response;
-        })
-        /*
-         * Sin red: lo cacheado de esa misma URL. Si es la primera visita a esa página y no
-         * hay nada guardado, se cae al inicio, que sí está precargado.
-         */
-        .catch(() => caches.match(request).then((hit) => hit ?? caches.match('/'))),
-    );
-  }
+  event.respondWith(immutable ? cacheFirst(request) : networkFirst(request));
 });

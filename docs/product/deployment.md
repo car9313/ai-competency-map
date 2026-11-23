@@ -107,19 +107,26 @@ Sale de tres piezas estáticas, sin build aparte:
 
 - `/_next/static/**` e `/icons/**` → *cache-first*. Llevan el hash del contenido en el
   nombre, así que lo cacheado no puede quedarse obsoleto.
-- Navegaciones (HTML) → *network-first* con vuelta a caché. Una versión nueva llega al
-  recargar; sin conexión se sirve lo último visto.
-- Todo lo demás → red, y si falla no hay respuesta inventada.
+- Todo lo demás del mismo origen → *network-first* con vuelta a caché. Cubre HTML,
+  payloads RSC, `contenido.json` y lo que Next añada en el futuro.
+- Navegación a una ruta sin copia → se sirve el inicio.
 
-**Dos cabeceras importan** y están en `vercel.json`:
+**El detalle que costó un fallo**: al pulsar un enlace, Next **no** pide un documento; pide
+el payload RSC de la ruta destino (`/rutas.txt`, unos 300 KB). La primera versión del
+service worker solo cacheaba navegaciones de documento y assets, así que la app seguía
+pintada pero los enlaces no funcionaban sin conexión. Ahora se precachean también los nueve
+payloads de primer nivel.
 
-- `/sw.js` con `max-age=0, must-revalidate`. Un service worker cacheado es un service
-  worker que no se actualiza, y el fallo se ve semanas después.
-- `/manifest.webmanifest` con `application/manifest+json`.
+**Qué se precarga y qué no**, a propósito:
 
-**Al desplegar una versión nueva** que cambie la estrategia, sube `VERSION` en `sw.js`.
-El `activate` borra las cachés que no sean la actual.
+| | |
+|---|---|
+| Sí: las 8 rutas de primer nivel, su HTML y su payload, más los assets | ~6 MB |
+| No: las 88 páginas completas | serían >100 MB |
 
+Las rutas profundas se cachean al visitarlas, y como Next precarga los enlaces al mostrarlos,
+usar la app online basta para tenerlas. Comprobado: `/c/agent-memory` visitada funciona sin
+conexión; `/c/sandboxing-isolation` no visitada cae al inicio.
 **Cómo comprobarlo:**
 
 1. Abre la app, navega por tres o cuatro páginas.
