@@ -1,3 +1,5 @@
+import { contentIndex } from '@/content';
+import { AreaProgress } from '@/features/assessment/presentation/AreaProgress';
 import { DataPanel } from '@/features/assessment/presentation/DataPanel';
 
 export const metadata = {
@@ -5,6 +7,20 @@ export const metadata = {
 };
 
 export default function AcercaPage() {
+  const areas = (contentIndex.areas ?? []).map((area) => ({
+    id: area.id,
+    index: area.index,
+    name: area.name,
+    competencies: contentIndex.competencies
+      .filter((competency) => competency.areaId === area.id)
+      .map((competency) => ({
+        id: competency.id,
+        title: competency.title,
+        // Solo los identificadores: la proyección no necesita los enunciados.
+        itemIds: (contentIndex.itemsByCompetency.get(competency.id) ?? []).map((item) => item.id),
+      })),
+  }));
+
   return (
     <section className="max-w-2xl space-y-5">
       <h1 className="text-2xl font-bold tracking-tight">Acerca de este proyecto</h1>
@@ -25,6 +41,8 @@ export default function AcercaPage() {
         declaran confianza. Ese segundo eje es lo que permite distinguir «lo sabe» de «acertó por
         suerte».
       </p>
+
+      <AreaProgress areas={areas} />
 
       <p className="text-sm text-muted">
         Sin backend, sin base de datos, sin claves y sin coste de ejecución. El progreso vive en el
