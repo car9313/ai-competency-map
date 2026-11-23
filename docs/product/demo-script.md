@@ -138,6 +138,42 @@ location.reload();
 
 ---
 
+## Cómo grabarlo
+
+### Herramienta
+
+| Opción | Cuándo | Notas |
+|---|---|---|
+| **Xbox Game Bar** (`Win + Alt + R`) | Lo más rápido | Ya viene en Windows. Graba la ventana activa con micrófono. MP4 directo |
+| **OBS Studio** | Si quieres control | Gratis. Escena + fuente de ventana + micrófono + resaltado de clics |
+| **Loom** | Si prefieres compartir sin editar | Tiene plan gratuito con límite de duración |
+
+Para una demo de cinco minutos, Game Bar alcanza. Si acabas regrabando escenas, OBS ahorra tiempo.
+
+### Ajustes antes de dar al récord
+
+- **1080p** y navegador al **100 % de zoom**. Las etiquetas del mapa son de 11 px: a 720p no se leen.
+- **Tema oscuro** y ventana a 1440 × 900.
+- **Micrófono a un palmo**, y prueba de nivel de 10 segundos. El audio malo arruina más demos que la imagen.
+- **Cursor visible**, y si puedes, resaltado de clic.
+- **Notificaciones de Windows apagadas** (modo concentración).
+
+### El orden de grabación no es el del guion
+
+Las escenas 1 a 5 necesitan **historial vacío**; la 6 necesita **intentos sembrados**. Por eso:
+
+1. Graba las escenas **0:00 – 3:40** con el historial limpio.
+2. Para, siembra los intentos (el bloque de consola del guion).
+3. Graba la escena **3:40 – 5:00**.
+4. Une los dos fragmentos.
+
+Grabar del tirón obliga a enseñar la consola en mitad del vídeo, y eso rompe la ilusión de producto.
+
+### Después
+
+- Revisa que se lea: pausa en el fotograma del mapa y comprueba que distingues los títulos.
+- **No lo subas al repositorio**: GitHub corta en 100 MB. Súbelo a YouTube (no listado o público) y enlaza desde el README.
+- Si lo pones público, activa subtítulos: mucha gente lo verá sin sonido.
 ## Lo que no se enseña (y por qué)
 
 | No enseñar | Motivo |
