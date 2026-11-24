@@ -25,11 +25,44 @@ Comandos que vas a usar:
 |---|---|
 | `pnpm dev` | Servidor de desarrollo |
 | `pnpm test` | Tests del dominio (Vitest) |
-| `pnpm validate:content` | Linter de contenido (R1–R7) |
+| `pnpm validate:content` | Linter de contenido (R1–R11) |
 | `pnpm check` | Todo lo anterior + tipos + lint + build + accesibilidad |
 | `pnpm content:status` | Regenera el documento de estado del contenido |
 
 `pnpm check` es lo mismo que ejecuta CI. Si pasa en tu máquina, pasa en la nube.
+
+---
+
+## Ramas
+
+| Rama | Para qué |
+|---|---|
+| `main` | Lo que está en producción. Solo llega por fusión desde `dev`. |
+| `dev` | El trabajo del día a día. Los pushes aquí generan una **preview** de Vercel, no tocan producción. |
+
+El recorrido normal:
+
+```bash
+git switch dev
+git pull
+# … trabajar …
+pnpm check
+git add -A && git commit -m "content(area-02): corrige el ítem de tokenización"
+git push
+```
+
+Cuando la preview de `dev` se ve bien, se fusiona en `main`, y eso es lo que publica:
+
+```bash
+git switch main && git pull
+git merge --no-ff dev
+git push
+git switch dev
+```
+
+Si trabajas en un cambio grande, una rama desde `dev` con el nombre de lo que
+haces (`content/area-10-observabilidad`) permite abrir una pull request sin
+bloquear el resto.
 
 ---
 
