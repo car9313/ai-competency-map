@@ -48,6 +48,40 @@ export const LESSONS_AREA_09: readonly Lesson[] = [
     ],
     referenceIds: ['ref-rules-ml'],
   },
+  {
+    competencyId: 'agents-md-context-files',
+    whatIs:
+      'Un fichero de instrucciones para agentes —AGENTS.md en el formato abierto, con variantes por herramienta— es el contrato del repositorio: qué comandos construyen y prueban, qué convenciones hay que respetar, qué está prohibido tocar. Se escribe para que un agente que entra por primera vez no tenga que deducir nada de la estructura del proyecto.',
+    problem:
+      'Cada sesión empieza con el agente adivinando. Prueba `npm test`, falla porque el proyecto usa pnpm; edita un fichero generado; introduce un patrón que el equipo abandonó hace un año. La persona corrige lo mismo todos los días y llama a eso «supervisión», cuando en realidad está repitiendo un contexto que debería estar escrito una vez.',
+    internals: [
+      'Va al principio lo que un recién llegado necesita para no romper nada: comandos exactos de instalación, build, test y lint; y las prohibiciones explícitas.',
+      'Corto y mantenido gana a completo y abandonado: un contrato de una página que se actualiza vale más que un manual de cincuenta que nadie relee.',
+      'Lo que debe cumplirse siempre no se escribe aquí: se ejecuta en la integración continua. El fichero explica cómo trabajar; los scripts garantizan el resultado.',
+      'Las convenciones se escriben como ejemplos del propio repositorio: una ruta a un fichero que sirve de modelo enseña más que tres párrafos describiendo el estilo.',
+    ],
+    whenToUse: [
+      'En cuanto más de una persona —o más de una sesión— trabaja en el repositorio con agentes.',
+      'Cuando el proyecto tiene comandos no evidentes o ficheros que nadie debe tocar a mano.',
+    ],
+    whenNotToUse: [
+      'No lo uses como sustituto de la integración continua: un fichero que pide ejecutar los tests no los ejecuta.',
+      'No metas en él decisiones que cambian cada semana: un contrato inestable deja de leerse.',
+    ],
+    pitfalls: [
+      {
+        title: 'El manual que crece sin límite',
+        detail:
+          'Añadir una regla por cada incidente convierte el contrato en un archivo histórico. Cuando llega a varias páginas, el agente lo cumple a medias y la persona deja de leerlo.',
+      },
+      {
+        title: 'Contrato que miente',
+        detail:
+          'Si los comandos del fichero ya no son los que usa el equipo, el agente fallará siguiendo instrucciones correctas para un proyecto que ya no existe.',
+      },
+    ],
+    referenceIds: ['ref-anthropic-system'],
+  },
 ];
 
 export const ITEMS_AREA_09: readonly Item[] = [
@@ -218,8 +252,7 @@ export const ITEMS_AREA_09: readonly Item[] = [
     id: 'sdd-ambiguous-threshold',
     competencyId: 'spec-driven-development',
     difficulty: 3,
-    prompt:
-      'Un criterio dice «la búsqueda debe ser rápida». ¿Qué le falta para ser aceptable?',
+    prompt: 'Un criterio dice «la búsqueda debe ser rápida». ¿Qué le falta para ser aceptable?',
     options: [
       {
         id: 'a',
@@ -311,6 +344,271 @@ export const ITEMS_AREA_09: readonly Item[] = [
     ],
     explanation:
       'El tamaño de la tarea decide si la revisión es posible. Un cambio que no cabe en una revisión de diez minutos es un cambio que se aprueba por cansancio.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  // ── agents-md-context-files ─────────────────────────────────────────────────
+
+  {
+    id: 'agents-md-first-entry',
+    competencyId: 'agents-md-context-files',
+    difficulty: 1,
+    prompt: '¿Qué va primero en un fichero de instrucciones para agentes?',
+    options: [
+      {
+        id: 'a',
+        text: 'Los comandos exactos para construir y probar',
+        correct: true,
+        rationale:
+          'Correcto: sin eso, el agente adivina el gestor de paquetes y falla antes de empezar.',
+      },
+      {
+        id: 'b',
+        text: 'La historia y la visión del proyecto',
+        correct: false,
+        rationale:
+          'Da contexto y no le dice qué ejecutar. Se puede enlazar, ocupa el espacio que necesita lo operativo.',
+      },
+      {
+        id: 'c',
+        text: 'La lista de dependencias y sus versiones',
+        correct: false,
+        rationale:
+          'Eso ya está en el fichero de dependencias. Duplicarlo garantiza que quede desactualizado.',
+      },
+    ],
+    explanation:
+      'El contrato responde a «cómo se trabaja aquí», y lo primero que hay que saber es cómo ejecutar el proyecto. Es lo que convierte una sesión en trabajo útil en vez de en exploración.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'agents-md-prohibitions',
+    competencyId: 'agents-md-context-files',
+    difficulty: 2,
+    prompt:
+      'En el proyecto hay ficheros generados que nadie debe editar a mano. ¿Cómo lo expresses?',
+    options: [
+      {
+        id: 'a',
+        text: 'Como prohibición explícita, con las rutas',
+        correct: true,
+        rationale:
+          'Correcto: «no edites `src/generated/**`» es comprobable por el agente y por una persona al revisar.',
+      },
+      {
+        id: 'b',
+        text: 'Esperando que se deduzca de la estructura',
+        correct: false,
+        rationale:
+          'Nada en la estructura dice que sea generado. Se deduce después de editar y romperlo.',
+      },
+      {
+        id: 'c',
+        text: 'Poniendo una nota en cada fichero afectado',
+        correct: false,
+        rationale:
+          'Funciona para una persona que abre el fichero. El agente puede no leerlo antes de modificarlo.',
+      },
+    ],
+    explanation:
+      'Las prohibiciones son la mitad más útil del contrato: evitan el error caro. Cuanto más concreta la ruta y la razón, más fácil es respetarla y más fácil detectar que se incumplió.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'agents-md-length',
+    competencyId: 'agents-md-context-files',
+    difficulty: 2,
+    prompt:
+      'El fichero de instrucciones del repositorio tiene ya quince páginas. ¿Qué está pasando?',
+    options: [
+      {
+        id: 'a',
+        text: 'Se ha convertido en un archivo histórico que nadie lee',
+        correct: true,
+        rationale:
+          'Correcto: cada incidente añadió una regla. El agente cumple parte y la persona dejó de leerlo.',
+      },
+      {
+        id: 'b',
+        text: 'Está completo, que es lo deseable',
+        correct: false,
+        rationale:
+          'Completo y sin leer es peor que corto y respetado. Lo que no cabe en la sesión no se aplica.',
+      },
+      {
+        id: 'c',
+        text: 'Necesita más reglas para cubrir los huecos',
+        correct: false,
+        rationale:
+          'Añadir más acelera el problema. Lo que sobra hay que sacarlo, no compensarlo.',
+      },
+    ],
+    explanation:
+      'El contrato compite por el mismo contexto que el código. Quince páginas de reglas dejan menos sitio a lo que hay que hacer y aumentan la probabilidad de que el agente cumpla lo accesorio y olvide lo importante.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'agents-md-not-a-gate',
+    competencyId: 'agents-md-context-files',
+    difficulty: 3,
+    prompt:
+      'El contrato dice «ejecuta los tests antes de terminar». El agente entrega sin ejecutarlos. ¿Qué fallaba?',
+    options: [
+      {
+        id: 'a',
+        text: 'La regla era una petición, no una comprobación',
+        correct: true,
+        rationale:
+          'Correcto: se lo pediste por escrito. Si debe cumplirse siempre, tiene que ejecutarse en la integración continua.',
+      },
+      {
+        id: 'b',
+        text: 'La regla estaba mal redactada',
+        correct: false,
+        rationale:
+          'Está clara. La redacción no cambia el hecho de que nada la hace cumplir.',
+      },
+      {
+        id: 'c',
+        text: 'El agente no tenía permiso para ejecutar tests',
+        correct: false,
+        rationale:
+          'Podría ser en algún entorno, y el patrón es más general: lo que se pide no se garantiza.',
+      },
+    ],
+    explanation:
+      'Escribir una regla es pedir; automatizarla es garantizar. El fichero de instrucciones explica cómo trabajar, y la integración continua es lo que decide si el trabajo entra o no.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'agents-md-commands-wrong',
+    competencyId: 'agents-md-context-files',
+    difficulty: 2,
+    prompt:
+      'El contrato indica `npm test` y el equipo migró a otro gestor de paquetes hace meses. ¿Qué consecuencia tiene?',
+    options: [
+      {
+        id: 'a',
+        text: 'El agente falla siguiendo instrucciones correctas para otro proyecto',
+        correct: true,
+        rationale:
+          'Correcto: cumple el contrato al pie de la letra y el contrato describe un repositorio que ya no existe.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguna: el agente probará hasta encontrar el comando',
+        correct: false,
+        rationale:
+          'A veces lo encuentra, gastando pasos y tiempo. Otras concluye que el proyecto no compila.',
+      },
+      {
+        id: 'c',
+        text: 'El contrato se actualiza solo al detectar el error',
+        correct: false,
+        rationale:
+          'Nada lo actualiza. Un documento que envejece en silencio es la causa, no la solución.',
+      },
+    ],
+    explanation:
+      'El contrato es código de configuración: se cambia con los cambios del proyecto. Si los comandos dejan de ser ciertos, el fichero se convierte en una fuente de fallos con apariencia de autoridad.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'agents-md-conventions-as-examples',
+    competencyId: 'agents-md-context-files',
+    difficulty: 3,
+    prompt:
+      'Quieres que el agente siga las convenciones del equipo. ¿Cómo se consigue mejor?',
+    options: [
+      {
+        id: 'a',
+        text: 'Apuntando a un fichero del repositorio que sirva de modelo',
+        correct: true,
+        rationale:
+          'Correcto: un ejemplo real del propio proyecto enseña estructura, nombres y estilo a la vez.',
+      },
+      {
+        id: 'b',
+        text: 'Describiendo el estilo en tres párrafos',
+        correct: false,
+        rationale:
+          'Es interpretable y largo. Lo que se ve en un fichero modelo no se discute.',
+      },
+      {
+        id: 'c',
+        text: 'Confiar en que el agente imite el código existente',
+        correct: false,
+        rationale:
+          'Imitará el primero que encuentre, que puede ser justo el patrón antiguo que querías abandonar.',
+      },
+    ],
+    explanation:
+      'Un ejemplo del repositorio es la convención más corta y menos ambigua que existe: no describe el estilo, lo muestra. Y cuando el estilo cambie, basta con cambiar el fichero modelo.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'agents-md-when',
+    competencyId: 'agents-md-context-files',
+    difficulty: 1,
+    prompt: '¿Cuándo empieza a compensar escribir un fichero de instrucciones para agentes?',
+    options: [
+      {
+        id: 'a',
+        text: 'Cuando más de una persona o sesión trabaja en el repo',
+        correct: true,
+        rationale:
+          'Correcto: en cuanto hay más de una, el contexto deja de estar en una cabeza y hay que escribirlo.',
+      },
+      {
+        id: 'b',
+        text: 'Solo en proyectos con más de cien ficheros',
+        correct: false,
+        rationale:
+          'El tamaño no es el criterio. Un proyecto pequeño con comandos raros lo necesita igual.',
+      },
+      {
+        id: 'c',
+        text: 'Cuando el equipo empieza a usar agentes de pago',
+        correct: false,
+        rationale:
+          'El precio de la herramienta no cambia lo que el agente necesita saber para no romper nada.',
+      },
+    ],
+    explanation:
+      'El disparador es la repetición: si estás explicando lo mismo en cada sesión, ya toca escribirlo. Y si solo trabajas tú, también compensa por la misma razón aplicada a tu yo de dentro de un mes.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'agents-md-stale-authority',
+    competencyId: 'agents-md-context-files',
+    difficulty: 3,
+    prompt:
+      'El contrato dice «usa siempre el patrón A» y la arquitectura migró al patrón B. ¿Qué es lo más urgente?',
+    options: [
+      {
+        id: 'a',
+        text: 'Corregir el contrato antes de la siguiente sesión',
+        correct: true,
+        rationale:
+          'Correcto: mientras diga A, cada sesión produce código con el patrón abandonado, y encima con respaldo escrito.',
+      },
+      {
+        id: 'b',
+        text: 'Añadir una nota al final explicando el cambio',
+        correct: false,
+        rationale:
+          'Deja dos instrucciones contradictorias. El agente elegirá una, y no sabes cuál.',
+      },
+      {
+        id: 'c',
+        text: 'Dejarlo y corregir en la revisión de código',
+        correct: false,
+        rationale:
+          'Traslada a la revisión un error que se comete solo por seguir el documento. Cuesta más.',
+      },
+    ],
+    explanation:
+      'Un contrato obsoleto es peor que no tenerlo, porque produce errores con autoridad. Cuando la regla cambia, el fichero se actualiza en el mismo cambio que la decisión, no después.',
     referenceId: 'ref-rules-ml',
   },
 ];

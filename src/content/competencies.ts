@@ -483,7 +483,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Instrucciones para agentes en el repositorio',
     claim: 'Escribir el contrato que un agente lee antes de tocar el código de un proyecto.',
     prerequisites: ['system-instructions-contract'],
-    published: false,
+    published: true,
   },
   {
     id: 'context-engineering-for-agents',
