@@ -9,7 +9,7 @@ Generado desde el catálogo. **No editar a mano**: cambia el contenido y ejecuta
 | Competencias publicadas | **47 / 47** |
 | Pendientes | 0 |
 | Lecciones escritas | 47 |
-| Ítems escritos | **376** (objetivo ~376) |
+| Ítems escritos | **378** (objetivo ~376) |
 | Áreas completas | 9 / 9 |
 
 Una competencia cuenta como publicada solo si tiene lección e ítems, y eso lo verifica el
@@ -116,13 +116,13 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 - ✅ `spec-driven-development` — lección y 8 ítems
 - ✅ `agents-md-context-files` — lección y 8 ítems
 - ✅ `context-engineering-for-agents` — lección y 8 ítems
-- ✅ `tdd-with-agents` — lección y 8 ítems
+- ✅ `tdd-with-agents` — lección y 9 ítems
 - ✅ `ticket-to-pr-workflow` — lección y 8 ítems
-- ✅ `ai-code-review` — lección y 8 ítems
+- ✅ `ai-code-review` — lección y 9 ítems
 - ✅ `ai-governance-policy` — lección y 8 ítems
 - ✅ `team-adoption` — lección y 8 ítems
 
-<sub>64 ítems en el área · objetivo 64</sub>
+<sub>66 ítems en el área · objetivo 64</sub>
 
 ## Qué falta, en orden
 

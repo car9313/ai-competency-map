@@ -79,6 +79,7 @@ function validCatalog(): Catalog {
       order: 1,
       layer: 'nucleo',
       level: 1,
+      phase: 'base',
       title: 'Competencia base',
       claim: 'Demuestra la competencia base del catálogo de prueba.',
       prerequisites: [],
@@ -90,6 +91,7 @@ function validCatalog(): Catalog {
       order: 2,
       layer: 'servicio',
       level: 2,
+      phase: 'practica',
       title: 'Competencia avanzada',
       claim: 'Demuestra la competencia avanzada, que depende de la base.',
       prerequisites: ['base'],
@@ -495,5 +497,37 @@ describe('R9 · práctica con rúbrica', () => {
     });
 
     expect(rulesOf(catalogo)).toContain('R9');
+  });
+});
+
+describe('R10 · coherencia del itinerario', () => {
+  it('avisa si una competencia depende de otra de una fase posterior', () => {
+    const catalog = validCatalog();
+    const [primera, segunda] = catalog.competencies;
+
+    const invertido: Catalog = {
+      ...catalog,
+      competencies: [
+        { ...primera!, phase: 'base', prerequisites: ['avanzada'] },
+        { ...segunda!, phase: 'avanzado', prerequisites: [] },
+      ],
+    };
+
+    expect(rulesOf(invertido)).toContain('R10');
+  });
+
+  it('no avisa cuando el orden de fases respeta las dependencias', () => {
+    const catalog = validCatalog();
+    const [primera, segunda] = catalog.competencies;
+
+    const coherente: Catalog = {
+      ...catalog,
+      competencies: [
+        { ...primera!, phase: 'base', prerequisites: [] },
+        { ...segunda!, phase: 'practica', prerequisites: [primera!.id] },
+      ],
+    };
+
+    expect(rulesOf(coherente)).not.toContain('R10');
   });
 });

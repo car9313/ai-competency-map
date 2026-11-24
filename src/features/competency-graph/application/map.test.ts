@@ -13,6 +13,7 @@ function competency(overrides: Partial<CompetencyRecord> & { id: string }): Comp
     order: 1,
     layer: 'nucleo',
     level: 1,
+    phase: 'base',
     title: `Competencia ${overrides.id}`,
     claim: 'Descripción de la competencia de prueba para el mapa.',
     prerequisites: [],

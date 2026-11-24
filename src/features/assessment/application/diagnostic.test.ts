@@ -10,6 +10,7 @@ function competency(id: string, areaId: string, order: number, level = 1): Compe
     order,
     layer: 'nucleo',
     level,
+    phase: 'base',
     title: id,
     claim: '',
     prerequisites: [],

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 import { contentIndex } from '@/content';
+import { PHASE_LABELS } from '@/features/content/domain/types';
 import { CompetencyProgress } from '@/features/assessment/presentation/CompetencyProgress';
 import { CompetencyChecklist } from '@/features/assessment/presentation/CompetencyChecklist';
 import { NotesPanel } from '@/features/assessment/presentation/NotesPanel';
@@ -70,6 +71,12 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
             </span>
           )}
           <span className="rounded-full border border-border px-2 py-0.5">{competency.layer}</span>
+          <Link
+            href={`/itinerario#${competency.phase}`}
+            className="rounded-full border border-border px-2 py-0.5 transition-colors hover:text-accent"
+          >
+            fase: {PHASE_LABELS[competency.phase]}
+          </Link>
           <span className="rounded-full border border-border px-2 py-0.5">
             nivel {competency.level}
           </span>

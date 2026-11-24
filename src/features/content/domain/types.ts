@@ -19,12 +19,42 @@ export interface Area {
 }
 
 /** Nodo del grafo con su texto editorial. */
+/**
+ * Fase del itinerario: el orden en el que tiene sentido empezar.
+ *
+ * No sustituye al grafo. El grafo dice qué **necesitas** saber antes; la fase dice qué es
+ * razonable aprender antes, aunque no sea obligatorio. Por eso el linter exige que ninguna
+ * competencia dependa de otra de una fase posterior: si el itinerario te manda a algo que
+ * aún no puedes comprobar, el itinerario está mal.
+ */
+export type Phase = 'base' | 'practica' | 'seguridad' | 'calidad' | 'organizacion' | 'avanzado';
+
+export const PHASE_ORDER: readonly Phase[] = [
+  'base',
+  'practica',
+  'seguridad',
+  'calidad',
+  'organizacion',
+  'avanzado',
+];
+
+export const PHASE_LABELS: Readonly<Record<Phase, string>> = {
+  base: 'Base',
+  practica: 'Práctica',
+  seguridad: 'Seguridad',
+  calidad: 'Calidad',
+  organizacion: 'Organización',
+  avanzado: 'Avanzado',
+};
+
 export interface CompetencyRecord {
   id: string;
   areaId: string;
   order: number;
   layer: Layer;
   level: Difficulty;
+  /** Fase del itinerario sugerido. */
+  phase: Phase;
   /** Título que ve el alumno. */
   title: string;
   /** Qué demuestra, en una línea. Si no cabe, la competencia es demasiado amplia. */

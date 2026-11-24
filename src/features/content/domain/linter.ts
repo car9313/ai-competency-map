@@ -10,9 +10,9 @@
 import { topologicalLevels } from '@/features/competency-graph';
 import type { IsoDate } from '@/shared/time/clock';
 import type { Item, Option } from '@/shared/types/domain';
-import type { Catalog, Lesson } from './types';
+import { PHASE_ORDER, type Catalog, type Lesson } from './types';
 
-export type RuleId = 'R1' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6' | 'R7' | 'R8' | 'R9';
+export type RuleId = 'R1' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6' | 'R7' | 'R8' | 'R9' | 'R10';
 export type Severity = 'error' | 'warning';
 
 export interface LintIssue {
@@ -301,6 +301,44 @@ function checkPractice(lesson: Lesson): LintIssue[] {
   return issues;
 }
 
+/**
+ * R10 · coherencia del itinerario con el grafo.
+ *
+ * La fase es una sugerencia de orden, y una sugerencia que manda a algo que todavía no
+ * puedes comprobar es una trampa. La regla es simple: ninguna competencia puede depender de
+ * otra situada en una fase posterior. Si la dependencia es real, o cambia la fase o cambia
+ * el prerrequisito; lo que no puede pasar es que el itinerario y el grafo cuenten historias
+ * distintas.
+ */
+function checkPhaseCoherence(catalog: Catalog): LintIssue[] {
+  const issues: LintIssue[] = [];
+  const porId = new Map(catalog.competencies.map((competency) => [competency.id, competency]));
+
+  for (const competency of catalog.competencies) {
+    const propia = PHASE_ORDER.indexOf(competency.phase);
+
+    for (const prerequisiteId of competency.prerequisites) {
+      const previa = porId.get(prerequisiteId);
+
+      if (!previa) {
+        continue;
+      }
+
+      if (PHASE_ORDER.indexOf(previa.phase) > propia) {
+        issues.push({
+          rule: 'R10',
+          severity: 'warning',
+          subject: competency.id,
+          message: `depende de "${prerequisiteId}", que está en la fase "${previa.phase}": el itinerario la situaría después`,
+        });
+      }
+    }
+  }
+
+
+  return issues;
+}
+
 /** R4 · cobertura. */
 function checkCoverage(catalog: Catalog): LintIssue[] {
   const issues: LintIssue[] = [];
@@ -445,6 +483,7 @@ export function lintCatalog(catalog: Catalog, today: IsoDate): LintIssue[] {
     ...catalog.items.flatMap((item) => checkShapeNeutrality(item)),
     ...catalog.items.flatMap((item) => checkCodeBlocks(item)),
     ...catalog.lessons.flatMap((lesson) => checkPractice(lesson)),
+    ...checkPhaseCoherence(catalog),
   ];
 }
 

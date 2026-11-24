@@ -9,6 +9,7 @@ function competency(id: string, prerequisites: string[] = [], order = 0): Compet
     order,
     layer: 'nucleo',
     level: 1,
+    phase: 'base',
     title: id,
     claim: '',
     prerequisites,

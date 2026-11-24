@@ -14,6 +14,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   // ── 01 · Fundamentos ────────────────────────────────────────────────────────
   {
     id: 'ai-ml-dl-boundaries',
+    phase: 'base',
     areaId: 'ai-fundamentals',
     order: 1,
     layer: 'nucleo',
@@ -25,6 +26,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'supervised-vs-unsupervised',
+    phase: 'base',
     areaId: 'ai-fundamentals',
     order: 2,
     layer: 'nucleo',
@@ -36,6 +38,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'generalization-overfitting',
+    phase: 'base',
     areaId: 'ai-fundamentals',
     order: 3,
     layer: 'nucleo',
@@ -47,6 +50,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'deterministic-vs-learned',
+    phase: 'base',
     areaId: 'ai-fundamentals',
     order: 4,
     layer: 'nucleo',
@@ -60,6 +64,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   // ── 02 · IA generativa y LLMs ───────────────────────────────────────────────
   {
     id: 'tokens-and-context-window',
+    phase: 'base',
     areaId: 'generative-llms',
     order: 5,
     layer: 'nucleo',
@@ -71,6 +76,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'tokenization-mechanics',
+    phase: 'base',
     areaId: 'generative-llms',
     order: 6,
     layer: 'nucleo',
@@ -82,6 +88,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'attention-and-transformers',
+    phase: 'base',
     areaId: 'generative-llms',
     order: 7,
     layer: 'nucleo',
@@ -93,6 +100,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'embeddings-and-vectors',
+    phase: 'base',
     areaId: 'generative-llms',
     order: 8,
     layer: 'servicio',
@@ -104,6 +112,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'inference-latency-cost',
+    phase: 'base',
     areaId: 'generative-llms',
     order: 9,
     layer: 'nucleo',
@@ -116,6 +125,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   {
     // Detectada como hueco comparando con roadmap.sh/ai-agents ("Generation Controls").
     id: 'generation-controls',
+    phase: 'base',
     areaId: 'generative-llms',
     order: 38,
     layer: 'nucleo',
@@ -130,6 +140,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   // ── 03 · Prompt y context engineering ───────────────────────────────────────
   {
     id: 'system-instructions-contract',
+    phase: 'base',
     areaId: 'prompt-context',
     order: 10,
     layer: 'nucleo',
@@ -141,6 +152,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'few-shot-examples',
+    phase: 'base',
     areaId: 'prompt-context',
     order: 11,
     layer: 'nucleo',
@@ -152,6 +164,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'context-budgeting',
+    phase: 'base',
     areaId: 'prompt-context',
     order: 12,
     layer: 'nucleo',
@@ -163,6 +176,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'structured-outputs',
+    phase: 'base',
     areaId: 'prompt-context',
     order: 13,
     layer: 'servicio',
@@ -174,6 +188,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'prompt-evaluation',
+    phase: 'calidad',
     areaId: 'prompt-context',
     order: 14,
     layer: 'servicio',
@@ -186,6 +201,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   {
     // roadmap.sh la plantea como técnica; aquí es una DECISIÓN, que es lo que no caduca.
     id: 'finetuning-vs-prompting',
+    phase: 'practica',
     areaId: 'prompt-context',
     order: 39,
     layer: 'servicio',
@@ -200,6 +216,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   // ── 04 · Aplicaciones y RAG ─────────────────────────────────────────────────
   {
     id: 'function-calling-contracts',
+    phase: 'practica',
     areaId: 'ai-apps-rag',
     order: 15,
     layer: 'servicio',
@@ -211,6 +228,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'streaming-ux',
+    phase: 'practica',
     areaId: 'ai-apps-rag',
     order: 16,
     layer: 'interfaz',
@@ -222,6 +240,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'chunking-and-overlap',
+    phase: 'practica',
     areaId: 'ai-apps-rag',
     order: 17,
     layer: 'servicio',
@@ -233,6 +252,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'hybrid-retrieval',
+    phase: 'practica',
     areaId: 'ai-apps-rag',
     order: 18,
     layer: 'servicio',
@@ -244,6 +264,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'grounding-and-citations',
+    phase: 'practica',
     areaId: 'ai-apps-rag',
     order: 19,
     layer: 'nucleo',
@@ -257,6 +278,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   // ── 05 · Ingeniería agéntica ────────────────────────────────────────────────
   {
     id: 'bounded-agent-loop',
+    phase: 'practica',
     areaId: 'agentic-engineering',
     order: 20,
     layer: 'servicio',
@@ -268,6 +290,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'tool-schemas-and-selection',
+    phase: 'practica',
     areaId: 'agentic-engineering',
     order: 21,
     layer: 'servicio',
@@ -279,6 +302,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'agent-memory',
+    phase: 'practica',
     areaId: 'agentic-engineering',
     order: 22,
     layer: 'servicio',
@@ -290,6 +314,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'multi-agent-delegation',
+    phase: 'avanzado',
     areaId: 'agentic-engineering',
     order: 23,
     layer: 'servicio',
@@ -301,6 +326,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'mcp-protocol',
+    phase: 'practica',
     areaId: 'agentic-engineering',
     order: 24,
     layer: 'servicio',
@@ -312,6 +338,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'agent-skills',
+    phase: 'practica',
     areaId: 'agentic-engineering',
     order: 25,
     layer: 'servicio',
@@ -325,6 +352,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   // ── 06 · Harness engineering ────────────────────────────────────────────────
   {
     id: 'tool-registry-allowlist',
+    phase: 'seguridad',
     areaId: 'harness-engineering',
     order: 26,
     layer: 'servicio',
@@ -336,6 +364,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'sandboxing-isolation',
+    phase: 'seguridad',
     areaId: 'harness-engineering',
     order: 27,
     layer: 'servicio',
@@ -347,6 +376,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'checkpoints-recovery',
+    phase: 'seguridad',
     areaId: 'harness-engineering',
     order: 28,
     layer: 'servicio',
@@ -358,6 +388,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'human-approval-gates',
+    phase: 'seguridad',
     areaId: 'harness-engineering',
     order: 29,
     layer: 'servicio',
@@ -371,6 +402,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   // ── 07 · Arquitectura de software IA ────────────────────────────────────────
   {
     id: 'provider-abstraction',
+    phase: 'avanzado',
     areaId: 'ai-architecture',
     order: 30,
     layer: 'servicio',
@@ -382,6 +414,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'model-routing',
+    phase: 'avanzado',
     areaId: 'ai-architecture',
     order: 31,
     layer: 'servicio',
@@ -393,6 +426,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'orchestration-patterns',
+    phase: 'avanzado',
     areaId: 'ai-architecture',
     order: 32,
     layer: 'servicio',
@@ -404,6 +438,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'resilience-fallback',
+    phase: 'avanzado',
     areaId: 'ai-architecture',
     order: 33,
     layer: 'nucleo',
@@ -417,6 +452,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   // ── 08 · Calidad y producción ───────────────────────────────────────────────
   {
     id: 'reproducible-evals',
+    phase: 'calidad',
     areaId: 'ai-quality-production',
     order: 34,
     layer: 'servicio',
@@ -428,6 +464,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'guardrails-io',
+    phase: 'seguridad',
     areaId: 'ai-quality-production',
     order: 35,
     layer: 'nucleo',
@@ -439,6 +476,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'observability-cost',
+    phase: 'calidad',
     areaId: 'ai-quality-production',
     order: 36,
     layer: 'servicio',
@@ -450,6 +488,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'prompt-injection-defense',
+    phase: 'seguridad',
     areaId: 'ai-quality-production',
     order: 37,
     layer: 'servicio',
@@ -465,6 +504,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   // puede generar evidencia, y bloquearía a las que dependen de ella.
   {
     id: 'spec-driven-development',
+    phase: 'base',
     areaId: 'ai-workflow-methodology',
     order: 38,
     layer: 'servicio',
@@ -476,6 +516,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'agents-md-context-files',
+    phase: 'base',
     areaId: 'ai-workflow-methodology',
     order: 39,
     layer: 'servicio',
@@ -487,6 +528,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'context-engineering-for-agents',
+    phase: 'base',
     areaId: 'ai-workflow-methodology',
     order: 40,
     layer: 'servicio',
@@ -498,6 +540,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'tdd-with-agents',
+    phase: 'base',
     areaId: 'ai-workflow-methodology',
     order: 41,
     layer: 'nucleo',
@@ -509,6 +552,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'ticket-to-pr-workflow',
+    phase: 'practica',
     areaId: 'ai-workflow-methodology',
     order: 42,
     layer: 'servicio',
@@ -520,6 +564,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'ai-code-review',
+    phase: 'practica',
     areaId: 'ai-workflow-methodology',
     order: 43,
     layer: 'servicio',
@@ -531,6 +576,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'ai-governance-policy',
+    phase: 'organizacion',
     areaId: 'ai-workflow-methodology',
     order: 44,
     layer: 'interfaz',
@@ -542,6 +588,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
   },
   {
     id: 'team-adoption',
+    phase: 'organizacion',
     areaId: 'ai-workflow-methodology',
     order: 45,
     layer: 'interfaz',
