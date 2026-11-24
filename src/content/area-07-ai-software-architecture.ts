@@ -144,6 +144,43 @@ export const LESSONS_AREA_07: readonly Lesson[] = [
     ],
     referenceIds: ['ref-rules-ml'],
   },
+
+  {
+    competencyId: 'application-architecture',
+    whatIs:
+      'Cómo se reparte el código en carpetas y, sobre todo, en qué dirección apuntan las dependencias. Hay tres formas que se discuten de verdad: capas horizontales (interfaz, servicio, datos), puertos y adaptadores —también llamada hexagonal— con el dominio en el centro y la infraestructura en el borde, y slices verticales, que cortan por funcionalidad y dejan cada rebanada con lo que necesita. La pregunta que decide entre ellas es una: qué cambia junto.',
+    problem:
+      'Se elige la estructura por moda y no por el cambio que hay que hacer. Con capas horizontales, añadir un campo al producto toca cinco carpetas y cinco revisiones: la estructura pelea contra el cambio. Con slices verticales sin criterio, la misma regla de negocio aparece copiada en tres rebanadas y se corrige en dos. Y la hexagonal se aplica como ceremonia: una interfaz para cada cosa, sin que nunca exista una segunda implementación, así que el único beneficio es una capa más que leer.',
+    internals: [
+      'La pregunta que decide no es «qué arquitectura suena mejor» sino «qué ficheros tengo que abrir para cambiar este comportamiento». Si son cinco carpetas distintas, la estructura está mal para ese cambio.',
+      'Las capas horizontales optimizan la reutilización técnica; los slices verticales optimizan el cambio de producto. Casi ningún producto se cambia por capas.',
+      'Puertos y adaptadores protegen el dominio de la infraestructura. Se justifica cuando hay una segunda implementación real o cuando quieres probar el dominio sin red, base de datos ni proveedor.',
+      'La dirección de las dependencias importa más que los nombres de las carpetas: el dominio no importa nada de fuera. Si eso se rompe, la estructura es decorativa.',
+      'Con un agente, refactorizar es más barato y convertirlo en ceremonia es más probable: hay que decidir el límite y escribirlo, porque el agente completará el patrón hasta el final.',
+      'Un slice es caso de uso, dominio y adaptadores propios. Lo común se extrae cuando de verdad se repite, no antes por simetría.',
+    ],
+    whenToUse: [
+      'Cuando el producto crece y cada cambio empieza a tocar demasiados sitios.',
+      'Cuando hay que sustituir una pieza de infraestructura —proveedor de modelos, base de datos— y el dominio no debería enterarse.',
+    ],
+    whenNotToUse: [
+      'No montes puertos y adaptadores para un script de cien líneas: no hay dominio que proteger.',
+      'No cortes en slices una librería que se consume por funciones sueltas: no hay producto que cambie por funcionalidad.',
+    ],
+    pitfalls: [
+      {
+        title: 'Interfaces sin segundo adaptador',
+        detail:
+          'Una interfaz para cada dependencia y una sola implementación de cada una. No protege de nada y añade un salto mental en cada lectura.',
+      },
+      {
+        title: 'El slice que copia la regla',
+        detail:
+          'Dos rebanadas con la misma validación de negocio: se corrige en una y la otra sigue aceptando datos inválidos. Lo común hay que reconocerlo, no evitarlo.',
+      },
+    ],
+    referenceIds: ['ref-rules-ml'],
+  },
 ];
 
 export const ITEMS_AREA_07: readonly Item[] = [
@@ -1182,6 +1219,269 @@ export const ITEMS_AREA_07: readonly Item[] = [
     ],
     explanation:
       'La clasificación se hace antes del reintento, con el código de error y el contexto. Reintentar un error determinista solo gasta presupuesto y retrasa el diagnóstico.',
+    referenceId: 'ref-rules-ml',
+  },
+  // ── application-architecture ────────────────────────────────────────────────
+
+  {
+    id: 'arch-what-decides',
+    competencyId: 'application-architecture',
+    difficulty: 1,
+    prompt: '¿Qué debería decidir cómo se organiza el código?',
+    options: [
+      {
+        id: 'a',
+        text: 'Qué cambia junto cuando cambia el producto',
+        correct: true,
+        rationale:
+          'Correcto: la estructura sirve al cambio. Si cada cambio toca cinco carpetas, la estructura estorba.',
+      },
+      {
+        id: 'b',
+        text: 'La arquitectura que use la empresa de referencia',
+        correct: false,
+        rationale:
+          'Su producto y su equipo no son los tuyos. Copiar la estructura sin el problema que resolvía es ceremonia.',
+      },
+      {
+        id: 'c',
+        text: 'El número de ficheros que tenga cada carpeta',
+        correct: false,
+        rationale:
+          'La simetría visual no dice nada del cambio. Una carpeta ordenada puede estar en el camino equivocado.',
+      },
+    ],
+    explanation:
+      'La pregunta útil es concreta: para cambiar un comportamiento, ¿qué abro? La respuesta a esa pregunta es la arquitectura real, con independencia de cómo se llamen las carpetas.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'arch-layers-vs-slices',
+    competencyId: 'application-architecture',
+    difficulty: 2,
+    prompt: '¿Qué diferencia hay entre organizar por capas y organizar por slices verticales?',
+    options: [
+      {
+        id: 'a',
+        text: 'Capas agrupan por tipo técnico; slices, por funcionalidad',
+        correct: true,
+        rationale:
+          'Correcto: en capas, un cambio de producto se reparte por varias carpetas; en slices, vive en una.',
+      },
+      {
+        id: 'b',
+        text: 'Los slices son más modernos y sustituyen a las capas',
+        correct: false,
+        rationale:
+          'Cada slice suele tener sus propias capas dentro. No es una sustitución, es otra forma de cortar.',
+      },
+      {
+        id: 'c',
+        text: 'Las capas permiten probar y los slices no',
+        correct: false,
+        rationale:
+          'Los slices se prueban igual, a menudo mejor, porque el caso de uso entero está en un sitio.',
+      },
+    ],
+    explanation:
+      'La diferencia práctica está en la revisión: con capas, un cambio de funcionalidad obliga a abrir cinco sitios; con slices, uno o dos. El coste del cambio es el criterio.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'arch-shotgun-surgery',
+    competencyId: 'application-architecture',
+    difficulty: 2,
+    prompt:
+      'Añadir un campo al producto obliga a tocar controlador, servicio, repositorio, mapeador y base de datos. ¿Qué te dice?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que la estructura está peleando contra el cambio',
+        correct: true,
+        rationale:
+          'Correcto: cinco carpetas para un dato es la señal clásica de que el corte no sigue al producto.',
+      },
+      {
+        id: 'b',
+        text: 'Que el proyecto está bien separado en capas',
+        correct: false,
+        rationale:
+          'Separar por tipo técnico tiene ese coste exacto. La separación no es gratis y aquí se paga en cada cambio.',
+      },
+      {
+        id: 'c',
+        text: 'Que falta una carpeta donde agrupar esos cambios',
+        correct: false,
+        rationale:
+          'Añadir otra capa no resuelve el corte: lo complica con un sitio más que abrir.',
+      },
+    ],
+    explanation:
+      'Cuando un cambio pequeño exige cinco ediciones coordinadas, el problema no es la disciplina del equipo: es el eje por el que se partió el código.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'arch-hexagonal-when',
+    competencyId: 'application-architecture',
+    difficulty: 2,
+    prompt: '¿Cuándo compensa separar puertos y adaptadores?',
+    options: [
+      {
+        id: 'a',
+        text: 'Cuando hay una segunda implementación o pruebas sin red',
+        correct: true,
+        rationale:
+          'Correcto: el puerto se justifica por la necesidad de sustituir o de probar sin infraestructura real.',
+      },
+      {
+        id: 'b',
+        text: 'Siempre que haya una dependencia externa',
+        correct: false,
+        rationale:
+          'Con una sola implementación que nunca cambiará, la interfaz es una capa más que leer y mantener.',
+      },
+      {
+        id: 'c',
+        text: 'Solo en proyectos de más de cien mil líneas',
+        correct: false,
+        rationale:
+          'El tamaño no es el criterio. Un proyecto pequeño que cambiará de proveedor sí lo necesita.',
+      },
+    ],
+    explanation:
+      'Un puerto es una promesa de que la implementación puede cambiar. Si nunca hay segunda implementación ni se prueba sin la real, la promesa es decorativa.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'arch-ceremony',
+    competencyId: 'application-architecture',
+    difficulty: 3,
+    prompt:
+      'El proyecto tiene una interfaz para cada dependencia y una sola implementación de cada una. ¿Qué valor aporta?',
+    options: [
+      {
+        id: 'a',
+        text: 'Poco: añade saltos sin proteger de nada',
+        correct: true,
+        rationale:
+          'Correcto: sin segunda implementación ni pruebas aisladas, la interfaz no sustituye nada y obliga a navegar más.',
+      },
+      {
+        id: 'b',
+        text: 'Mucho: prepara el código para el futuro',
+        correct: false,
+        rationale:
+          'Preparar para un futuro hipotético cuesta hoy y suele quedar obsoleto. La abstracción se añade cuando hay dos casos.',
+      },
+      {
+        id: 'c',
+        text: 'Es obligatorio en arquitectura hexagonal',
+        correct: false,
+        rationale:
+          'La hexagonal habla de dirección de dependencias, no de crear una interfaz por dependencia porque sí.',
+      },
+    ],
+    explanation:
+      'La abstracción se paga en lectura y mantenimiento. Se gana cuando hay algo que sustituir; si no, es el nombre elegante de una capa vacía.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'arch-dependency-direction',
+    competencyId: 'application-architecture',
+    difficulty: 3,
+    prompt:
+      'El dominio importa directamente el SDK del proveedor de modelos. ¿Qué problema hay?',
+    options: [
+      {
+        id: 'a',
+        text: 'La dirección de dependencia está invertida',
+        correct: true,
+        rationale:
+          'Correcto: el dominio pasa a depender de la infraestructura, y cambiar de proveedor toca la lógica de negocio.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: el SDK es código del proyecto',
+        correct: false,
+        rationale:
+          'Es código ajeno con su ciclo de versiones. Depender de él desde el dominio ata tu lógica a un calendario externo.',
+      },
+      {
+        id: 'c',
+        text: 'Solo que las pruebas tardan más',
+        correct: false,
+        rationale:
+          'Es una consecuencia. El problema de fondo es que el dominio ya no se puede probar ni cambiar sin el proveedor.',
+      },
+    ],
+    explanation:
+      'La arquitectura se reconoce en las flechas de importación, no en los nombres. Si el centro importa el borde, la separación existe solo en el diagrama.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'arch-slice-duplication',
+    competencyId: 'application-architecture',
+    difficulty: 3,
+    prompt:
+      'Dos slices tienen la misma regla de negocio copiada. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Extraerla a un módulo compartido que ambos usen',
+        correct: true,
+        rationale:
+          'Correcto: si la regla cambia, debe cambiar en un sitio. Copiada, se corrige en una y la otra queda mal.',
+      },
+      {
+        id: 'b',
+        text: 'Dejarla duplicada: cada slice debe ser independiente',
+        correct: false,
+        rationale:
+          'La independencia del slice no justifica duplicar reglas. La duplicación se paga el día del cambio.',
+      },
+      {
+        id: 'c',
+        text: 'Unificar los dos slices en uno',
+        correct: false,
+        rationale:
+          'Resuelve la duplicación y vuelve a juntar dos funcionalidades que cambian por motivos distintos.',
+      },
+    ],
+    explanation:
+      'Lo vertical es el corte, no la prohibición de compartir. El criterio es el de siempre: lo que cambia por la misma razón vive junto; lo que cambia por razones distintas, no.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'arch-ai-refactor-scope',
+    competencyId: 'application-architecture',
+    difficulty: 3,
+    prompt:
+      'Un agente propone reorganizar todo el proyecto a slices verticales en un solo cambio. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Acotar el alcance: un módulo, con pruebas, y decidir el límite',
+        correct: true,
+        rationale:
+          'Correcto: el agente completa el patrón hasta el final. Sin límite escrito, el refactor se lleva todo por delante.',
+      },
+      {
+        id: 'b',
+        text: 'Aceptar: si el patrón es mejor, mejor en todas partes',
+        correct: false,
+        rationale:
+          'Un refactor total sin revisión intermedia es imposible de revisar y de revertir si algo se rompe.',
+      },
+      {
+        id: 'c',
+        text: 'Rechazarlo: los agentes no entienden de arquitectura',
+        correct: false,
+        rationale:
+          'Aplican patrones con soltura, incluida la ceremonia. El problema no es que no sepan, es que no eligen el límite.',
+      },
+    ],
+    explanation:
+      'Con un agente, refactorizar es barato y por eso mismo se desborda: aplicará el patrón a todo lo que alcance. Decidir el límite y trabajar con pruebas es lo que convierte la propuesta en una mejora.',
     referenceId: 'ref-rules-ml',
   },
 ];

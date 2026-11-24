@@ -88,6 +88,23 @@ export const PRACTICES: Readonly<Record<string, Practice>> = {
       'El arreglo se verificó repitiendo el mismo caso, y existe una prueba que lo fija.',
     ],
   },
+  'application-architecture': {
+    title: 'Refactoriza un módulo a slices verticales',
+    steps: [
+      'Elige un módulo con tres o cuatro funcionalidades que hoy viven repartidas por capas.',
+      'Escribe para cada una qué ficheros hay que abrir hoy para cambiarla: esa lista es tu problema.',
+      'Reorganiza una sola funcionalidad en su slice, con pruebas que sigan pasando.',
+      'Comprueba la lista otra vez: debería haberse acortado.',
+      'Decide qué se comparte entre slices y escribe por qué.',
+    ],
+    rubric: [
+      'Existe una lista, antes y después, de ficheros a abrir por cambio.',
+      'La primera funcionalidad refactorizada tiene sus pruebas en verde.',
+      'Las dependencias del dominio apuntan hacia dentro, no hacia el SDK ni hacia la base de datos.',
+      'No se crearon interfaces sin una segunda implementación ni prueba aislada.',
+      'Lo compartido entre slices está justificado, no duplicado por comodidad.',
+    ],
+  },
   'bounded-agent-loop': {
     title: 'Cierra el bucle de un agente que ya tienes abierto',
     steps: [

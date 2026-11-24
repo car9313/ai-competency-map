@@ -6,10 +6,10 @@ Generado desde el catálogo. **No editar a mano**: cambia el contenido y ejecuta
 
 | | |
 |---|---|
-| Competencias publicadas | **52 / 52** |
+| Competencias publicadas | **53 / 53** |
 | Pendientes | 0 |
-| Lecciones escritas | 52 |
-| Ítems escritos | **418** (objetivo ~416) |
+| Lecciones escritas | 53 |
+| Ítems escritos | **426** (objetivo ~424) |
 | Áreas completas | 10 / 10 |
 
 Una competencia cuenta como publicada solo si tiene lección e ítems, y eso lo verifica el
@@ -102,14 +102,15 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 
 <sub>32 ítems en el área · objetivo 32</sub>
 
-### 07 · Arquitectura de software IA — 4/4
+### 07 · Arquitectura de software IA — 5/5
 
 - ✅ `provider-abstraction` — lección y 8 ítems
 - ✅ `model-routing` — lección y 8 ítems
 - ✅ `orchestration-patterns` — lección y 8 ítems
 - ✅ `resilience-fallback` — lección y 8 ítems
+- ✅ `application-architecture` — lección y 8 ítems
 
-<sub>32 ítems en el área · objetivo 32</sub>
+<sub>40 ítems en el área · objetivo 40</sub>
 
 ### 08 · Calidad y producción — 4/4
 
@@ -141,6 +142,6 @@ Nada: todas las competencias están publicadas.
 ## Criterio de cierre de la fase 2
 
 - [ ] Las 39 competencias publicadas.
-- [ ] ~416 ítems, con justificación por distractor.
+- [ ] ~424 ítems, con justificación por distractor.
 - [ ] `pnpm validate:content` en cero, ejecutándose en CI.
 - [ ] Ningún nodo del mapa queda como «próximamente».

@@ -658,4 +658,16 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     prerequisites: ['context-engineering-for-agents'],
     published: true,
   },
+  {
+    id: 'application-architecture',
+    areaId: 'ai-architecture',
+    order: 53,
+    layer: 'servicio',
+    level: 3,
+    phase: 'practica',
+    title: 'Arquitectura de la aplicación',
+    claim: 'Elegir cómo se organiza el código según lo que cambia junto, no por costumbre.',
+    prerequisites: ['testing-fundamentals'],
+    published: true,
+  },
 ];
