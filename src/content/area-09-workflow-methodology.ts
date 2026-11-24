@@ -292,6 +292,42 @@ export const LESSONS_AREA_09: readonly Lesson[] = [
     ],
     referenceIds: ['ref-rules-ml'],
   },
+  {
+    competencyId: 'ai-dev-techniques',
+    whatIs:
+      'El conjunto de hábitos concretos que separan una sesión productiva de una que hay que deshacer: pedir el plan antes del código, trabajar en cambios pequeños, entregar el test que falla en lugar de un párrafo explicando el problema, pedir dos alternativas antes de elegir, reiniciar la conversación cuando el contexto se ensucia y leer el diff en vez del resumen que lo acompaña.',
+    problem:
+      'La misma herramienta da resultados opuestos según cómo se use. En una sesión se pide «hazme esta funcionalidad» y vuelve un cambio enorme, plausible y equivocado. En otra se entrega un test que falla y una restricción clara, y el agente resuelve en tres pasos verificables. La diferencia casi nunca es el modelo: es el tamaño del encargo, la calidad del contexto y si alguien está leyendo el resultado real.',
+    internals: [
+      'El plan antes del código: revisar diez líneas de plan es más barato que revisar un diff de seiscientos.',
+      'Cambios pequeños: cada paso se verifica y el fallo se localiza donde ocurrió, no al final de la cadena.',
+      'El test que falla es el mejor enunciado: describe el comportamiento esperado y da una señal binaria de cuándo terminó.',
+      'Pedir dos alternativas antes de elegir evita aceptar la primera solución plausible; comparar fuerza a mirar el problema.',
+      'Higiene de contexto: cuando la sesión acumula intentos fallidos, el agente arrastra las soluciones descartadas. Empezar de nuevo con un resumen limpio rinde más que insistir.',
+      'Se lee el diff y no el resumen. La explicación la escribe quien hizo el cambio, y puede ser tan plausible como el error.',
+    ],
+    whenToUse: [
+      'En cualquier tarea que dure más de veinte minutos o toque más de un fichero.',
+      'Cuando una sesión empieza a dar vueltas sobre el mismo error: es la señal para reiniciar con contexto limpio.',
+    ],
+    whenNotToUse: [
+      'No pidas dos alternativas para una errata: la ceremonia cuesta más que el arreglo.',
+      'No reinicies la sesión por cada tropiezo: pierdes el contexto que sí servía. La señal es la repetición, no el primer fallo.',
+    ],
+    pitfalls: [
+      {
+        title: 'Aceptar el resumen en lugar del diff',
+        detail:
+          'El agente describe lo que hizo de forma coherente y el cambio hace otra cosa. Leer el resumen y aprobar es revisar el relato, no el código.',
+      },
+      {
+        title: 'Insistir en una sesión contaminada',
+        detail:
+          'Diez intentos fallidos dejan diez enfoques descartados en el contexto. Cada petición nueva arrastra restos y el resultado empeora sin que se note la causa.',
+      },
+    ],
+    referenceIds: ['ref-rules-ml'],
+  },
 ];
 
 export const ITEMS_AREA_09: readonly Item[] = [
@@ -2467,6 +2503,266 @@ export const ITEMS_AREA_09: readonly Item[] = [
     ],
     explanation:
       'Es el modo de fallo más difícil de ver porque el número de pruebas no cambia. La comprobación se aflojó justo lo necesario para que su código pasara, y la suite sigue en verde.',
+    referenceId: 'ref-rules-ml',
+  },
+  // ── ai-dev-techniques ───────────────────────────────────────────────────────
+
+  {
+    id: 'tec-plan-first',
+    competencyId: 'ai-dev-techniques',
+    difficulty: 1,
+    prompt: 'Vas a pedir un cambio de varias horas. ¿Qué pides primero?',
+    options: [
+      {
+        id: 'a',
+        text: 'El plan, antes de que escriba código',
+        correct: true,
+        rationale:
+          'Correcto: corregir un plan de diez líneas cuesta minutos; corregir un diff enorme cuesta rehacerlo.',
+      },
+      {
+        id: 'b',
+        text: 'El código completo, para ver si acierta',
+        correct: false,
+        rationale:
+          'Cuando se ve el diff ya hay seiscientos sitios donde puede estar el error, y no sabes cuál decidió.',
+      },
+      {
+        id: 'c',
+        text: 'Una estimación de lo que tardará',
+        correct: false,
+        rationale:
+          'La estimación no expone la interpretación del encargo, que es lo que necesitas revisar.',
+      },
+    ],
+    explanation:
+      'El plan es el punto de control más barato del flujo. Pedirlo primero convierte la revisión en una decisión sobre el enfoque y no en arqueología sobre un diff.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tec-small-changes',
+    competencyId: 'ai-dev-techniques',
+    difficulty: 1,
+    prompt: 'Un cambio grande falla en la parte final. ¿Qué haces distinto la próxima vez?',
+    options: [
+      {
+        id: 'a',
+        text: 'Partirlo en pasos que se verifiquen por separado',
+        correct: true,
+        rationale:
+          'Correcto: cada paso deja una señal de que funciona, y el fallo aparece donde se produjo.',
+      },
+      {
+        id: 'b',
+        text: 'Repetirlo con un modelo más potente',
+        correct: false,
+        rationale:
+          'Vuelve a apostar a una cadena larga sin puntos de control, y el fallo sigue sin localizarse.',
+      },
+      {
+        id: 'c',
+        text: 'Explicar mejor el enunciado en un párrafo más largo',
+        correct: false,
+        rationale:
+          'Un enunciado más largo no hace el cambio más pequeño. El tamaño es lo que impide verificar.',
+      },
+    ],
+    explanation:
+      'El tamaño del cambio decide si la verificación es posible. Con pasos pequeños, cada uno se prueba y se revisa; con una tirada larga, solo puedes comprobar el final.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tec-failing-test',
+    competencyId: 'ai-dev-techniques',
+    difficulty: 2,
+    prompt: 'Quieres que el agente arregle un fallo concreto. ¿Qué le das?',
+    options: [
+      {
+        id: 'a',
+        text: 'El test que falla y el comportamiento esperado',
+        correct: true,
+        rationale:
+          'Correcto: el test es el enunciado ejecutable. Describe el problema y da la señal de cuándo terminó.',
+      },
+      {
+        id: 'b',
+        text: 'Un párrafo describiendo lo que ves en pantalla',
+        correct: false,
+        rationale:
+          'Es interpretable y no comprobable. El agente arreglará lo que entiende, que no es lo que ocurre.',
+      },
+      {
+        id: 'c',
+        text: 'El fichero entero donde crees que está el error',
+        correct: false,
+        rationale:
+          'Señala una zona, no un comportamiento. Sin criterio de éxito, cualquier cambio plausible parece válido.',
+      },
+    ],
+    explanation:
+      'Un test que falla es el mejor enunciado posible: no hay interpretación y hay una señal binaria de terminado. El agente puede iterar contra eso sin que tú revises cada intento.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tec-two-options',
+    competencyId: 'ai-dev-techniques',
+    difficulty: 2,
+    prompt: 'El agente propone una solución que parece razonable. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Pedir una segunda alternativa y comparar',
+        correct: true,
+        rationale:
+          'Correcto: comparar obliga a mirar el problema. La primera propuesta plausible rara vez es la única.',
+      },
+      {
+        id: 'b',
+        text: 'Aceptarla: si parece razonable, lo será',
+        correct: false,
+        rationale:
+          'La plausibilidad es justo lo que distingue al código generado. Suena bien y puede estar mal.',
+      },
+      {
+        id: 'c',
+        text: 'Pedir que la explique con más detalle',
+        correct: false,
+        rationale:
+          'Explicará mejor la misma solución. El detalle no revela los caminos que no consideró.',
+      },
+    ],
+    explanation:
+      'Pedir alternativas es una técnica de calidad barata: la comparación saca a la luz supuestos que la primera propuesta esconde. Y a veces la segunda es claramente mejor.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tec-context-hygiene',
+    competencyId: 'ai-dev-techniques',
+    difficulty: 2,
+    prompt:
+      'Llevas diez intentos fallidos con el mismo error y cada respuesta es peor. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Empezar una sesión nueva con un resumen limpio',
+        correct: true,
+        rationale:
+          'Correcto: el contexto arrastra los enfoques descartados y condiciona cada intento nuevo.',
+      },
+      {
+        id: 'b',
+        text: 'Insistir: el modelo acabará encontrándolo',
+        correct: false,
+        rationale:
+          'Cada intento añade ruido. La probabilidad de acertar no crece con la insistencia.',
+      },
+      {
+        id: 'c',
+        text: 'Subir la temperatura para que sea más creativo',
+        correct: false,
+        rationale:
+          'Añade variación, no criterio. Para un fallo concreto, la variación es más ruido.',
+      },
+    ],
+    explanation:
+      'La higiene de contexto es una técnica, no una superstición: una sesión con diez soluciones descartadas empuja al modelo a combinarlas. Un resumen del estado y de lo que ya se probó rinde más.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'tec-read-the-diff',
+    competencyId: 'ai-dev-techniques',
+    difficulty: 3,
+    prompt:
+      'El agente entrega un cambio con una descripción muy clara de lo que hizo. ¿Qué revisas?',
+    options: [
+      {
+        id: 'a',
+        text: 'El diff, línea por línea',
+        correct: true,
+        rationale:
+          'Correcto: la descripción la escribe quien hizo el cambio. Es plausible por construcción, como el error.',
+      },
+      {
+        id: 'b',
+        text: 'La descripción, si está bien argumentada',
+        correct: false,
+        rationale:
+          'Revisar el relato no es revisar el código. Un resumen convincente y un cambio distinto conviven bien.',
+      },
+      {
+        id: 'c',
+        text: 'El resultado de las pruebas y los checks',
+        correct: false,
+        rationale:
+          'Necesario y no suficiente: las pruebas cubren lo que alguien pensó probar, no lo que falta.',
+      },
+    ],
+    explanation:
+      'El diff es el hecho; el resumen es una interpretación. Leer el diff se vuelve más importante, no menos, cuando el autor no responde preguntas.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'tec-constrain-output',
+    competencyId: 'ai-dev-techniques',
+    difficulty: 3,
+    prompt: 'El agente devuelve bloques enormes que no puedes revisar. ¿Qué cambias?',
+    options: [
+      {
+        id: 'a',
+        text: 'Acotar el encargo: un fichero, un cambio',
+        correct: true,
+        rationale:
+          'Correcto: el tamaño de la respuesta lo decide el tamaño del encargo. Acotar es la palanca.',
+      },
+      {
+        id: 'b',
+        text: 'Pedirle que responda de forma más breve',
+        correct: false,
+        rationale:
+          'Acorta el texto y no el cambio. Seguirá tocando los mismos ficheros con menos explicación.',
+      },
+      {
+        id: 'c',
+        text: 'Cambiar a un modelo con menos capacidad',
+        correct: false,
+        rationale:
+          'Reduce calidad sin reducir alcance. El problema es el encargo, no la potencia.',
+      },
+    ],
+    explanation:
+      'La respuesta refleja el encargo. Si el resultado es inabarcable, el enunciado pedía demasiado: un cambio, un fichero y un formato concreto producen algo que se puede revisar de verdad.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'tec-restart-vs-fix',
+    competencyId: 'ai-dev-techniques',
+    difficulty: 3,
+    prompt: 'Una solución casi funciona pero hay que retocar tres cosas. ¿Reinicias o insistes?',
+    options: [
+      {
+        id: 'a',
+        text: 'Insistir: hay avance y el problema está acotado',
+        correct: true,
+        rationale:
+          'Correcto: reiniciar tira lo que ya funciona. La higiene de contexto aplica a sesiones atascadas, no a avances parciales.',
+      },
+      {
+        id: 'b',
+        text: 'Reiniciar siempre, para no contaminar el contexto',
+        correct: false,
+        rationale:
+          'Reiniciar con avance claro desperdicia el trabajo. La regla es «reinicia cuando no avanzas».',
+      },
+      {
+        id: 'c',
+        text: 'Reiniciar y pedir la misma solución desde cero',
+        correct: false,
+        rationale:
+          'Reproduce el mismo camino sin el aprendizaje del intento anterior. Cuesta lo mismo y no mejora.',
+      },
+    ],
+    explanation:
+      'La técnica no es una regla fija: se reinicia cuando el contexto acumula fracasos, y se insiste cuando hay progreso y el problema está localizado. Distinguir las dos situaciones es la habilidad.',
     referenceId: 'ref-rules-ml',
   },
 ];

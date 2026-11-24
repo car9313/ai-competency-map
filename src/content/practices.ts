@@ -146,6 +146,23 @@ export const PRACTICES: Readonly<Record<string, Practice>> = {
     ],
   },
 
+  'ai-dev-techniques': {
+    title: 'Compara una sesión de golpe con una sesión por pasos',
+    steps: [
+      'Elige una tarea del tamaño de media tarde en tu proyecto real.',
+      'Pídela de golpe y guarda el resultado tal cual: esa es tu línea base.',
+      'Repítela en otra rama con plan revisado, un fichero por paso y el test que falla primero.',
+      'Compara las dos con el mismo criterio: revisiones necesarias, tiempo de revisión y qué hubo que rehacer.',
+      'Escribe las tres reglas que te habrían ahorrado el primer intento.',
+    ],
+    rubric: [
+      'La comparación usa el mismo criterio en las dos sesiones.',
+      'La segunda empezó por un plan revisado antes de escribir código.',
+      'Cada paso de la segunda se verificó antes de continuar.',
+      'Está identificado el momento en que el contexto se contaminó y qué lo provocó.',
+      'Las tres reglas están escritas y son aplicables al próximo encargo.',
+    ],
+  },
   'orchestration-patterns': {
     title: 'Elige el patrón de orquestación más simple que funcione',
     steps: [

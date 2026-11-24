@@ -598,4 +598,16 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     prerequisites: ['ai-governance-policy'],
     published: true,
   },
+  {
+    id: 'ai-dev-techniques',
+    areaId: 'ai-workflow-methodology',
+    order: 46,
+    layer: 'servicio',
+    level: 2,
+    phase: 'practica',
+    title: 'Técnicas para trabajar con un agente',
+    claim: 'Aplicar las técnicas concretas que cambian el resultado de una sesión con un agente.',
+    prerequisites: ['context-engineering-for-agents'],
+    published: true,
+  },
 ];

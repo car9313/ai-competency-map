@@ -6,10 +6,10 @@ Generado desde el catálogo. **No editar a mano**: cambia el contenido y ejecuta
 
 | | |
 |---|---|
-| Competencias publicadas | **47 / 47** |
+| Competencias publicadas | **48 / 48** |
 | Pendientes | 0 |
-| Lecciones escritas | 47 |
-| Ítems escritos | **378** (objetivo ~376) |
+| Lecciones escritas | 48 |
+| Ítems escritos | **386** (objetivo ~384) |
 | Áreas completas | 9 / 9 |
 
 Una competencia cuenta como publicada solo si tiene lección e ítems, y eso lo verifica el
@@ -111,7 +111,7 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 
 <sub>32 ítems en el área · objetivo 32</sub>
 
-### 09 · Metodología y flujo con agentes — 8/8
+### 09 · Metodología y flujo con agentes — 9/9
 
 - ✅ `spec-driven-development` — lección y 8 ítems
 - ✅ `agents-md-context-files` — lección y 8 ítems
@@ -121,8 +121,9 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 - ✅ `ai-code-review` — lección y 9 ítems
 - ✅ `ai-governance-policy` — lección y 8 ítems
 - ✅ `team-adoption` — lección y 8 ítems
+- ✅ `ai-dev-techniques` — lección y 8 ítems
 
-<sub>66 ítems en el área · objetivo 64</sub>
+<sub>74 ítems en el área · objetivo 72</sub>
 
 ## Qué falta, en orden
 
@@ -131,6 +132,6 @@ Nada: todas las competencias están publicadas.
 ## Criterio de cierre de la fase 2
 
 - [ ] Las 39 competencias publicadas.
-- [ ] ~376 ítems, con justificación por distractor.
+- [ ] ~384 ítems, con justificación por distractor.
 - [ ] `pnpm validate:content` en cero, ejecutándose en CI.
 - [ ] Ningún nodo del mapa queda como «próximamente».
