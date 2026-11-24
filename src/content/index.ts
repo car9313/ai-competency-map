@@ -21,6 +21,7 @@ import { ITEMS_AREA_05, LESSONS_AREA_05 } from './area-05-agentic-engineering';
 import { ITEMS_AREA_06, LESSONS_AREA_06 } from './area-06-harness-engineering';
 import { ITEMS_AREA_07, LESSONS_AREA_07 } from './area-07-ai-software-architecture';
 import { ITEMS_AREA_08, LESSONS_AREA_08 } from './area-08-quality-production';
+import { ITEMS_AREA_09, LESSONS_AREA_09 } from './area-09-workflow-methodology';
 import { ITEMS } from './items';
 import { LESSONS } from './lessons';
 import { REFERENCES } from './references';
@@ -34,6 +35,7 @@ const AREA_LESSONS = [
   LESSONS_AREA_06,
   LESSONS_AREA_07,
   LESSONS_AREA_08,
+  LESSONS_AREA_09,
 ];
 
 const AREA_ITEMS = [
@@ -45,6 +47,7 @@ const AREA_ITEMS = [
   ITEMS_AREA_06,
   ITEMS_AREA_07,
   ITEMS_AREA_08,
+  ITEMS_AREA_09,
 ];
 
 export const CATALOG: Catalog = {

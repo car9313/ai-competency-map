@@ -55,4 +55,11 @@ export const AREAS: readonly Area[] = [
     name: 'Calidad y producción',
     description: 'Medir, filtrar, observar y defenderse: lo que separa una demo de un sistema.',
   },
+  {
+    id: 'ai-workflow-methodology',
+    index: '09',
+    name: 'Metodología y flujo con agentes',
+    description:
+      'Cómo trabaja un equipo con agentes: especificar, delegar, revisar y gobernar. Aquí no se construye el sistema, se cambia la forma de construirlo.',
+  },
 ];
