@@ -99,6 +99,43 @@ export interface Practice {
   rubric: readonly string[];
 }
 
+/**
+ * Taller: un ejercicio guiado con entregable, más largo que una práctica.
+ *
+ * La diferencia con `Practice` no es de tamaño, es de forma: un taller tiene objetivo,
+ * requisitos, entregable y trampas conocidas. Sirve para lo que no se aprende leyendo —
+ * montar un harness, escribir una skill— y por eso lo que se evalúa es el artefacto, no la
+ * respuesta.
+ */
+export interface Workshop {
+  id: string;
+  /** Competencia que practica. */
+  competencyId: string;
+  title: string;
+  /** Qué se lleva quien lo termina, en una línea. */
+  goal: string;
+  requirements: readonly string[];
+  /** Duración aproximada, en texto: «45 minutos». */
+  timebox: string;
+  steps: readonly string[];
+  /** Lo que hay que producir para considerar el taller hecho. */
+  deliverable: string;
+  rubric: readonly string[];
+  /** Errores que se cometen de verdad con esta herramienta o este patrón. */
+  gotchas?: readonly string[];
+  /**
+   * Herramienta concreta, cuando el taller la nombra.
+   *
+   * `verifiedAt` es la fecha en la que se comprobó su documentación: un taller atado a una
+   * herramienta caduca, y el dato dice cuánto.
+   */
+  tool?: {
+    readonly name: string;
+    readonly url: string;
+    readonly verifiedAt: IsoDate | null;
+  };
+}
+
 export interface Lesson {
   competencyId: string;
   whatIs: string;

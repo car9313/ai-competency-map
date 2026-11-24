@@ -8,10 +8,11 @@
  * un detalle estético que un humano debe juzgar.
  */
 import { CATALOG } from '@/content';
-import { lintCatalog, summarize } from '@/features/content/domain/linter';
+import { checkWorkshops, lintCatalog, summarize } from '@/features/content/domain/linter';
 import { parseCatalog } from '@/features/content/domain/schema';
 import { systemClock } from '@/shared/time/clock';
 import { TOOL_CATEGORIES } from '../src/content/tools';
+import { WORKSHOPS } from '../src/content/workshops';
 
 const today = systemClock.today();
 
@@ -89,6 +90,26 @@ if (duplicadas.length > 0) {
   process.exit(1);
 }
 
+/*
+ * Talleres: se validan aparte del catálogo porque no son contenido evaluable. Un taller no
+ * genera evidencia; lo que se comprueba es que se pueda terminar y que no mienta sobre la
+ * herramienta que nombra.
+ */
+const issuesTalleres = checkWorkshops(WORKSHOPS);
+
+if (WORKSHOPS.length > 0) {
+  const verificados = WORKSHOPS.filter((taller) => taller.tool?.verifiedAt).length;
+
+  console.log(
+    `\nTalleres: ${WORKSHOPS.length} · con herramienta verificada: ${verificados}`,
+  );
+}
+
+for (const issue of issuesTalleres) {
+  const mark = issue.severity === 'error' ? '✗' : '!';
+  console.log(`${mark} ${issue.rule} · ${issue.subject} · ${issue.message}`);
+}
+
 const issues = lintCatalog(CATALOG, today);
 const { errors, warnings } = summarize(issues);
 
@@ -106,6 +127,6 @@ console.log(
   ].join('\n'),
 );
 
-if (errors > 0) {
+if (errors > 0 || issuesTalleres.some((issue) => issue.severity === 'error')) {
   process.exit(1);
 }

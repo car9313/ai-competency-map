@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 import { contentIndex } from '@/content';
 import { PHASE_LABELS } from '@/features/content/domain/types';
+import { WORKSHOPS } from '@/content/workshops';
 import { CompetencyProgress } from '@/features/assessment/presentation/CompetencyProgress';
 import { CompetencyChecklist } from '@/features/assessment/presentation/CompetencyChecklist';
 import { NotesPanel } from '@/features/assessment/presentation/NotesPanel';
@@ -48,6 +49,8 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
   const prerequisites = competency.prerequisites
     .map((id) => contentIndex.competencyById.get(id))
     .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined);
+
+  const talleres = WORKSHOPS.filter((taller) => taller.competencyId === competency.id);
 
   const references = (lesson?.referenceIds ?? [])
     .map((id) => contentIndex.references.find((reference) => reference.id === id))
@@ -155,6 +158,25 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
 
           {lesson?.practice && (
             <PracticePanel competencyId={competency.id} practice={lesson.practice} />
+          )}
+
+          {talleres.length > 0 && (
+            <section className="space-y-2 rounded-xl border border-accent/30 bg-surface p-4">
+              <h2 className="text-sm font-semibold">Taller con entregable</h2>
+              <ul className="space-y-1">
+                {talleres.map((taller) => (
+                  <li key={taller.id}>
+                    <Link
+                      href={`/talleres#${taller.id}`}
+                      className="text-sm text-accent underline underline-offset-4"
+                    >
+                      {taller.title}
+                    </Link>
+                    <span className="ml-2 font-mono text-[10px] text-muted">{taller.timebox}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
 
           <NotesPanel competencyId={competency.id} title={competency.title} />

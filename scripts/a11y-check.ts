@@ -43,6 +43,7 @@ const ROUTES = [
   '/guia',
   '/herramientas',
   '/itinerario',
+  '/talleres',
 ];
 
 /**

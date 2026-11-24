@@ -10,9 +10,20 @@
 import { topologicalLevels } from '@/features/competency-graph';
 import type { IsoDate } from '@/shared/time/clock';
 import type { Item, Option } from '@/shared/types/domain';
-import { PHASE_ORDER, type Catalog, type Lesson } from './types';
+import { PHASE_ORDER, type Catalog, type Lesson, type Workshop } from './types';
 
-export type RuleId = 'R1' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6' | 'R7' | 'R8' | 'R9' | 'R10';
+export type RuleId =
+  | 'R1'
+  | 'R2'
+  | 'R3'
+  | 'R4'
+  | 'R5'
+  | 'R6'
+  | 'R7'
+  | 'R8'
+  | 'R9'
+  | 'R10'
+  | 'R11';
 export type Severity = 'error' | 'warning';
 
 export interface LintIssue {
@@ -335,6 +346,90 @@ function checkPhaseCoherence(catalog: Catalog): LintIssue[] {
     }
   }
 
+
+  return issues;
+}
+
+/**
+ * R11 · los talleres tienen que poder terminarse y comprobarse.
+ *
+ * Un taller sin entregable es un artículo. Uno con doce pasos no se empieza. Y uno que nombra
+ * una herramienta sin fecha de verificación envejece sin que nadie lo sepa: es la misma regla
+ * que se aplicó al módulo de herramientas, aplicada a un artefacto que la gente usa para
+ * aprender.
+ */
+export function checkWorkshops(workshops: readonly Workshop[]): LintIssue[] {
+  const issues: LintIssue[] = [];
+  const ids = new Set<string>();
+
+  for (const workshop of workshops) {
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(workshop.id)) {
+      issues.push({
+        rule: 'R11',
+        severity: 'error',
+        subject: workshop.id,
+        message: 'el id del taller debe ser kebab-case en minúsculas',
+      });
+    }
+
+    if (ids.has(workshop.id)) {
+      issues.push({
+        rule: 'R11',
+        severity: 'error',
+        subject: workshop.id,
+        message: 'hay dos talleres con el mismo id',
+      });
+    }
+
+    ids.add(workshop.id);
+
+    if (workshop.steps.length < 3 || workshop.steps.length > 10) {
+      issues.push({
+        rule: 'R11',
+        severity: 'warning',
+        subject: workshop.id,
+        message: `tiene ${workshop.steps.length} pasos; un taller útil está entre 3 y 10`,
+      });
+    }
+
+    if (workshop.rubric.length < 3) {
+      issues.push({
+        rule: 'R11',
+        severity: 'error',
+        subject: workshop.id,
+        message: 'la rúbrica necesita al menos tres criterios para poder comprobarse',
+      });
+    }
+
+    if (workshop.deliverable.trim().length < 20) {
+      issues.push({
+        rule: 'R11',
+        severity: 'error',
+        subject: workshop.id,
+        message: 'el entregable no está definido: sin él, el taller no se puede dar por hecho',
+      });
+    }
+
+    for (const criterio of workshop.rubric) {
+      if (criterio.trim().startsWith('¿') || criterio.trim().endsWith('?')) {
+        issues.push({
+          rule: 'R11',
+          severity: 'warning',
+          subject: workshop.id,
+          message: `el criterio "${criterio.slice(0, 40)}…" está en forma de pregunta`,
+        });
+      }
+    }
+
+    if (workshop.tool && !workshop.tool.verifiedAt) {
+      issues.push({
+        rule: 'R11',
+        severity: 'warning',
+        subject: workshop.id,
+        message: `nombra "${workshop.tool.name}" sin fecha de verificación: caducará en silencio`,
+      });
+    }
+  }
 
   return issues;
 }
