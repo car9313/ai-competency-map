@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # `dev` es la rama de integración: sus puertas se ejecutan antes de fusionar a `main`,
+    # no después. Ejecutarlas solo en `main` convertiría el merge en la primera prueba.
+    branches: [main, dev]
   pull_request:
 
 concurrency:
