@@ -222,6 +222,76 @@ export const LESSONS_AREA_09: readonly Lesson[] = [
     ],
     referenceIds: ['ref-anthropic-system'],
   },
+  {
+    competencyId: 'ai-governance-policy',
+    whatIs:
+      'La decisión escrita sobre qué herramientas están aprobadas, qué datos pueden salir del perímetro, qué casos están prohibidos y quién concede excepciones. Una política útil es corta, enumera y se ejecuta donde se puede comprobar: la lista de permitidas del agente, el escáner del repositorio, la revisión del cambio. Lo que no está aprobado, no está aprobado.',
+    problem:
+      'El uso de agentes crece por la base: cada persona instala lo que le funciona y pega el código que necesita en la herramienta que tiene a mano. Nadie decidió nada, así que la política efectiva es «lo que cada uno hizo». Cuando alguien pregunta si se puede pasar un fichero a un servicio externo, la respuesta honesta es que no se sabe, y eso significa que ya se hizo.',
+    internals: [
+      'La política enumera cuatro cosas: herramientas aprobadas, datos permitidos, casos prohibidos y quién aprueba excepciones. Si falta la cuarta, las otras tres se negocian caso por caso.',
+      'El valor por defecto es denegar. Lo que no está en la lista no está aprobado, y esa regla tiene que poder aplicarse sin preguntar a nadie.',
+      'Una política que vive en un documento no es un control. Se ejecuta en la herramienta —lista de permitidas, permisos del repositorio, filtros— o no existe.',
+      'Cada excepción necesita dueño, motivo y fecha de caducidad. Las permanentes dejan de ser excepciones y pasan a ser la norma no escrita.',
+      'La auditoría se diseña antes: poder responder qué herramienta, con qué datos y quién, sin reconstruirlo a mano después.',
+    ],
+    whenToUse: [
+      'En cuanto más de un equipo usa agentes con acceso a código o datos de la organización.',
+      'Antes de habilitar una herramienta nueva, no después de que alguien la esté usando.',
+    ],
+    whenNotToUse: [
+      'No empieces con cuarenta páginas: una política que nadie ha leído no cambia ningún comportamiento.',
+      'No confundas política con burocracia: si aprobar algo tarda tres semanas, la gente lo hará sin aprobarlo.',
+    ],
+    pitfalls: [
+      {
+        title: 'La política que no conoce nadie',
+        detail:
+          'Existe en un documento interno que se envió una vez. Nadie sabe qué está permitido, así que cada uno decide y la política real es la suma de esas decisiones.',
+      },
+      {
+        title: 'El proceso que empuja al uso clandestino',
+        detail:
+          'Si el camino aprobado es lento y el no aprobado está a un clic, la organización obtiene lo que su proceso incentiva, no lo que su documento dice.',
+      },
+    ],
+    referenceIds: ['ref-rules-ml'],
+  },
+  {
+    competencyId: 'team-adoption',
+    whatIs:
+      'Introducir agentes en un equipo de forma que la mejora se pueda medir: elegir una tarea concreta, medir el estado antes, medir después y sobre todo medir el retrabajo —qué proporción de cambios generados necesitó corrección sustancial—. La adopción se demuestra con uso sostenido en el trabajo ingrato, no con entusiasmo en el primer mes.',
+    problem:
+      'Se anuncia la herramienta en una reunión, unos cuantos la prueban con ilusión y el resto vuelve a lo de antes en dos semanas. Nadie registra cuánto del código generado hubo que rehacer, así que la conversación se queda en anécdotas: «a mí me ahorra tiempo» contra «a mí me da trabajo». Sin medición, gana quien habla más alto, y la decisión de adoptar o no se toma por impresión.',
+    internals: [
+      'La métrica central es el retrabajo: proporción de cambios generados que necesitaron corrección sustancial después de la revisión o en producción.',
+      'Se adopta por tarea, no por herramienta: una tarea concreta, con medición antes y después, dice más que un piloto de cien personas.',
+      'El ahorro bruto engaña: si escribir tarda la mitad y revisar el doble, el cambio es neutro o negativo.',
+      'La señal de adopción real es que se use en el trabajo que nadie quiere hacer, no en el que ya era agradable.',
+      'La confianza se construye con casos donde falló: un equipo que solo conoce los éxitos no sabe cuándo no confiar.',
+    ],
+    whenToUse: [
+      'Cuando haya que decidir si se extiende el uso a más gente o a más tipos de tarea.',
+      'Antes de comprar licencias o de fijar expectativas de productividad.',
+    ],
+    whenNotToUse: [
+      'No midas líneas de código generadas ni horas de reunión ahorradas como prueba de nada.',
+      'No lances la adopción a toda la organización de golpe: sin medir el retrabajo, no hay forma de corregir el rumbo.',
+    ],
+    pitfalls: [
+      {
+        title: 'La demo que enamora',
+        detail:
+          'Una demostración enseña el mejor caso posible, preparado. Sirve para interesar y no para decidir: la decisión necesita el caso difícil.',
+      },
+      {
+        title: 'Ahorro sin coste',
+        detail:
+          '«Escribimos un treinta por ciento más rápido» sin contar el tiempo de revisión ni los cambios rehechos. El ahorro bruto suele evaporarse al restar el retrabajo.',
+      },
+    ],
+    referenceIds: ['ref-rules-ml'],
+  },
 ];
 
 export const ITEMS_AREA_09: readonly Item[] = [
@@ -1794,5 +1864,523 @@ export const ITEMS_AREA_09: readonly Item[] = [
     explanation:
       'Revisar con prisa es la situación normal, así que el orden tiene que estar decidido de antemano: primero lo irreversible, después lo corregible y al final lo estético.',
     referenceId: 'ref-anthropic-system',
+  },
+  // ── ai-governance-policy ────────────────────────────────────────────────────
+
+  {
+    id: 'gov-not-on-list',
+    competencyId: 'ai-governance-policy',
+    difficulty: 1,
+    prompt: 'Una herramienta no aparece en la lista de aprobadas. ¿Qué significa?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que no está aprobada',
+        correct: true,
+        rationale:
+          'Correcto: la lista es de permitidas, no de sugerencias. Si no está, no está, sin más averiguación.',
+      },
+      {
+        id: 'b',
+        text: 'Que se puede usar si alguien la prueba antes',
+        correct: false,
+        rationale:
+          'Convierte la prueba individual en autorización. La decisión de exponer datos no la toma quien prueba.',
+      },
+      {
+        id: 'c',
+        text: 'Que está en revisión y se puede usar mientras',
+        correct: false,
+        rationale:
+          '«En revisión» no es un permiso. El uso durante la revisión es exactamente lo que la lista intenta impedir.',
+      },
+    ],
+    explanation:
+      'Denegar por defecto es la única regla que se puede aplicar sin preguntar a nadie. Cualquier otra obliga a decidir caso por caso, y en la práctica decide quien tiene prisa.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'gov-four-parts',
+    competencyId: 'ai-governance-policy',
+    difficulty: 1,
+    prompt: '¿Qué cuatro cosas debe enumerar una política de uso de agentes?',
+    options: [
+      {
+        id: 'a',
+        text: 'Herramientas, datos, prohibiciones y quién aprueba',
+        correct: true,
+        rationale:
+          'Correcto: sin la cuarta, las otras tres se negocian caso por caso con quien pregunte.',
+      },
+      {
+        id: 'b',
+        text: 'Herramientas, precios, licencias y proveedores',
+        correct: false,
+        rationale:
+          'Es información de compras. No dice qué se puede hacer con el código ni con los datos.',
+      },
+      {
+        id: 'c',
+        text: 'Objetivos, métricas, responsables y plazos',
+        correct: false,
+        rationale:
+          'Eso es un plan de proyecto. Una política responde a qué está permitido, no a qué se quiere lograr.',
+      },
+    ],
+    explanation:
+      'Sin la parte de «quién aprueba», toda excepción depende de encontrar a alguien con autoridad, y eso en la práctica significa que la excepción la concede quien está disponible.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'gov-pdf-is-not-a-control',
+    competencyId: 'ai-governance-policy',
+    difficulty: 2,
+    prompt: 'La política existe en un documento interno y nadie la comprueba. ¿Qué falta?',
+    options: [
+      {
+        id: 'a',
+        text: 'Un control técnico que la aplique',
+        correct: true,
+        rationale:
+          'Correcto: la lista de permitidas, los permisos del repositorio y el escáner son la política ejecutándose.',
+      },
+      {
+        id: 'b',
+        text: 'Una comunicación más clara al equipo',
+        correct: false,
+        rationale:
+          'La comunicación ayuda a cumplir y no garantiza nada. Lo que no se comprueba no se cumple.',
+      },
+      {
+        id: 'c',
+        text: 'Una firma de cada empleado confirmando lectura',
+        correct: false,
+        rationale:
+          'Acredita que se leyó una vez. No cambia lo que ocurre después, que es donde se incumple.',
+      },
+    ],
+    explanation:
+      'Una política sin control es una intención. Se convierte en política cuando el sistema impide lo prohibido sin necesidad de que alguien se acuerde de la norma.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'gov-exception-expiry',
+    competencyId: 'ai-governance-policy',
+    difficulty: 2,
+    prompt: 'Alguien pide una excepción permanente para usar una herramienta no aprobada. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Exigir dueño, motivo y fecha de caducidad',
+        correct: true,
+        rationale:
+          'Correcto: una excepción sin caducidad deja de ser excepción y pasa a ser la norma no escrita.',
+      },
+      {
+        id: 'b',
+        text: 'Concederla: si el equipo la necesita, algo falla',
+        correct: false,
+        rationale:
+          'Puede ser cierto y no exime de decidir. Lo que falla se arregla en la política, no con un permiso eterno.',
+      },
+      {
+        id: 'c',
+        text: 'Denegarla: las excepciones rompen la política',
+        correct: false,
+        rationale:
+          'Sin excepciones, el uso se vuelve clandestino. La política necesita una puerta con dueño, no un muro.',
+      },
+    ],
+    explanation:
+      'Las excepciones son válvulas, y una válvula sin cierre deja de regular. Con fecha de caducidad obligan a revisar la decisión: si sigue siendo necesaria, se renueva con motivo.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'gov-shadow-usage',
+    competencyId: 'ai-governance-policy',
+    difficulty: 2,
+    prompt: 'El proceso para aprobar una herramienta tarda tres semanas. ¿Qué efecto tiene?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que la gente use lo que no puede pedir',
+        correct: true,
+        rationale:
+          'Correcto: la organización obtiene el comportamiento que su proceso incentiva, no el que su documento dice.',
+      },
+      {
+        id: 'b',
+        text: 'Que todos esperen: es la norma de la empresa',
+        correct: false,
+        rationale:
+          'Algunos esperan. Los que tienen una fecha de entrega resuelven por su cuenta, y eso no se registra.',
+      },
+      {
+        id: 'c',
+        text: 'Que las herramientas aprobadas se usen menos',
+        correct: false,
+        rationale:
+          'Ocurre lo contrario: el uso crece, solo que fuera del radar y sin nadie que pueda auditarlo.',
+      },
+    ],
+    explanation:
+      'Un proceso lento no protege: desplaza el uso a la sombra. La política que funciona habilita rápido lo permitido para poder prohibir en serio lo demás.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'gov-audit-before',
+    competencyId: 'ai-governance-policy',
+    difficulty: 3,
+    prompt: 'Quieres poder responder «qué herramienta usó, con qué datos y quién exactamente». ¿Cuándo se diseña eso?',
+    options: [
+      {
+        id: 'a',
+        text: 'Antes de habilitar el uso, como parte del control',
+        correct: true,
+        rationale:
+          'Correcto: después solo se reconstruye a mano y con suerte. El registro se diseña con el permiso.',
+      },
+      {
+        id: 'b',
+        text: 'Cuando ocurra un incidente y haya que investigarlo',
+        correct: false,
+        rationale:
+          'Ese día ya no hay datos. Lo que no se registró mientras ocurría no se puede recuperar.',
+      },
+      {
+        id: 'c',
+        text: 'Al cerrar el año, como parte de la auditoría',
+        correct: false,
+        rationale:
+          'La auditoría comprueba lo que el sistema registró. Si nadie registró, la auditoría solo puede constatar la ausencia.',
+      },
+    ],
+    explanation:
+      'La auditabilidad es una propiedad del diseño, no una tarea posterior. Poder reconstruir qué pasó exige que el sistema lo haya guardado desde el primer día.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'gov-data-classification',
+    competencyId: 'ai-governance-policy',
+    difficulty: 3,
+    prompt: 'Antes de permitir que un agente envíe código del repositorio a un servicio externo, ¿qué falta?',
+    options: [
+      {
+        id: 'a',
+        text: 'Clasificar los datos que pueden salir y cuáles no',
+        correct: true,
+        rationale:
+          'Correcto: sin esa clasificación no se puede decidir qué ficheros son admisibles ni cuáles se excluyen.',
+      },
+      {
+        id: 'b',
+        text: 'Comprobar que el proveedor tiene buena reputación',
+        correct: false,
+        rationale:
+          'La reputación no dice qué parte del repositorio estás enviando ni quién puede leerla después.',
+      },
+      {
+        id: 'c',
+        text: 'Medir la latencia del servicio externo',
+        correct: false,
+        rationale:
+          'El rendimiento importa cuando ya se decidió enviar. La pregunta previa es qué se puede enviar.',
+      },
+    ],
+    explanation:
+      'La política de datos se escribe una vez y sirve para todas las herramientas. Sin clasificación —público, interno, confidencial, secreto— cada permiso se decide por intuición y cambia según quién lo concede.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'gov-rule-without-check',
+    competencyId: 'ai-governance-policy',
+    difficulty: 3,
+    prompt: 'La política prohíbe pegar secretos en herramientas externas. ¿Es suficiente?',
+    options: [
+      {
+        id: 'a',
+        text: 'No: falta la comprobación que lo detecte',
+        correct: true,
+        rationale:
+          'Correcto: una prohibición sin detección depende de que todo el mundo se acuerde justo en el momento de prisa.',
+      },
+      {
+        id: 'b',
+        text: 'Sí: cada persona sabe lo que no debe hacer',
+        correct: false,
+        rationale:
+          'Sabe lo general y no detecta un secreto concreto dentro de un fichero de configuración ajeno.',
+      },
+      {
+        id: 'c',
+        text: 'Sí, si además se incluye en la formación anual',
+        correct: false,
+        rationale:
+          'Añade intención y no detección. El escáner en el flujo se ejecuta en cada cambio, sin recordar nada.',
+      },
+    ],
+    explanation:
+      'Las reglas de seguridad que dependen de la memoria fallan el día de la prisa. La política se completa con un control automático en el flujo, que es lo que la convierte en barrera.',
+    referenceId: 'ref-anthropic-system',
+  },
+
+  // ── team-adoption ───────────────────────────────────────────────────────────
+
+  {
+    id: 'ad-retrabajo',
+    competencyId: 'team-adoption',
+    difficulty: 1,
+    prompt: '¿Qué métrica dice de verdad si el uso de agentes está funcionando?',
+    options: [
+      {
+        id: 'a',
+        text: 'La proporción de cambios que hubo que rehacer',
+        correct: true,
+        rationale:
+          'Correcto: mide lo que cuesta el resultado, incluida la parte que se descubre después.',
+      },
+      {
+        id: 'b',
+        text: 'Las líneas de código generadas por semana',
+        correct: false,
+        rationale:
+          'Mide volumen, no valor. Más código puede ser exactamente el problema.',
+      },
+      {
+        id: 'c',
+        text: 'El número de personas que la herramienta usa',
+        correct: false,
+        rationale:
+          'Mide interés. Un equipo puede usarla mucho y rehacer la mitad de lo que produce.',
+      },
+    ],
+    explanation:
+      'El retrabajo es la métrica honesta porque incluye el coste que no aparece en la demo: el cambio que hubo que corregir en revisión o que falló en producción.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ad-start-small',
+    competencyId: 'team-adoption',
+    difficulty: 1,
+    prompt: '¿Cómo se empieza una adopción que se pueda medir?',
+    options: [
+      {
+        id: 'a',
+        text: 'Una tarea concreta, medida antes y después',
+        correct: true,
+        rationale:
+          'Correcto: una tarea acotada con línea base da una señal clara, incluso si sale mal.',
+      },
+      {
+        id: 'b',
+        text: 'Habilitarlo para todo el equipo el primer día',
+        correct: false,
+        rationale:
+          'Sin línea base ni tarea acotada, el resultado se atribuye a la sensación de la semana.',
+      },
+      {
+        id: 'c',
+        text: 'Empezar por el proyecto más grande y visible',
+        correct: false,
+        rationale:
+          'Mezcla adopción con riesgo de negocio. Si falla, no sabes si fue la herramienta o el proyecto.',
+      },
+    ],
+    explanation:
+      'La adopción se experimenta, no se decreta. Empezar por una tarea con medición antes y después convierte la discusión de opiniones en un dato discutible.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ad-enthusiasm',
+    competencyId: 'team-adoption',
+    difficulty: 2,
+    prompt: 'El primer mes todo el equipo lo usa con entusiasmo. ¿Es señal de adopción?',
+    options: [
+      {
+        id: 'a',
+        text: 'No: la señal es el uso sostenido en lo ingrato',
+        correct: true,
+        rationale:
+          'Correcto: lo nuevo se usa por novedad. La adopción se ve cuando se usa para lo que nadie quiere hacer.',
+      },
+      {
+        id: 'b',
+        text: 'Sí: el uso es la adopción, sin más',
+        correct: false,
+        rationale:
+          'El uso del primer mes puede caer al tercero sin que nadie lo note. La adopción se mide después del entusiasmo.',
+      },
+      {
+        id: 'c',
+        text: 'Sí, si además hay licencias compradas',
+        correct: false,
+        rationale:
+          'Comprar licencias mide presupuesto comprometido. No dice si alguien las usa para trabajar de verdad.',
+      },
+    ],
+    explanation:
+      'El entusiasmo es una buena señal de partida y mala de llegada. Lo que distingue adopción de moda es que la herramienta siga usándose en la tarea aburrida tres meses después.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ad-demo-trap',
+    competencyId: 'team-adoption',
+    difficulty: 2,
+    prompt: 'La demostración fue espectacular, con un caso perfecto. ¿Qué te dice?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que el mejor caso funciona: falta el difícil',
+        correct: true,
+        rationale:
+          'Correcto: una demo preparada enseña el techo y no el suelo. La decisión necesita el caso que suele fallar.',
+      },
+      {
+        id: 'b',
+        text: 'Que el sistema está listo para producción',
+        correct: false,
+        rationale:
+          'Un caso preparado no dice nada de los casos límite, que son los que producen incidentes.',
+      },
+      {
+        id: 'c',
+        text: 'Que el equipo está convencido y hay que extenderlo',
+        correct: false,
+        rationale:
+          'Convence a quien la vio y no informa de qué pasa con datos sucios o tareas ambiguas.',
+      },
+    ],
+    explanation:
+      'Una demo es un argumento de venta, también cuando la hace tu propio equipo. Para decidir hace falta ver el caso donde falla y qué ocurre entonces.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ad-gross-savings',
+    competencyId: 'team-adoption',
+    difficulty: 2,
+    prompt: '«Escribimos un treinta por ciento más rápido». ¿Qué falta para que el dato sirva?',
+    options: [
+      {
+        id: 'a',
+        text: 'Restar el tiempo de revisión y el retrabajo',
+        correct: true,
+        rationale:
+          'Correcto: el ahorro bruto ignora el coste que se traslada a revisar y rehacer, que también es tiempo del equipo.',
+      },
+      {
+        id: 'b',
+        text: 'Compararlo con lo que tardan otras empresas',
+        correct: false,
+        rationale:
+          'El contexto ajeno no corrige tu medición. Primero, que tu número signifique algo.',
+      },
+      {
+        id: 'c',
+        text: 'Repetir la medición con un modelo mejor',
+        correct: false,
+        rationale:
+          'Cambia la herramienta y mantiene el error de medida. El problema es qué se cuenta, no con qué.',
+      },
+    ],
+    explanation:
+      'El ahorro bruto suele evaporarse al restar el trabajo que se mueve a otra fase. Un cambio neutro con más revisión puede parecer un ahorro del treinta por ciento en la fase de escritura.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ad-senior-junior',
+    competencyId: 'team-adoption',
+    difficulty: 3,
+    prompt: '¿A quién le aporta más un agente de código?',
+    options: [
+      {
+        id: 'a',
+        text: 'Depende: quien revisa mejor aprovecha más',
+        correct: true,
+        rationale:
+          'Correcto: el valor lo pone la capacidad de revisar. Sin criterio, el agente produce trabajo que hay que deshacer.',
+      },
+      {
+        id: 'b',
+        text: 'A quien empieza, porque no sabe escribir el código',
+        correct: false,
+        rationale:
+          'Es quien menos puede distinguir lo plausible de lo correcto. La herramienta amplifica su punto ciego.',
+      },
+      {
+        id: 'c',
+        text: 'A quien lleva más años, porque conoce el dominio',
+        correct: false,
+        rationale:
+          'El conocimiento de dominio ayuda y el factor decisivo es la revisión: quien sabe revisar convierte la velocidad en resultado.',
+      },
+    ],
+    explanation:
+      'La fórmula incómoda: el agente multiplica la capacidad de revisar, no la sustituye. Con buen criterio acelera mucho; sin él, genera deuda a más velocidad.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ad-shadow-adoption',
+    competencyId: 'team-adoption',
+    difficulty: 3,
+    prompt:
+      'Descubres que media plantilla usa herramientas no aprobadas. ¿Cuál es la respuesta útil?',
+    options: [
+      {
+        id: 'a',
+        text: 'Dar un camino permitido rápido y luego medir',
+        correct: true,
+        rationale:
+          'Correcto: la demanda es real. Sin una alternativa aprobada, la prohibición solo empuja el uso más a la sombra.',
+      },
+      {
+        id: 'b',
+        text: 'Prohibirlo por correo y pedir que se deje de usar',
+        correct: false,
+        rationale:
+          'Consigue que dejen de contarlo. El uso sigue, sin nadie que pueda auditar qué datos salen.',
+      },
+      {
+        id: 'c',
+        text: 'Ignorarlo: cada uno sabe lo que hace',
+        correct: false,
+        rationale:
+          'Deja la organización sin política real y sin forma de responder cuando alguien pregunte qué pasó.',
+      },
+    ],
+    explanation:
+      'El uso clandestino es información sobre un proceso que no habilita. La respuesta útil ataca la causa —falta un camino aprobado— y luego formaliza lo que ya está pasando.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ad-what-else-to-measure',
+    competencyId: 'team-adoption',
+    difficulty: 3,
+    prompt: 'Además del retrabajo, ¿qué conviene medir?',
+    options: [
+      {
+        id: 'a',
+        text: 'Tiempo de revisión y de corrección de incidentes',
+        correct: true,
+        rationale:
+          'Correcto: el coste se mueve de fase. Si la escritura baja y la revisión sube, el resultado puede ser neutro.',
+      },
+      {
+        id: 'b',
+        text: 'Número de prompts enviados al día',
+        correct: false,
+        rationale:
+          'Mide actividad. Se puede enviar muchos prompts y no terminar nada útil.',
+      },
+      {
+        id: 'c',
+        text: 'Cantidad de herramientas distintas en uso',
+        correct: false,
+        rationale:
+          'Mide dispersión, no resultado. De hecho, más herramientas suele ser peor para la gobernanza.',
+      },
+    ],
+    explanation:
+      'El trabajo no desaparece, se desplaza. Medir solo la fase que se acelera esconde el coste que aparece en la siguiente: revisar, arreglar y responder a incidentes.',
+    referenceId: 'ref-rules-ml',
   },
 ];

@@ -538,7 +538,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Política de uso y gobernanza',
     claim: 'Definir qué herramientas y datos están permitidos, y poder demostrarlo.',
     prerequisites: ['tool-registry-allowlist'],
-    published: false,
+    published: true,
   },
   {
     id: 'team-adoption',
@@ -549,6 +549,6 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Adopción en un equipo',
     claim: 'Introducir agentes midiendo retrabajo y confianza, no entusiasmo.',
     prerequisites: ['ai-governance-policy'],
-    published: false,
+    published: true,
   },
 ];
