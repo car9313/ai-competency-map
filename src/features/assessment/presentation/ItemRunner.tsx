@@ -221,6 +221,25 @@ export function ItemRunner({
       <fieldset className="space-y-3">
         <legend className="text-base font-semibold">{item.prompt}</legend>
 
+        {item.code && (
+          <figure className="rounded-xl border border-border bg-surface-2">
+            <figcaption className="border-b border-border px-3 py-1.5 font-mono text-[10px] tracking-wide text-muted uppercase">
+              {item.code.label}
+            </figcaption>
+            {/*
+              `tabIndex` porque el bloque se desplaza en horizontal: sin él, quien navega
+              con teclado no puede llegar al final de una línea larga.
+            */}
+            <pre
+              tabIndex={0}
+              aria-label={`Código del enunciado: ${item.code.label}`}
+              className="overflow-x-auto p-3 font-mono text-[12px] leading-relaxed"
+            >
+              <code>{item.code.content}</code>
+            </pre>
+          </figure>
+        )}
+
         <div className="space-y-2">
           {presentation.optionIds.map((optionId) => {
             const option = item.options.find((entry) => entry.id === optionId);

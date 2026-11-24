@@ -406,3 +406,42 @@ describe('esquema', () => {
     expect(parseCatalog(broken).ok).toBe(false);
   });
 });
+
+describe('R8 · bloques de código', () => {
+  const conCodigo = (code: { label: string; content: string }): Catalog => {
+    const catalog = validCatalog();
+    const item = firstItem(catalog);
+
+    return { ...catalog, items: [{ ...item, code }, ...catalog.items.slice(1)] };
+  };
+
+  it('un bloque correcto no produce avisos', () => {
+    const catalogo = conCodigo({ label: 'diff', content: '- a\n+ b' });
+
+    expect(rulesOf(catalogo)).not.toContain('R8');
+  });
+
+  it('un bloque vacío es un error', () => {
+    const issues = lintCatalog(conCodigo({ label: 'diff', content: '   ' }), TODAY).filter(
+      (issue) => issue.rule === 'R8',
+    );
+
+    expect(issues.some((issue) => issue.severity === 'error')).toBe(true);
+  });
+
+  it('avisa si falta la etiqueta del bloque', () => {
+    expect(rulesOf(conCodigo({ label: '  ', content: '- a' }))).toContain('R8');
+  });
+
+  it('avisa si el bloque no cabe en una pantalla', () => {
+    const largo = Array.from({ length: 30 }, (_, index) => `linea ${index}`).join('\n');
+
+    expect(rulesOf(conCodigo({ label: 'diff', content: largo }))).toContain('R8');
+  });
+
+  it('avisa si una línea se corta en móvil', () => {
+    const ancha = `const x = ${'a'.repeat(120)};`;
+
+    expect(rulesOf(conCodigo({ label: 'typescript', content: ancha }))).toContain('R8');
+  });
+});

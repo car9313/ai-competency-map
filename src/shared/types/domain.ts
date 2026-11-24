@@ -44,6 +44,18 @@ export interface Item {
   competencyId: string;
   difficulty: Difficulty;
   prompt: string;
+  /**
+   * Fragmento de código que acompaña al enunciado, para los ítems de «encuentra el error».
+   *
+   * Va como campo propio y no dentro del texto del enunciado por dos razones: se renderiza
+   * en monoespaciado sin saltos de línea perdidos, y el léxico del código deja de contar
+   * para las reglas que miden longitudes de opciones.
+   */
+  code?: {
+    /** Etiqueta corta: `diff`, `typescript`, `yaml`… Se muestra sobre el bloque. */
+    label: string;
+    content: string;
+  };
   /** 3–4 opciones, exactamente una correcta. */
   options: readonly Option[];
   /** Se muestra tras cualquier respuesta. Explica el concepto, no el error. */

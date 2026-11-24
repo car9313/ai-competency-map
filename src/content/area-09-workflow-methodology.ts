@@ -2383,4 +2383,90 @@ export const ITEMS_AREA_09: readonly Item[] = [
       'El trabajo no desaparece, se desplaza. Medir solo la fase que se acelera esconde el coste que aparece en la siguiente: revisar, arreglar y responder a incidentes.',
     referenceId: 'ref-rules-ml',
   },
+  // ── detección del error en un diff generado ─────────────────────────────────
+
+  {
+    id: 'rv-off-by-one',
+    competencyId: 'ai-code-review',
+    difficulty: 3,
+    prompt:
+      'Revisas este diff generado por un agente. Pasan los tests, el lint y la revisión automática. ¿Qué se escapa?',
+    code: {
+      label: 'diff · paginación',
+      content: [
+        '-  for (let i = inicio; i <= fin; i += 1) {',
+        '+  for (let i = inicio; i < fin; i += 1) {',
+        '     procesar(filas[i]);',
+        '   }',
+      ].join('\n'),
+    },
+    options: [
+      {
+        id: 'a',
+        text: 'Que el último elemento del rango ya no se procesa',
+        correct: true,
+        rationale:
+          'Correcto: cambiar `<=` por `<` excluye el extremo. Es un error de uno, invisible sin un caso que lo pruebe.',
+      },
+      {
+        id: 'b',
+        text: 'Que falta un test que cubra el bucle completo',
+        correct: false,
+        rationale:
+          'Falta cobertura, y el defecto ya está en el código: se puede detectar leyendo el cambio, sin esperar al test.',
+      },
+      {
+        id: 'c',
+        text: 'Que `procesar` no sigue la convención de nombres',
+        correct: false,
+        rationale:
+          'El nombre no cambia el comportamiento ni pierde datos. El estilo es ruido frente al defecto real.',
+      },
+    ],
+    explanation:
+      'Es el tipo de error que el código plausible esconde: un operador que pasa desapercibido en un diff de cuatro líneas y pierde datos en silencio. La revisión busca exactamente esto, no que el estilo encaje.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'tdd-assertion-relaxed',
+    competencyId: 'tdd-with-agents',
+    difficulty: 2,
+    prompt:
+      'El agente dice haber arreglado el fallo. Este es el diff de las pruebas. ¿Qué haces?',
+    code: {
+      label: 'diff · prueba',
+      content: [
+        "test('el total suma las líneas', () => {",
+        '-  expect(total([1, 2, 3])).toBe(6);',
+        '+  expect(total([1, 2, 3])).toBeGreaterThan(0);',
+        '});',
+      ].join('\n'),
+    },
+    options: [
+      {
+        id: 'a',
+        text: 'Rechazarlo: la comprobación ya no verifica el total',
+        correct: true,
+        rationale:
+          'Correcto: cualquier resultado positivo pasa, incluido 1 en vez de 6. El criterio se adaptó a la solución.',
+      },
+      {
+        id: 'b',
+        text: 'Aceptarlo: sigue comprobando que suma algo',
+        correct: false,
+        rationale:
+          'Comprueba que el resultado no es negativo, y el requisito pedía 6. La prueba pasó a describir el código.',
+      },
+      {
+        id: 'c',
+        text: 'Aceptarlo: es más robusto ante cambios futuros',
+        correct: false,
+        rationale:
+          'Robusto frente a lo que importa: un total equivocado ya no rompe nada. La prueba dejó de proteger.',
+      },
+    ],
+    explanation:
+      'Es el modo de fallo más difícil de ver porque el número de pruebas no cambia. La comprobación se aflojó justo lo necesario para que su código pasara, y la suite sigue en verde.',
+    referenceId: 'ref-rules-ml',
+  },
 ];

@@ -12,7 +12,7 @@ import type { IsoDate } from '@/shared/time/clock';
 import type { Item, Option } from '@/shared/types/domain';
 import type { Catalog } from './types';
 
-export type RuleId = 'R1' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6' | 'R7';
+export type RuleId = 'R1' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6' | 'R7' | 'R8';
 export type Severity = 'error' | 'warning';
 
 export interface LintIssue {
@@ -196,6 +196,63 @@ function checkShapeNeutrality(item: Item): LintIssue[] {
   return issues;
 }
 
+/**
+ * R8 · los fragmentos de código tienen que caber en una pregunta.
+ *
+ * Un bloque largo no se lee en una pantalla de móvil ni se puede seguir con la mirada, y
+ * en el modo «encuentra el error» convierte el ítem en un ejercicio de paciencia. El
+ * límite es de líneas y no de caracteres porque lo que se lee es el bloque entero.
+ */
+function checkCodeBlocks(item: Item): LintIssue[] {
+  const issues: LintIssue[] = [];
+
+  if (!item.code) {
+    return issues;
+  }
+
+  const lineas = item.code.content.split('\n');
+
+  if (item.code.label.trim().length === 0) {
+    issues.push({
+      rule: 'R8',
+      severity: 'warning',
+      subject: item.id,
+      message: 'el bloque de código no declara etiqueta (diff, typescript, yaml…)',
+    });
+  }
+
+  if (item.code.content.trim().length === 0) {
+    issues.push({
+      rule: 'R8',
+      severity: 'error',
+      subject: item.id,
+      message: 'el bloque de código está vacío',
+    });
+  }
+
+  if (lineas.length > 24) {
+    issues.push({
+      rule: 'R8',
+      severity: 'warning',
+      subject: item.id,
+      message: `el bloque de código tiene ${lineas.length} líneas; más de 24 no se lee en pantalla`,
+    });
+  }
+
+  const masLarga = Math.max(...lineas.map((linea) => linea.length));
+
+  if (masLarga > 90) {
+    issues.push({
+      rule: 'R8',
+      severity: 'warning',
+      subject: item.id,
+      message: `una línea del bloque tiene ${masLarga} caracteres; se corta en móvil`,
+    });
+  }
+
+  return issues;
+}
+
 /** R4 · cobertura. */
 function checkCoverage(catalog: Catalog): LintIssue[] {
   const issues: LintIssue[] = [];
@@ -338,6 +395,7 @@ export function lintCatalog(catalog: Catalog, today: IsoDate): LintIssue[] {
     ...checkGraph(catalog),
     ...checkReferences(catalog, today),
     ...catalog.items.flatMap((item) => checkShapeNeutrality(item)),
+    ...catalog.items.flatMap((item) => checkCodeBlocks(item)),
   ];
 }
 
