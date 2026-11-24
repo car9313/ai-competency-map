@@ -17,6 +17,13 @@ Con `output: 'export'`, Vercel sirve el contenido de `out/` como estático. El
 dominio de producción queda en `https://ai-competency-map.vercel.app` y cada push
 a `main` despliega solo.
 
+**Ramas.** Por defecto, Vercel despliega `main` como producción y genera una URL
+de preview por cada push a cualquier otra rama. Eso hace que `dev` sea el sitio
+donde se prueba antes de publicar: se trabaja y se sube ahí, se mira la preview, y
+solo entonces se fusiona en `main`. Si alguna vez la preview se comporta distinto
+que producción, mira primero si una de las dos está sirviendo un service worker
+antiguo: la PWA cachea y sobrevive a los despliegues.
+
 ### Qué hace `vercel.json`
 
 | Cabecera | Por qué |
