@@ -2,7 +2,7 @@
 
 > Un mapa de competencias de AI Engineering donde el progreso se **deriva de evidencia**, no se declara.
 
-**Estado:** fases 1 y 2 completas. **39 competencias · 39 lecciones · 312 ítems · 208 tests · 6 gates en CI.** Coste de infraestructura: cero.
+**Estado:** fases 1 y 2 completas. **10 áreas · 53 competencias · 53 lecciones · 426 ítems · 22 prácticas · 4 talleres · 241 tests · 6 gates en CI.** Coste de infraestructura: cero.
 
 ```bash
 pnpm install
@@ -99,8 +99,8 @@ Son dos cosas con ciclos distintos: la herramienta cuanto más libre mejor; el c
 
 ## El catálogo como dato
 
-`/contenido.json` publica el catálogo completo —8 áreas, 39 competencias, 39 lecciones,
-312 ítems con la justificación de cada distractor y las referencias— como un único archivo
+`/contenido.json` publica el catálogo completo —10 áreas, 53 competencias, 53 lecciones,
+426 ítems con la justificación de cada distractor y las referencias— como un único archivo
 estático. Se genera en cada build, así que no puede desviarse de lo que valida el linter.
 
 ```json
