@@ -53,6 +53,41 @@ export const PRACTICES: Readonly<Record<string, Practice>> = {
       'Ningún comando destructivo se ejecutó sin comprobar la ruta resuelta.',
     ],
   },
+  'testing-fundamentals': {
+    title: 'Escribe tres pruebas para una función real',
+    steps: [
+      'Elige una función de tu proyecto que aún no tenga pruebas.',
+      'Escribe la del camino normal y ejecútala para verla fallar o pasar en verde.',
+      'Añade la del límite: lista vacía, valor extremo o cadena vacía.',
+      'Añade la del error esperado: qué debe ocurrir con una entrada inválida.',
+      'Rompe el código a propósito y comprueba que al menos una prueba se queja.',
+    ],
+    rubric: [
+      'Las tres pruebas se ejecutan y fallan sin intervención humana.',
+      'Existe un caso de límite, no solo el camino normal.',
+      'El caso de error comprueba el comportamiento esperado, no que «no explote».',
+      'Al romper el código a propósito, alguna prueba falla.',
+      'Ninguna prueba comprueba llamadas internas ni detalles de implementación.',
+    ],
+  },
+
+  'read-and-debug-code': {
+    title: 'Depura un fallo con hipótesis y bisección',
+    steps: [
+      'Elige un fallo real o provoca uno cambiando una condición del código.',
+      'Escribe en una frase qué esperas y qué ocurre.',
+      'Formula dos hipótesis rivales y anota qué evidencia refutaría cada una.',
+      'Reduce el espacio: mitad de los datos, mitad de los commits o mitad del recorrido.',
+      'Arregla la causa, repite el caso y comprueba que el comportamiento es el esperado.',
+    ],
+    rubric: [
+      'El fallo está reproducido con un caso concreto, no descrito de oídas.',
+      'Hay dos hipótesis escritas y al menos una quedó refutada con evidencia.',
+      'El espacio de búsqueda se redujo por mitades, no leyendo todo.',
+      'La causa identificada explica el síntoma, no solo lo acompaña.',
+      'El arreglo se verificó repitiendo el mismo caso, y existe una prueba que lo fija.',
+    ],
+  },
   'bounded-agent-loop': {
     title: 'Cierra el bucle de un agente que ya tienes abierto',
     steps: [

@@ -79,6 +79,76 @@ export const LESSONS_AREA_00: readonly Lesson[] = [
     ],
     referenceIds: ['ref-rules-ml'],
   },
+  {
+    competencyId: 'testing-fundamentals',
+    whatIs:
+      'Una prueba es una afirmación ejecutable sobre el comportamiento de un programa: dado esto, espero aquello. La pirámide reparte cuántas de cada tipo conviene tener —muchas unitarias rápidas, algunas de integración donde las piezas se juntan, muy pocas de extremo a extremo— y el criterio para escribir una es sencillo: si no puede fallar, no prueba nada.',
+    problem:
+      'Se persigue la cobertura como si fuera el objetivo, y se llega al cien por cien con pruebas que recorren todas las líneas sin comprobar ninguna. O se prueban los dobles de prueba en lugar del comportamiento. O la suite tarda veinte minutos y nadie la ejecuta antes de integrar. En los tres casos el resultado es el mismo: hay pruebas, están en verde y no protegen de nada.',
+    internals: [
+      'La pirámide es una proporción, no una ley: muchas unitarias porque son baratas y rápidas, integración donde hay riesgo de que las piezas no encajen, extremo a extremo solo para el camino que no puede romperse.',
+      'Un buen caso prueba comportamiento observable: el camino feliz, el límite y el error esperado. Los tres, no solo el primero.',
+      'La prueba se escribe para poder fallar. Verla en rojo antes de implementar comprueba el instrumento, no el código.',
+      'Probar un doble de prueba comprueba que el doble hace lo que le dijiste, no que el sistema funcione.',
+      'La velocidad es un requisito: una suite que tarda se salta, y una suite que se salta no es una red de seguridad.',
+    ],
+    whenToUse: [
+      'Antes de tocar código que ya funciona: la prueba fija el comportamiento actual y avisa si lo rompes.',
+      'Al arreglar un fallo: primero la prueba que lo reproduce, después la corrección.',
+    ],
+    whenNotToUse: [
+      'No escribas una prueba por cada detalle interno: cada refactor la romperá sin que nada se haya roto de verdad.',
+      'No uses la cobertura como objetivo: se infla con pruebas que pasan por las líneas sin afirmar nada.',
+    ],
+    pitfalls: [
+      {
+        title: 'Probar el mock',
+        detail:
+          'Una prueba que comprueba que se llamó a una función concreta verifica la implementación de hoy, no el comportamiento. Cambia el cómo y la prueba cae aunque el resultado sea correcto.',
+      },
+      {
+        title: 'La suite que nadie ejecuta',
+        detail:
+          'Veinte minutos de pruebas significan que se ejecutan al final, o no se ejecutan. La red existe para usarse muchas veces, no una.',
+      },
+    ],
+    referenceIds: ['ref-rules-ml'],
+  },
+  {
+    competencyId: 'read-and-debug-code',
+    whatIs:
+      'Depurar es buscar, no tener una corazonada: reproducir el fallo, formular una hipótesis sobre la causa, buscar la evidencia que la pueda refutar y reducir el espacio hasta el punto exacto donde el comportamiento deja de ser el esperado. Leer código ajeno es parte de lo mismo: se entra por el punto de llamada y se sigue el recorrido del dato, no se lee el fichero entero.',
+    problem:
+      'Se cambian cosas al azar hasta que el síntoma desaparece, se cambian cinco a la vez y luego no se sabe cuál funcionó, o se culpa a la dependencia sin haber mirado. El síntoma se tapa —una validación desactivada, un caso especial— y la causa sigue ahí, esperando al siguiente dato que la dispare.',
+    internals: [
+      'Primero se reproduce. Un fallo que no se reproduce no se puede arreglar: solo se puede dejar de ver.',
+      'La hipótesis se intenta refutar, no confirmar. Buscar lo que la sostiene es cómo uno se convence de una idea equivocada.',
+      'Bisección: reducir el espacio por mitades —la mitad de los datos, la mitad de los commits, la mitad del recorrido— encuentra la causa más rápido que leerlo todo.',
+      'El registro que falta se añade donde la hipótesis puede romperse, no donde el fallo se manifiesta.',
+      'Un fallo intermitente pide más información —condiciones, hora, datos de entrada—, no más reintentos.',
+    ],
+    whenToUse: [
+      'Cuando algo falla y no sabes por qué, o cuando sabes el síntoma y no la causa.',
+      'Al entrar en un código que no escribiste: seguir una llamada concreta desde su punto de entrada.',
+    ],
+    whenNotToUse: [
+      'No añadas registros por todas partes: el ruido esconde la señal que buscabas.',
+      'No apliques un arreglo sin haber reproducido el fallo: no sabrás si funcionó.',
+    ],
+    pitfalls: [
+      {
+        title: 'Tapar el síntoma',
+        detail:
+          'Desactivar la validación que falla o envolver la llamada en un try que ignora el error. El sistema deja de avisar y el problema sigue ocurriendo.',
+      },
+      {
+        title: 'Cinco cambios a la vez',
+        detail:
+          'Si algo funciona después, no sabes cuál de los cinco era necesario. Depurar exige cambiar una variable por vez.',
+      },
+    ],
+    referenceIds: ['ref-rules-ml'],
+  },
 ];
 
 export const ITEMS_AREA_00: readonly Item[] = [
@@ -597,6 +667,525 @@ export const ITEMS_AREA_00: readonly Item[] = [
     ],
     explanation:
       'El fichero de bloqueo es lo que hace reproducible una instalación. Sin él, «funciona en mi máquina» deja de ser una excusa y pasa a ser una descripción técnica.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  // ── testing-fundamentals ────────────────────────────────────────────────────
+
+  {
+    id: 'test-what-is-it',
+    competencyId: 'testing-fundamentals',
+    difficulty: 1,
+    prompt: '¿Qué es una prueba automatizada?',
+    options: [
+      {
+        id: 'a',
+        text: 'Una afirmación ejecutable sobre el comportamiento',
+        correct: true,
+        rationale:
+          'Correcto: dado esto, espero aquello, y se comprueba solo cada vez que se ejecuta.',
+      },
+      {
+        id: 'b',
+        text: 'Un documento que describe lo que hace el programa',
+        correct: false,
+        rationale:
+          'Una descripción no se ejecuta y por tanto no puede avisar cuando deja de ser cierta.',
+      },
+      {
+        id: 'c',
+        text: 'Una lista de pasos para probar a mano',
+        correct: false,
+        rationale:
+          'Los pasos manuales se olvidan y no se repiten en cada cambio. Eso es un guion de pruebas, no una prueba.',
+      },
+    ],
+    explanation:
+      'Lo que distingue a una prueba es que se ejecuta y falla sin que nadie opine. Esa es la razón de que sirva como red de seguridad al delegar código.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'test-which-cases',
+    competencyId: 'testing-fundamentals',
+    difficulty: 1,
+    prompt: '¿Qué casos conviene cubrir en una función nueva?',
+    options: [
+      {
+        id: 'a',
+        text: 'El camino normal, el límite y el error esperado',
+        correct: true,
+        rationale:
+          'Correcto: los tres tipos. Los fallos de producción viven casi siempre en los dos últimos.',
+      },
+      {
+        id: 'b',
+        text: 'Solo el caso normal, para que pase rápido',
+        correct: false,
+        rationale:
+          'El caso normal es el que ya funciona. Las pruebas se escriben para lo que aún no está comprobado.',
+      },
+      {
+        id: 'c',
+        text: 'Todos los valores posibles de entrada',
+        correct: false,
+        rationale:
+          'Es imposible en casi cualquier función y no hace falta. Se prueban valores que representan clases de casos.',
+      },
+    ],
+    explanation:
+      'Probar el camino feliz demuestra que funciona cuando todo va bien. Los límites y los errores son donde el sistema se rompe, y son justo los que nadie prueba por iniciativa propia.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'test-proportion',
+    competencyId: 'testing-fundamentals',
+    difficulty: 2,
+    prompt: '¿Por qué conviene tener muchas pruebas unitarias y pocas de extremo a extremo?',
+    options: [
+      {
+        id: 'a',
+        text: 'Porque el coste y la fragilidad crecen con el alcance',
+        correct: true,
+        rationale:
+          'Correcto: una de extremo a extremo tarda, es inestable y su fallo no dice dónde está el problema.',
+      },
+      {
+        id: 'b',
+        text: 'Porque las de extremo a extremo no encuentran errores',
+        correct: false,
+        rationale:
+          'Encuentran errores de integración que las unitarias no ven. El problema es su coste por caso.',
+      },
+      {
+        id: 'c',
+        text: 'Porque es la regla que se enseña en los cursos',
+        correct: false,
+        rationale:
+          'La proporción no es una norma ceremonial: responde a cuánto cuesta cada tipo y qué te dice cuando falla.',
+      },
+    ],
+    explanation:
+      'La pirámide existe por economía: cuando una prueba falla, lo barato es saber exactamente qué se rompió. Cuanto más ancha es la prueba, menos lo dice y más tarda.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'test-mock-trap',
+    competencyId: 'testing-fundamentals',
+    difficulty: 2,
+    prompt:
+      'Una prueba comprueba que se llamó a una función interna con unos argumentos concretos. ¿Qué problema tiene?',
+    options: [
+      {
+        id: 'a',
+        text: 'Fija la implementación, no el comportamiento',
+        correct: true,
+        rationale:
+          'Correcto: cualquier refactor que conserve el resultado romperá la prueba sin que nada se haya roto.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: cuantas más comprobaciones, mejor',
+        correct: false,
+        rationale:
+          'Comprobar cómo está hecho convierte cada mejora en una rotura de pruebas y enseña al equipo a ignorarlas.',
+      },
+      {
+        id: 'c',
+        text: 'Solo que es más lenta de ejecutar',
+        correct: false,
+        rationale:
+          'La velocidad es lo de menos. El problema es que mide lo que no debe y bloquea cambios correctos.',
+      },
+    ],
+    explanation:
+      'Una prueba debe sobrevivir a cualquier reescritura que conserve el comportamiento. Si cae en cada refactor, no estaba probando el sistema: estaba probando su forma actual.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'test-red-first',
+    competencyId: 'testing-fundamentals',
+    difficulty: 2,
+    prompt: 'Escribes una prueba y pasa a la primera, antes de implementar nada. ¿Qué significa?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que probablemente no está probando lo que crees',
+        correct: true,
+        rationale:
+          'Correcto: si no podía fallar, no verifica nada. O el caso ya estaba cubierto o la comprobación es vacía.',
+      },
+      {
+        id: 'b',
+        text: 'Que la funcionalidad ya existía y no hacía falta',
+        correct: false,
+        rationale:
+          'Es una posibilidad que hay que comprobar, no la conclusión. La mayoría de las veces el fallo está en la prueba.',
+      },
+      {
+        id: 'c',
+        text: 'Que la prueba está muy bien escrita',
+        correct: false,
+        rationale:
+          'Una prueba que nunca falla no protege. La primera ejecución en rojo es la que demuestra que el instrumento funciona.',
+      },
+    ],
+    explanation:
+      'Ver el rojo primero es una comprobación del instrumento. Un test que nace en verde puede estar midiendo otra cosa, y no lo sabrás hasta que algo se rompa sin avisar.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'test-suite-speed',
+    competencyId: 'testing-fundamentals',
+    difficulty: 2,
+    prompt: 'La suite completa tarda veinticinco minutos. ¿Qué consecuencia tiene?',
+    options: [
+      {
+        id: 'a',
+        text: 'Se ejecuta al final o no se ejecuta',
+        correct: true,
+        rationale:
+          'Correcto: nadie espera veinticinco minutos entre cambios. La red existe para usarse muchas veces.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguna: es el precio de tener buenas pruebas',
+        correct: false,
+        rationale:
+          'Una suite que se salta no protege, y lo caro no es tener muchas pruebas sino tener las lentas donde no toca.',
+      },
+      {
+        id: 'c',
+        text: 'Mejora la calidad porque cubre más casos',
+        correct: false,
+        rationale:
+          'La cobertura no depende del tiempo. Se puede cubrir lo mismo en segundos separando tipos de prueba.',
+      },
+    ],
+    explanation:
+      'La velocidad no es comodidad: es lo que decide si las pruebas se usan. La solución es separar la suite rápida de la lenta, no aceptar que todo tarde.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'test-coverage-trap',
+    competencyId: 'testing-fundamentals',
+    difficulty: 3,
+    prompt: 'El proyecto tiene cien por cien de cobertura y un fallo llegó a producción. ¿Cómo se explica?',
+    options: [
+      {
+        id: 'a',
+        text: 'La cobertura mide líneas ejecutadas, no casos comprobados',
+        correct: true,
+        rationale:
+          'Correcto: se puede ejecutar cada línea y no comprobar ninguna rama ni ningún límite.',
+      },
+      {
+        id: 'b',
+        text: 'Alguien modificó las pruebas antes de desplegar',
+        correct: false,
+        rationale:
+          'Puede haber pasado. La explicación estructural es más simple y más frecuente: cobertura alta con casos flojos.',
+      },
+      {
+        id: 'c',
+        text: 'El fallo estaba en una dependencia externa',
+        correct: false,
+        rationale:
+          'Es una causa posible que no explica por qué una métrica alta convive con comportamiento sin verificar.',
+      },
+    ],
+    explanation:
+      'Como objetivo, la cobertura se infla con pruebas que pasan por las líneas sin afirmar nada. Como diagnóstico, sirve para encontrar lo que no se ejecuta nunca.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'test-first-when-fixing',
+    competencyId: 'testing-fundamentals',
+    difficulty: 3,
+    prompt: 'Vas a arreglar un fallo que ya conoces. ¿Por dónde empiezas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Por una prueba que lo reproduzca y falle',
+        correct: true,
+        rationale:
+          'Correcto: la prueba fija el fallo y, al pasar, demuestra que está resuelto sin discusión.',
+      },
+      {
+        id: 'b',
+        text: 'Por el arreglo, que ya sabes cuál es',
+        correct: false,
+        rationale:
+          'Sin prueba, no puedes demostrar que el fallo desapareció ni que no vuelve la semana que viene.',
+      },
+      {
+        id: 'c',
+        text: 'Por leer todo el módulo para entenderlo',
+        correct: false,
+        rationale:
+          'Entender ayuda y no acota. La prueba reduce el problema a un caso concreto y comprobable.',
+      },
+    ],
+    explanation:
+      'La prueba de reproducción convierte un informe en un hecho y define el final: cuando pasa, está arreglado. Y queda como barrera para el siguiente cambio.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  // ── read-and-debug-code ─────────────────────────────────────────────────────
+
+  {
+    id: 'dbg-first-step',
+    competencyId: 'read-and-debug-code',
+    difficulty: 1,
+    prompt: 'Algo falla y no sabes por qué. ¿Cuál es el primer paso?',
+    options: [
+      {
+        id: 'a',
+        text: 'Reproducirlo y describir qué esperabas y qué ocurre',
+        correct: true,
+        rationale:
+          'Correcto: sin reproducción no hay caso concreto, y sin describirlo no sabes qué es «fallar».',
+      },
+      {
+        id: 'b',
+        text: 'Cambiar lo que parezca más sospechoso',
+        correct: false,
+        rationale:
+          'Sin reproducir no puedes saber si el cambio afectó al fallo o al azar. Y no sabrás si volvió.',
+      },
+      {
+        id: 'c',
+        text: 'Revisar los últimos cambios de todo el equipo',
+        correct: false,
+        rationale:
+          'Es una pista útil cuando hay pocos. Empezar por ahí sin un caso concreto es leer sin criterio.',
+      },
+    ],
+    explanation:
+      'Depurar es reducir un misterio a un caso: esto, con estos datos, produce esto otro. Esa reproducción es lo que permite comprobar hipótesis y saber cuándo terminaste.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'dbg-one-change',
+    competencyId: 'read-and-debug-code',
+    difficulty: 1,
+    prompt: 'Cambias cinco cosas a la vez y el fallo desaparece. ¿Qué has ganado?',
+    options: [
+      {
+        id: 'a',
+        text: 'Poco: no sabes cuál era necesaria',
+        correct: true,
+        rationale:
+          'Correcto: cuatro cambios pueden ser innecesarios o dañinos y ahora están dentro sin justificar.',
+      },
+      {
+        id: 'b',
+        text: 'El arreglo, que es lo que importaba',
+        correct: false,
+        rationale:
+          'El síntoma desapareció. La causa no está identificada y volverá por otro camino.',
+      },
+      {
+        id: 'c',
+        text: 'Tiempo, al resolverlo de una vez',
+        correct: false,
+        rationale:
+          'Ahorras el momento y pagas después: sin saber qué funcionó, el siguiente fallo empieza de cero.',
+      },
+    ],
+    explanation:
+      'Cambiar una cosa por vez es lo que convierte una corazonada en evidencia. Con cinco cambios simultáneos, cualquier resultado es ambiguo.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'dbg-bisect',
+    competencyId: 'read-and-debug-code',
+    difficulty: 2,
+    prompt: 'Hay doscientos commits desde la última versión que funcionaba. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Bisecar: probar el del medio y descartar la mitad',
+        correct: true,
+        rationale:
+          'Correcto: con ocho comprobaciones se localiza el commit culpable entre doscientos.',
+      },
+      {
+        id: 'b',
+        text: 'Leer los doscientos diffs en orden',
+        correct: false,
+        rationale:
+          'Cuesta mucho más y la atención se agota antes de llegar a la mitad. La bisección no requiere leer nada.',
+      },
+      {
+        id: 'c',
+        text: 'Volver a la versión anterior y no mirar más',
+        correct: false,
+        rationale:
+          'Recupera el servicio, que es lo primero, y deja el fallo vivo para la próxima vez que se despliegue.',
+      },
+    ],
+    explanation:
+      'La bisección es la herramienta más rentable de la depuración: divide el espacio por mitades y no necesita entender el código para encontrar dónde cambió el comportamiento.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'dbg-where-to-log',
+    competencyId: 'read-and-debug-code',
+    difficulty: 2,
+    prompt: 'Vas a añadir un registro para investigar. ¿Dónde lo pones?',
+    options: [
+      {
+        id: 'a',
+        text: 'Donde tu hipótesis se pueda romper',
+        correct: true,
+        rationale:
+          'Correcto: el registro sirve para refutar. Si solo confirma lo que ya crees, no informa.',
+      },
+      {
+        id: 'b',
+        text: 'Justo donde aparece el error',
+        correct: false,
+        rationale:
+          'Ahí ya sabes que algo falla. Lo que no sabes es qué llegó hasta ese punto.',
+      },
+      {
+        id: 'c',
+        text: 'Al principio y al final de cada función',
+        correct: false,
+        rationale:
+          'Genera ruido que esconde la señal y hace la salida ilegible justo cuando necesitas leerla.',
+      },
+    ],
+    explanation:
+      'Un registro es un experimento: se coloca donde el resultado puede contradecirte. Si solo puede confirmar, no aporta información.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'dbg-refute-hypothesis',
+    competencyId: 'read-and-debug-code',
+    difficulty: 2,
+    prompt: 'Tienes una hipótesis sobre la causa. ¿Qué buscas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Evidencia que la pueda refutar',
+        correct: true,
+        rationale:
+          'Correcto: si no encuentras nada que la contradiga, gana fuerza. Buscar apoyo solo confirma sesgos.',
+      },
+      {
+        id: 'b',
+        text: 'Ejemplos que la confirmen',
+        correct: false,
+        rationale:
+          'Siempre se encuentran. Es la forma más común de pasar horas arreglando lo que no era.',
+      },
+      {
+        id: 'c',
+        text: 'La opinión de otra persona sobre la hipótesis',
+        correct: false,
+        rationale:
+          'Una segunda opinión ayuda a generar hipótesis. Comprobar la propia exige datos del sistema, no pareceres.',
+      },
+    ],
+    explanation:
+      'Intentar refutar es lo que distingue depurar de justificar. Si la hipótesis sobrevive a los intentos de tumbarla, es una buena candidata; si solo se confirma, es una creencia.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'dbg-intermittent',
+    competencyId: 'read-and-debug-code',
+    difficulty: 3,
+    prompt: 'Un fallo aparece una vez cada cincuenta ejecuciones. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Capturar condiciones, datos y hora de los fallos',
+        correct: true,
+        rationale:
+          'Correcto: lo intermitente pide más datos para encontrar el patrón, no más intentos de reproducirlo.',
+      },
+      {
+        id: 'b',
+        text: 'Reintentar hasta que aparezca',
+        correct: false,
+        rationale:
+          'Cada intento sin información es una tirada a ciegas. Puede aparecer y no dirá nada nuevo.',
+      },
+      {
+        id: 'c',
+        text: 'Añadir un reintento automático y cerrar el caso',
+        correct: false,
+        rationale:
+          'Esconde el fallo y puede duplicar efectos. Un fallo intermitente suele ser una condición de carrera real.',
+      },
+    ],
+    explanation:
+      'Los fallos intermitentes son los más caros porque no se pueden provocar a voluntad. La estrategia es instrumentar y esperar el patrón: qué tienen en común los casos que fallan.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'dbg-read-foreign-code',
+    competencyId: 'read-and-debug-code',
+    difficulty: 3,
+    prompt: 'Entras en un módulo que no escribiste y no funciona. ¿Por dónde empiezas a leer?',
+    options: [
+      {
+        id: 'a',
+        text: 'Por el punto de entrada y siguiendo el recorrido del dato',
+        correct: true,
+        rationale:
+          'Correcto: se lee lo que el dato recorre. Leer el fichero entero gasta atención en código que no participa.',
+      },
+      {
+        id: 'b',
+        text: 'Por el principio del fichero más largo',
+        correct: false,
+        rationale:
+          'La longitud no indica relevancia. El fichero más largo puede no estar en el camino del fallo.',
+      },
+      {
+        id: 'c',
+        text: 'Por las funciones que parecen más complejas',
+        correct: false,
+        rationale:
+          'La complejidad atrae la mirada y no la justifica. El fallo puede estar en una línea trivial.',
+      },
+    ],
+    explanation:
+      'En código ajeno se lee un camino, no un fichero. Seguir el dato desde donde entra hasta donde falla convierte miles de líneas en una decena relevante.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'dbg-symptom-vs-cause',
+    competencyId: 'read-and-debug-code',
+    difficulty: 3,
+    prompt: 'Una validación falla y desactivas la validación. ¿Qué has hecho?',
+    options: [
+      {
+        id: 'a',
+        text: 'Tapar el síntoma y dejar la causa',
+        correct: true,
+        rationale:
+          'Correcto: el sistema deja de avisar y el problema sigue ocurriendo, ahora sin señal.',
+      },
+      {
+        id: 'b',
+        text: 'Arreglarlo, si la validación era demasiado estricta',
+        correct: false,
+        rationale:
+          'Podría ser el caso, y hay que demostrarlo. Desactivar sin entender es quitar el detector de humo.',
+      },
+      {
+        id: 'c',
+        text: 'Nada: la validación no cambia el comportamiento',
+        correct: false,
+        rationale:
+          'Cambia lo que el sistema acepta. Esa es precisamente la decisión que no se debe tomar sin entender la causa.',
+      },
+    ],
+    explanation:
+      'La diferencia entre síntoma y causa es la diferencia entre apagar la alarma y apagar el fuego. Desactivar la comprobación convierte un fallo visible en un fallo silencioso.',
     referenceId: 'ref-rules-ml',
   },
 ];

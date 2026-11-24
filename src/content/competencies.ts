@@ -45,7 +45,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Fundamentos de pruebas',
     claim: 'Elegir qué probar y con qué tipo de prueba, sabiendo qué no cubre.',
     prerequisites: ['version-control-and-diffs'],
-    published: false,
+    published: true,
   },
   {
     id: 'read-and-debug-code',
@@ -57,7 +57,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Leer y depurar código ajeno',
     claim: 'Localizar la causa de un fallo en código que no escribiste.',
     prerequisites: ['terminal-and-environment'],
-    published: false,
+    published: true,
   },
   // ── 01 · Fundamentos ────────────────────────────────────────────────────────
   {

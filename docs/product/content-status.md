@@ -6,11 +6,11 @@ Generado desde el catálogo. **No editar a mano**: cambia el contenido y ejecuta
 
 | | |
 |---|---|
-| Competencias publicadas | **50 / 52** |
-| Pendientes | 2 |
-| Lecciones escritas | 50 |
-| Ítems escritos | **402** (objetivo ~416) |
-| Áreas completas | 9 / 10 |
+| Competencias publicadas | **52 / 52** |
+| Pendientes | 0 |
+| Lecciones escritas | 52 |
+| Ítems escritos | **418** (objetivo ~416) |
+| Áreas completas | 10 / 10 |
 
 Una competencia cuenta como publicada solo si tiene lección e ítems, y eso lo verifica el
 linter de contenido (regla R4) en CI: `pnpm validate:content`.
@@ -32,14 +32,14 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 
 ## Por área
 
-### 00 · Fundamentos de programación — 2/4
+### 00 · Fundamentos de programación — 4/4
 
 - ✅ `version-control-and-diffs` — lección y 8 ítems
 - ✅ `terminal-and-environment` — lección y 8 ítems
-- ⬜ `testing-fundamentals` — falta lección y 8 ítems
-- ⬜ `read-and-debug-code` — falta lección y 8 ítems
+- ✅ `testing-fundamentals` — lección y 8 ítems
+- ✅ `read-and-debug-code` — lección y 8 ítems
 
-<sub>16 ítems en el área · objetivo 32</sub>
+<sub>32 ítems en el área · objetivo 32</sub>
 
 ### 01 · Fundamentos de IA — 4/4
 
@@ -136,14 +136,7 @@ no le exige contenido. Es la forma de publicar el grafo completo sin mentir sobr
 
 ## Qué falta, en orden
 
-Quedan **2 competencias** y unos **14 ítems**. El orden recomendado sigue las dependencias del grafo: primero las áreas cuyos prerrequisitos ya tienen contenido, para que el desbloqueo sea demostrable.
-
-1. Área 03 · Prompt y context engineering (5 pendientes)
-2. Área 04 · Aplicaciones y RAG (5)
-3. Área 05 · Ingeniería agéntica (6)
-4. Área 06 · Harness engineering (4)
-5. Área 07 · Arquitectura de software IA (4)
-6. Área 08 · Calidad y producción (4)
+Nada: todas las competencias están publicadas.
 
 ## Criterio de cierre de la fase 2
 
