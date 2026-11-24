@@ -82,6 +82,76 @@ export const LESSONS_AREA_09: readonly Lesson[] = [
     ],
     referenceIds: ['ref-anthropic-system'],
   },
+  {
+    competencyId: 'context-engineering-for-agents',
+    whatIs:
+      'Elegir qué información recibe el agente antes de que actúe: los ficheros que el cambio toca, el estado de la tarea, las restricciones que no puede violar. Incluye el modo de trabajo: primero leer y proponer un plan, después escribir. Y la división del trabajo en pasos con su propio contexto, para que cada fallo aparezca donde se produjo.',
+    problem:
+      'Se lanza el agente con el mensaje del ticket y una carpeta, o con el repositorio entero «para que no le falte nada». En el primer caso inventa la estructura que no vio; en el segundo, la señal útil se diluye entre ficheros que no aplican y acaba imitando el patrón más cercano, que a veces es el que el equipo abandonó.',
+    internals: [
+      'El contexto se elige por necesidad concreta —«qué hace falta para no inventar esto»— y no por cobertura —«todo lo que podría ser relevante».',
+      'Separar la fase de leer y proponer de la de escribir convierte el error de enfoque en un plan que se revisa en diez líneas.',
+      'El contexto caduca: un fichero leído hace veinte pasos puede haber cambiado. Releer antes de editar es la única regla que sobrevive a la concurrencia.',
+      'Cada paso con su contexto y su verificación hace visible dónde se rompió una cadena larga, que es lo que una tirada de cuarenta pasos nunca revela.',
+      'El orden importa: las restricciones y el criterio de éxito van donde no se pierdan; el material de consulta, después.',
+    ],
+    whenToUse: [
+      'Cuando la tarea toca varios módulos o el agente no conoce el proyecto.',
+      'Cuando hay trabajo concurrente: otra persona, otro agente o un despliegue que cambia el código mientras se edita.',
+    ],
+    whenNotToUse: [
+      'No montes una ceremonia de contexto para un cambio de una línea en un fichero que ya está claro.',
+      'No entregues el repositorio completo como sustituto de saber qué es relevante: la selección es el trabajo.',
+    ],
+    pitfalls: [
+      {
+        title: 'Contexto por costumbre',
+        detail:
+          'Pegar los mismos cinco ficheros en todas las tareas porque una vez hicieron falta. Cada paso paga ese contexto y la atención se reparte entre lo que no aplica.',
+      },
+      {
+        title: 'Plan como teatro',
+        detail:
+          'Si el plan se aprueba siempre sin leerlo, se convierte en un trámite más: un paso que añade tiempo y no añade control.',
+      },
+    ],
+    referenceIds: ['ref-anthropic-system'],
+  },
+  {
+    competencyId: 'tdd-with-agents',
+    whatIs:
+      'Escribir la prueba que falla antes de delegar la implementación, y dejar que el agente itere hasta que pase. El test es el criterio de aceptación ejecutable: convierte la especificación en una condición que se cumple o no, sin interpretación. La persona define el caso; el agente recorre el camino.',
+    problem:
+      'Se delega sin ninguna prueba que cubra el cambio, así que la única verificación es mirar el código y decidir que parece correcto. Y aparece el modo de fallo característico: como el objetivo implícito del agente es «que pase», acaba borrando el test que falla, relajando la comprobación o rodeando el caso límite. El número de tests no baja y la cobertura no se mueve: el criterio se ha vaciado por dentro.',
+    internals: [
+      'El test se escribe o se valida desde fuera. Si lo redacta quien implementa, describe la solución en lugar del requisito.',
+      'Los tests forman parte del contrato: se revisan sus diffs con la misma atención que el código, porque debilitar una comprobación es más difícil de ver que borrarla.',
+      'La suite rápida es un requisito, no una comodidad: un agente que itera no espera veinte minutos, se salta la red.',
+      'Un test comprueba comportamiento observable. Si mira llamadas internas, cada refactor lo rompe y el equipo aprende a esquivarlo.',
+      'Ver el test fallar primero comprueba el instrumento: un test que nace en verde puede estar midiendo otra cosa.',
+    ],
+    whenToUse: [
+      'Siempre que el cambio se pueda describir como «dado esto, espero aquello».',
+      'Al arreglar un error: primero el test que lo reproduce, después la corrección.',
+    ],
+    whenNotToUse: [
+      'No escribas un test para cada detalle interno: la red se vuelve un impuesto que frena los cambios que no alteran comportamiento.',
+      'No uses la cobertura como objetivo: se infla con tests que ejecutan líneas sin comprobar nada.',
+    ],
+    pitfalls: [
+      {
+        title: 'El test que desaparece',
+        detail:
+          'El agente borra el caso que falla para dejar la integración en verde. Si nadie mira el diff de los tests, el cambio entra con menos cobertura que antes.',
+      },
+      {
+        title: 'La comprobación que se afloja',
+        detail:
+          '«El total es 3» pasa a «el total no es nulo». Sigue habiendo un test, sigue pasando, y ya no distingue un resultado correcto de casi cualquiera.',
+      },
+    ],
+    referenceIds: ['ref-rules-ml'],
+  },
 ];
 
 export const ITEMS_AREA_09: readonly Item[] = [
@@ -609,6 +679,531 @@ export const ITEMS_AREA_09: readonly Item[] = [
     ],
     explanation:
       'Un contrato obsoleto es peor que no tenerlo, porque produce errores con autoridad. Cuando la regla cambia, el fichero se actualiza en el mismo cambio que la decisión, no después.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  // ── context-engineering-for-agents ──────────────────────────────────────────
+
+  {
+    id: 'ctxa-what-first',
+    competencyId: 'context-engineering-for-agents',
+    difficulty: 1,
+    prompt: 'Vas a delegar un cambio pequeño. ¿Qué contexto das primero?',
+    options: [
+      {
+        id: 'a',
+        text: 'Los ficheros que toca y el contrato del repositorio',
+        correct: true,
+        rationale:
+          'Correcto: lo que se va a modificar y las reglas de la casa. Es el mínimo que evita inventar.',
+      },
+      {
+        id: 'b',
+        text: 'El repositorio entero, para que no le falte nada',
+        correct: false,
+        rationale:
+          'La señal útil se pierde entre miles de líneas que no aplican, y se paga en cada llamada.',
+      },
+      {
+        id: 'c',
+        text: 'Solo el mensaje original del ticket',
+        correct: false,
+        rationale:
+          'Sin el código ni las convenciones, el agente rellena los huecos inventando estructura.',
+      },
+    ],
+    explanation:
+      'Elegir contexto es decidir qué necesita el agente para no adivinar. La pregunta útil no es «¿qué podría ser relevante?» sino «¿qué necesita para no inventar esto?».',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'ctxa-plan-mode',
+    competencyId: 'context-engineering-for-agents',
+    difficulty: 2,
+    prompt:
+      'En el modo agente, el agente edita ficheros mientras explora. ¿Qué cambia si primero solo planifica?',
+    options: [
+      {
+        id: 'a',
+        text: 'El error de enfoque se ve sin haber escrito código',
+        correct: true,
+        rationale:
+          'Correcto: revisar un plan es leer diez líneas; revisar un cambio mal enfocado es descartar un diff.',
+      },
+      {
+        id: 'b',
+        text: 'El agente tarda lo mismo pero escribe mejor',
+        correct: false,
+        rationale:
+          'No es una mejora de calidad del código. Es un punto de control colocado antes del coste.',
+      },
+      {
+        id: 'c',
+        text: 'El agente deja de poder editar ficheros para siempre',
+        correct: false,
+        rationale:
+          'El plan es una fase, no una limitación permanente. Después de aprobarlo, ejecuta.',
+      },
+    ],
+    explanation:
+      'Separar explorar de modificar es lo que convierte el agente en algo revisable. Sin esa separación, la primera noticia de que iba por otro camino es un diff completo.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ctxa-stale-read',
+    competencyId: 'context-engineering-for-agents',
+    difficulty: 2,
+    prompt:
+      'Cambias un fichero mientras el agente trabaja y él sigue editando con la versión que leyó al principio. ¿Qué ha pasado?',
+    options: [
+      {
+        id: 'a',
+        text: 'Trabajaba sobre una versión que ya no existe',
+        correct: true,
+        rationale:
+          'Correcto: su contexto es una foto. Toda edición posterior se aplica a un texto desactualizado.',
+      },
+      {
+        id: 'b',
+        text: 'El agente debería haber bloqueado el fichero',
+        correct: false,
+        rationale:
+          'Ningún agente bloquea ficheros por su cuenta. La regla de «leer antes de editar» es del flujo.',
+      },
+      {
+        id: 'c',
+        text: 'Es normal: al guardar se fusiona lo tuyo con lo suyo',
+        correct: false,
+        rationale:
+          'La fusión de texto puede funcionar y el resultado puede carecer de sentido: nadie decidió sobre el conjunto.',
+      },
+    ],
+    explanation:
+      'El contexto envejece. En trabajo concurrente, la única regla fiable es releer antes de escribir, y decidir quién toca qué. Lo demás es confiar en que el texto encaje por suerte.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'ctxa-split-tasks',
+    competencyId: 'context-engineering-for-agents',
+    difficulty: 2,
+    prompt:
+      'Una tarea de cuarenta pasos falla en el paso treinta y ocho. ¿Qué conviene para la próxima vez?',
+    options: [
+      {
+        id: 'a',
+        text: 'Dividirla en pasos con su propio contexto y verificación',
+        correct: true,
+        rationale:
+          'Correcto: el fallo aparece en el paso que lo causó, y el trabajo anterior no se repite.',
+      },
+      {
+        id: 'b',
+        text: 'Repetirla entera con un modelo más potente',
+        correct: false,
+        rationale:
+          'Vuelve a apostar a una sola tirada larga. El punto de fallo sigue siendo invisible.',
+      },
+      {
+        id: 'c',
+        text: 'Aumentar el límite de pasos del agente',
+        correct: false,
+        rationale:
+          'Más margen para una cadena larga no revela dónde se torció, que es lo que necesitas saber.',
+      },
+    ],
+    explanation:
+      'Dividir no es burocracia: es hacer visible dónde se rompe. Una cadena de cuarenta pasos produce un resultado que no se puede diagnosticar cuando falla.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'ctxa-everything-is-noise',
+    competencyId: 'context-engineering-for-agents',
+    difficulty: 3,
+    prompt: 'Le pasas el repositorio completo «para que tenga todo el contexto». ¿Qué efecto tiene?',
+    options: [
+      {
+        id: 'a',
+        text: 'Lo relevante compite con miles de líneas que no aplican',
+        correct: true,
+        rationale:
+          'Correcto: más texto no es más información. La señal se diluye y el coste sube en cada paso.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: el modelo ignora lo que no sirve',
+        correct: false,
+        rationale:
+          'Ignorar no es filtrar. Lo irrelevante ocupa presupuesto y puede arrastrar patrones que no tocan.',
+      },
+      {
+        id: 'c',
+        text: 'Mejora la calidad porque no hay huecos de información',
+        correct: false,
+        rationale:
+          'Rellena huecos y crea un problema mayor: el agente imita el patrón más cercano, que puede ser el obsoleto.',
+      },
+    ],
+    explanation:
+      'El contexto se elige, no se acumula. Pasar el repositorio entero es delegar la selección al modelo dentro de una ventana limitada, que es justo lo que no funciona.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'ctxa-invented-function',
+    competencyId: 'context-engineering-for-agents',
+    difficulty: 3,
+    prompt: 'El agente usa una función que no existe en el proyecto. ¿Cuál es la causa más probable?',
+    options: [
+      {
+        id: 'a',
+        text: 'No vio el módulo donde esa función ya está resuelta',
+        correct: true,
+        rationale:
+          'Correcto: sin el fichero relevante, lo más probable es que reutilice algo que suena igual.',
+      },
+      {
+        id: 'b',
+        text: 'El modelo alucina y no hay nada que hacer',
+        correct: false,
+        rationale:
+          'A veces inventa con todo el contexto delante, y aquí había una causa concreta y evitable.',
+      },
+      {
+        id: 'c',
+        text: 'El proyecto tiene demasiadas dependencias',
+        correct: false,
+        rationale:
+          'Las dependencias no explican por qué buscó una función inexistente en vez de reutilizar la que había.',
+      },
+    ],
+    explanation:
+      'La mayoría de las invenciones son huecos de contexto, no fallos del modelo: escribió la función que habría hecho falta porque nadie le mostró la que existía. Se arregla señalando el fichero, no cambiando de modelo.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'ctxa-stale-summary',
+    competencyId: 'context-engineering-for-agents',
+    difficulty: 3,
+    prompt:
+      'El resumen de arquitectura que pasas al agente tiene tres semanas y desde entonces cambió el esquema de datos. ¿Qué riesgo hay?',
+    options: [
+      {
+        id: 'a',
+        text: 'Que implemente sobre decisiones que ya no se toman',
+        correct: true,
+        rationale:
+          'Correcto: el resumen tiene autoridad sin tener vigencia, y el agente no puede saberlo.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguno: tres semanas es poco tiempo',
+        correct: false,
+        rationale:
+          'El criterio no es el tiempo, es si cambió lo que describe. Un día puede bastar.',
+      },
+      {
+        id: 'c',
+        text: 'Solo que gaste contexto en información redundante',
+        correct: false,
+        rationale:
+          'El coste es lo de menos. El riesgo es que el código resultante sea coherente con un mundo anterior.',
+      },
+    ],
+    explanation:
+      'El contexto que das se usa como verdad. Si caduca, produce código correcto para un sistema que ya no existe. La defensa es fechar el resumen y releer del código lo que cambia a menudo.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'ctxa-order',
+    competencyId: 'context-engineering-for-agents',
+    difficulty: 1,
+    prompt: '¿Importa en qué orden das el contexto al agente?',
+    options: [
+      {
+        id: 'a',
+        text: 'Sí: lo crítico va donde no se pierda',
+        correct: true,
+        rationale:
+          'Correcto: en un contexto largo, lo enterrado en medio se diluye. La restricción crítica va a la vista.',
+      },
+      {
+        id: 'b',
+        text: 'No: el modelo atiende todo por igual',
+        correct: false,
+        rationale:
+          'Lee todo y no presta la misma atención a todo. La posición cambia lo que acaba pesando.',
+      },
+      {
+        id: 'c',
+        text: 'Solo por estética: se lee mejor',
+        correct: false,
+        rationale:
+          'No es cosmético. Una prohibición a mitad de un documento largo se incumple con más frecuencia.',
+      },
+    ],
+    explanation:
+      'Ordenar el contexto es parte de escribirlo. Las restricciones y el criterio de éxito van al principio; el material de consulta, después. Lo que da igual es el orden de lo irrelevante.',
+    referenceId: 'ref-anthropic-system',
+  },
+
+  // ── tdd-with-agents ─────────────────────────────────────────────────────────
+
+  {
+    id: 'tdd-why-first',
+    competencyId: 'tdd-with-agents',
+    difficulty: 1,
+    prompt: 'Delegas un cambio sin ningún test que lo cubra. ¿Cuál es la única verificación que te queda?',
+    options: [
+      {
+        id: 'a',
+        text: 'Mirar el código y decidir que parece correcto',
+        correct: true,
+        rationale:
+          'Correcto: sin prueba ejecutable, la revisión visual es lo único que separa el cambio del merge.',
+      },
+      {
+        id: 'b',
+        text: 'Comprobar que compila y que el linter pasa',
+        correct: false,
+        rationale:
+          'Eso verifica forma, no comportamiento. Un cambio correcto en forma puede ser el bug.',
+      },
+      {
+        id: 'c',
+        text: 'Confiar en que el agente ya lo habrá probado',
+        correct: false,
+        rationale:
+          'El agente no tiene tu criterio ni conoce los casos límite del producto. Probar no es verificar.',
+      },
+    ],
+    explanation:
+      'Los tests son la red que hace posible delegar: convierten «parece bien» en «falla si no lo está». Sin red, revisar cada línea es la única opción, y por eso se aprueba por cansancio.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tdd-who-writes-test',
+    competencyId: 'tdd-with-agents',
+    difficulty: 1,
+    prompt: 'En un flujo con tests primero, ¿quién escribe el test?',
+    options: [
+      {
+        id: 'a',
+        text: 'Una persona lo define; el agente itera la implementación',
+        correct: true,
+        rationale:
+          'Correcto: el test es el criterio de aceptación. Si lo escribe quien implementa, mide lo que hizo.',
+      },
+      {
+        id: 'b',
+        text: 'El agente, porque escribe más rápido',
+        correct: false,
+        rationale:
+          'Rápido y a la medida de su solución. El test pasa a describir lo implementado, no lo pedido.',
+      },
+      {
+        id: 'c',
+        text: 'Da igual mientras el test pase al final',
+        correct: false,
+        rationale:
+          'No da igual: el origen del test decide si comprueba el requisito o justifica el resultado.',
+      },
+    ],
+    explanation:
+      'El test es la especificación ejecutable. Escribirlo desde fuera —o validarlo antes de delegar— es lo que impide que el criterio se adapte a la solución en lugar de al revés.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tdd-deleted-test',
+    competencyId: 'tdd-with-agents',
+    difficulty: 2,
+    prompt:
+      'El agente borra un test que fallaba para que la integración continua pase. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Rechazarlo: se arregla el código o se justifica el test',
+        correct: true,
+        rationale:
+          'Correcto: un test que falla es información. Borrarlo elimina la señal y deja el fallo en el código.',
+      },
+      {
+        id: 'b',
+        text: 'Aceptarlo: si el test estorbaba, estaba mal escrito',
+        correct: false,
+        rationale:
+          'Puede estar mal escrito, y eso se decide mirándolo. Aceptado por defecto, el próximo test también estorba.',
+      },
+      {
+        id: 'c',
+        text: 'Aceptarlo y abrir una tarea para revisarlo luego',
+        correct: false,
+        rationale:
+          'La tarea se pierde y el cambio ya está dentro. La deuda se pagó con la cobertura de un caso real.',
+      },
+    ],
+    explanation:
+      'Es el modo de fallo más característico de delegar: el objetivo escondido es «que pase», no «que funcione». La defensa es tratar los tests como parte del contrato, no como obstáculo.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tdd-weakened-assertion',
+    competencyId: 'tdd-with-agents',
+    difficulty: 2,
+    prompt:
+      'El cambio modifica una comprobación de «el total es 3» a «el total no es nulo». ¿Qué ha pasado?',
+    options: [
+      {
+        id: 'a',
+        text: 'Ha debilitado el criterio hasta que su código lo cumple',
+        correct: true,
+        rationale:
+          'Correcto: la comprobación ya no distingue el resultado pedido de casi cualquier resultado.',
+      },
+      {
+        id: 'b',
+        text: 'Ha hecho el test más robusto ante cambios',
+        correct: false,
+        rationale:
+          'Robusto frente a lo que importa: ya no verifica lo que el requisito pedía.',
+      },
+      {
+        id: 'c',
+        text: 'Es una optimización para que el test sea más rápido',
+        correct: false,
+        rationale:
+          'Una comparación de igualdad no es lenta. El cambio de forma no tiene motivo técnico.',
+      },
+    ],
+    explanation:
+      'Debilitar una comprobación es más difícil de detectar que borrar el test, porque el número de tests no cambia. Se ve leyendo el diff del test con la misma atención que el del código.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tdd-slow-suite',
+    competencyId: 'tdd-with-agents',
+    difficulty: 2,
+    prompt: 'La suite tarda veinte minutos y el agente itera sobre un cambio. ¿Qué consecuencia tiene?',
+    options: [
+      {
+        id: 'a',
+        text: 'Deja de ejecutarla y entrega a ciegas',
+        correct: true,
+        rationale:
+          'Correcto: el agente optimiza tiempo. Si la red es lenta, la red se salta y la delegación pierde sentido.',
+      },
+      {
+        id: 'b',
+        text: 'Ninguna: el agente espera lo que haga falta',
+        correct: false,
+        rationale:
+          'Los agentes tienen límites de tiempo y de pasos. Una suite larga consume ambos y se abandona.',
+      },
+      {
+        id: 'c',
+        text: 'Mejora la calidad porque se prueba más',
+        correct: false,
+        rationale:
+          'Probar más veces lo mismo no aporta. Lo que aporta es una suite rápida que se ejecute siempre.',
+      },
+    ],
+    explanation:
+      'En el trabajo con agentes, la velocidad de la suite deja de ser una comodidad y pasa a ser un requisito. Si tarda demasiado, no se ejecuta, y sin ejecutarse no protege.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tdd-behavior-not-internals',
+    competencyId: 'tdd-with-agents',
+    difficulty: 3,
+    prompt:
+      'Un test comprueba que se llama a una función interna concreta. Cada refactor lo rompe. ¿Qué falla?',
+    options: [
+      {
+        id: 'a',
+        text: 'Prueba cómo está hecho, no qué hace',
+        correct: true,
+        rationale:
+          'Correcto: probar cómo está hecho obliga a reescribir el test en cada cambio que no altera el resultado.',
+      },
+      {
+        id: 'b',
+        text: 'Falta un mock más que lo estabilice',
+        correct: false,
+        rationale:
+          'Más mocks lo atan todavía más a la implementación actual. El problema es el objeto de la prueba.',
+      },
+      {
+        id: 'c',
+        text: 'El refactor está mal hecho',
+        correct: false,
+        rationale:
+          'Un refactor que no cambia comportamiento no debería tocar los tests. Si los toca, el test estaba mirando dentro.',
+      },
+    ],
+    explanation:
+      'Un test atado a la implementación se convierte en un impuesto: cada mejora lo rompe y el equipo aprende a esquivarlo. El test útil describe qué se ve desde fuera, no cómo se consigue.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tdd-see-it-fail',
+    competencyId: 'tdd-with-agents',
+    difficulty: 3,
+    prompt: '¿Por qué se ejecuta el test antes de implementar, sabiendo que va a fallar?',
+    options: [
+      {
+        id: 'a',
+        text: 'Para comprobar que el test prueba algo de verdad',
+        correct: true,
+        rationale:
+          'Correcto: un test que pasa antes de implementar no mide nada. Ese fallo es la prueba de que el test mira donde debe.',
+      },
+      {
+        id: 'b',
+        text: 'Por tradición del desarrollo guiado por pruebas',
+        correct: false,
+        rationale:
+          'La costumbre no es un motivo. El motivo es que el orden verifica el test, no solo el código.',
+      },
+      {
+        id: 'c',
+        text: 'Para que el agente vea el mensaje de error y aprenda',
+        correct: false,
+        rationale:
+          'Útil, y no es la razón principal. Aunque el test lo escriba una persona, se ejecuta primero por la misma causa.',
+      },
+    ],
+    explanation:
+      'El primer paso del ciclo comprueba el instrumento, no el código. Un test que nace en verde puede estar midiendo otra cosa, y nunca lo sabrás hasta que algo se rompa sin avisar.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'tdd-coverage-trap',
+    competencyId: 'tdd-with-agents',
+    difficulty: 3,
+    prompt: 'El proyecto tiene cien por cien de cobertura y apareció un bug en producción. ¿Cómo se explica?',
+    options: [
+      {
+        id: 'a',
+        text: 'La cobertura mide líneas ejecutadas, no casos comprobados',
+        correct: true,
+        rationale:
+          'Correcto: se puede ejecutar una línea y no comprobar ninguna de sus ramas ni sus límites.',
+      },
+      {
+        id: 'b',
+        text: 'Alguien desactivó los tests antes de desplegar',
+        correct: false,
+        rationale:
+          'Podría ser, y la explicación estructural es más simple: cobertura alta con casos flojos.',
+      },
+      {
+        id: 'c',
+        text: 'El bug estaba en una dependencia externa',
+        correct: false,
+        rationale:
+          'Es una causa posible. No explica por qué una métrica alta convive con comportamiento sin cubrir.',
+      },
+    ],
+    explanation:
+      'La cobertura dice cuánto código se ejecutó, no cuánto se verificó. Como objetivo se puede inflar con tests que pasan por todas las líneas sin comprobar nada. Como diagnóstico, sirve para encontrar lo que no se ejecuta nunca.',
     referenceId: 'ref-rules-ml',
   },
 ];

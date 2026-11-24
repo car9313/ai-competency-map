@@ -494,7 +494,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Contexto para agentes: plan y alcance',
     claim: 'Decidir qué contexto recibe el agente y en qué orden antes de que ejecute.',
     prerequisites: ['context-budgeting'],
-    published: false,
+    published: true,
   },
   {
     id: 'tdd-with-agents',
@@ -505,7 +505,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Tests primero al delegar',
     claim: 'Usar la red de pruebas como condición para dejar que un agente cambie código.',
     prerequisites: ['spec-driven-development'],
-    published: false,
+    published: true,
   },
   {
     id: 'ticket-to-pr-workflow',
