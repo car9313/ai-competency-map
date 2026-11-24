@@ -7,6 +7,13 @@ import type { Area } from '@/features/content/domain/types';
 
 export const AREAS: readonly Area[] = [
   {
+    id: 'programming-fundamentals',
+    index: '00',
+    name: 'Fundamentos de programación',
+    description:
+      'Lo que hay que saber antes de delegar código: leer un diff, moverte en el terminal, probar y depurar. Sin esto, cada error del agente se convierte en una hora perdida.',
+  },
+  {
     id: 'ai-fundamentals',
     index: '01',
     name: 'Fundamentos de IA',

@@ -16,6 +16,43 @@ export const PRACTICES: Readonly<Record<string, Practice>> = {
 
   // ── Área 05 · Ingeniería agéntica ──────────────────────────────────────────
 
+  // ── Área 00 · Fundamentos de programación ──────────────────────────────────
+
+  'version-control-and-diffs': {
+    title: 'Revisa un diff ajeno y explica cada bloque',
+    steps: [
+      'Elige un cambio real que no hayas escrito tú, de otro repositorio si puede ser.',
+      'Léelo por ficheros: primero pruebas y configuración, después el código.',
+      'Escribe en una frase qué hace cada bloque modificado y por qué.',
+      'Marca los bloques donde no puedas explicar la intención.',
+      'Parte el cambio en los commits que habrías hecho tú.',
+    ],
+    rubric: [
+      'Cada bloque modificado tiene una explicación escrita, no «cambios varios».',
+      'El diff de las pruebas se revisó antes que el del código.',
+      'Está identificado al menos un cambio de formato mezclado con uno de comportamiento.',
+      'Los bloques sin intención clara aparecen marcados para preguntar al autor.',
+      'La partición propuesta separa formato, arreglo y funcionalidad.',
+    ],
+  },
+
+  'terminal-and-environment': {
+    title: 'Diagnostica desde el terminal sin adivinar',
+    steps: [
+      'Elige un comando del proyecto y ejecútalo mirando su código de salida.',
+      'Provoca un fallo a propósito: ruta equivocada, variable vacía o permiso retirado.',
+      'Lee el error completo y localiza la primera línea que menciona tu código.',
+      'Reproduce el fallo con el comando exacto y corrígelo.',
+      'Comprueba que el código de salida pasa a cero.',
+    ],
+    rubric: [
+      'El diagnóstico empezó por el código de salida, no por el texto en pantalla.',
+      'El fallo provocado es distinto del síntoma que se ve al final.',
+      'Está identificada la primera línea del error que señala el origen.',
+      'La corrección se validó repitiendo el mismo comando en el mismo entorno.',
+      'Ningún comando destructivo se ejecutó sin comprobar la ruta resuelta.',
+    ],
+  },
   'bounded-agent-loop': {
     title: 'Cierra el bucle de un agente que ya tienes abierto',
     steps: [

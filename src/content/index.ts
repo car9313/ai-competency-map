@@ -13,6 +13,7 @@ import { buildCatalog } from '@/features/content/application/catalog';
 import type { Catalog } from '@/features/content/domain/types';
 import { AREAS } from './areas';
 import { COMPETENCIES } from './competencies';
+import { ITEMS_AREA_00, LESSONS_AREA_00 } from './area-00-fundamentals-of-programming';
 import { ITEMS_AREA_01, LESSONS_AREA_01 } from './area-01-fundamentals';
 import { ITEMS_AREA_02, LESSONS_AREA_02 } from './area-02-generative-llms';
 import { ITEMS_AREA_03, LESSONS_AREA_03 } from './area-03-prompt-engineering';
@@ -28,6 +29,7 @@ import { LESSONS } from './lessons';
 import { REFERENCES } from './references';
 
 const AREA_LESSONS = [
+  LESSONS_AREA_00,
   LESSONS_AREA_01,
   LESSONS_AREA_02,
   LESSONS_AREA_03,
@@ -40,6 +42,7 @@ const AREA_LESSONS = [
 ];
 
 const AREA_ITEMS = [
+  ITEMS_AREA_00,
   ITEMS_AREA_01,
   ITEMS_AREA_02,
   ITEMS_AREA_03,
