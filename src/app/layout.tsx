@@ -24,6 +24,7 @@ const NAV = [
   { href: '/rutas', label: 'Rutas' },
   { href: '/diagnostico', label: 'Diagnóstico' },
   { href: '/historial', label: 'Historial' },
+  { href: '/herramientas', label: 'Herramientas' },
   { href: '/acerca', label: 'Acerca' },
 ] as const;
 
