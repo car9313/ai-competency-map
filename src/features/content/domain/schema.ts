@@ -49,6 +49,13 @@ export const LessonSchema = z.object({
   pitfalls: z
     .array(z.object({ title: z.string().min(3), detail: z.string().min(10) }))
     .min(1),
+  practice: z
+    .object({
+      title: z.string().min(10),
+      steps: z.array(z.string().min(10)).min(1).max(8),
+      rubric: z.array(z.string().min(10)).min(2).max(8),
+    })
+    .optional(),
   referenceIds: z.array(z.string().min(1)).min(1),
 });
 
@@ -64,6 +71,9 @@ export const ItemSchema = z.object({
   competencyId: z.string().min(1),
   difficulty: LevelSchema,
   prompt: z.string().min(10),
+  code: z
+    .object({ label: z.string().min(1), content: z.string().min(1) })
+    .optional(),
   options: z.array(OptionSchema).min(2).max(5),
   explanation: z.string().min(10),
   referenceId: z.string().min(1),

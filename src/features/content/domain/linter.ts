@@ -10,9 +10,9 @@
 import { topologicalLevels } from '@/features/competency-graph';
 import type { IsoDate } from '@/shared/time/clock';
 import type { Item, Option } from '@/shared/types/domain';
-import type { Catalog } from './types';
+import type { Catalog, Lesson } from './types';
 
-export type RuleId = 'R1' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6' | 'R7' | 'R8';
+export type RuleId = 'R1' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6' | 'R7' | 'R8' | 'R9';
 export type Severity = 'error' | 'warning';
 
 export interface LintIssue {
@@ -253,6 +253,54 @@ function checkCodeBlocks(item: Item): LintIssue[] {
   return issues;
 }
 
+/**
+ * R9 · la práctica con rúbrica tiene que ser evaluable por quien la hace.
+ *
+ * Dos cosas se comprueban: que el tamaño sea razonable —un ejercicio de doce pasos no se
+ * empieza— y que cada criterio esté escrito como condición cumplida, no como pregunta.
+ * «¿Has escrito la spec?» invita a decir que sí; «los criterios se pueden convertir en
+ * tests» se puede comprobar mirando el resultado.
+ */
+function checkPractice(lesson: Lesson): LintIssue[] {
+  const issues: LintIssue[] = [];
+  const { practice } = lesson;
+
+  if (!practice) {
+    return issues;
+  }
+
+  if (practice.steps.length > 8) {
+    issues.push({
+      rule: 'R9',
+      severity: 'warning',
+      subject: lesson.competencyId,
+      message: `la práctica tiene ${practice.steps.length} pasos; más de 8 no se empiezan`,
+    });
+  }
+
+  if (practice.rubric.length < 2) {
+    issues.push({
+      rule: 'R9',
+      severity: 'error',
+      subject: lesson.competencyId,
+      message: 'la rúbrica necesita al menos dos criterios para poder autoevaluarse',
+    });
+  }
+
+  for (const criterio of practice.rubric) {
+    if (criterio.trim().startsWith('¿') || criterio.trim().endsWith('?')) {
+      issues.push({
+        rule: 'R9',
+        severity: 'warning',
+        subject: lesson.competencyId,
+        message: `el criterio "${criterio.slice(0, 40)}…" está en forma de pregunta; se comprueba peor que una condición`,
+      });
+    }
+  }
+
+  return issues;
+}
+
 /** R4 · cobertura. */
 function checkCoverage(catalog: Catalog): LintIssue[] {
   const issues: LintIssue[] = [];
@@ -396,6 +444,7 @@ export function lintCatalog(catalog: Catalog, today: IsoDate): LintIssue[] {
     ...checkReferences(catalog, today),
     ...catalog.items.flatMap((item) => checkShapeNeutrality(item)),
     ...catalog.items.flatMap((item) => checkCodeBlocks(item)),
+    ...catalog.lessons.flatMap((lesson) => checkPractice(lesson)),
   ];
 }
 

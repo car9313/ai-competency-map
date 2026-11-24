@@ -9,7 +9,7 @@
  * La primera, el desarrollo guiado por especificación, es la base de las demás: sin un
  * criterio de aceptación escrito, no hay forma de saber si el agente acertó.
  */
-import type { Lesson } from '@/features/content/domain/types';
+import type { Lesson, Practice } from '@/features/content/domain/types';
 import type { Item } from '@/shared/types/domain';
 
 export const LESSONS_AREA_09: readonly Lesson[] = [
@@ -2470,3 +2470,143 @@ export const ITEMS_AREA_09: readonly Item[] = [
     referenceId: 'ref-rules-ml',
   },
 ];
+
+/**
+ * Prácticas del área.
+ *
+ * Van en un mapa aparte y se fusionan al construir el catálogo por una razón práctica:
+ * cada práctica es un bloque largo y meterlo dentro de su lección rompe la lectura de la
+ * lección. Aquí se leen seguidas, que es como se escriben.
+ */
+export const PRACTICES_AREA_09: Readonly<Record<string, Practice>> = {
+  'spec-driven-development': {
+    title: 'Escribe la especificación de un cambio pequeño de tu proyecto',
+    steps: [
+      'Elige un cambio que toque comportamiento visible: un mensaje de error, una validación, un formato de respuesta.',
+      'Escribe los criterios de aceptación como comportamientos observables, no como descripciones de la solución.',
+      'Añade al menos tres casos límite con el resultado esperado.',
+      'Separa lo que debe cumplirse siempre y decide en qué comprobación automática vive.',
+      'Pide a un agente que implemente solo con ese documento delante y compara el resultado con lo escrito.',
+    ],
+    rubric: [
+      'Cada criterio se puede convertir en una prueba o en un paso manual con resultado esperado.',
+      'Hay al menos un criterio con umbral numérico y condiciones, no solo adjetivos.',
+      'Los casos límite aparecen escritos, no se dejan a la interpretación de quien implemente.',
+      'Las reglas que deben cumplirse siempre están asignadas a una comprobación automática, no al documento.',
+      'Al comparar el resultado con la especificación, la diferencia se puede describir sin discutir intenciones.',
+    ],
+  },
+  'agents-md-context-files': {
+    title: 'Escribe el contrato del repositorio en una página',
+    steps: [
+      'Copia los comandos reales de instalación, construcción, pruebas y lint del proyecto.',
+      'Enumera las prohibiciones con rutas concretas: ficheros generados, dependencias fijadas, configuración sensible.',
+      'Elige un fichero del propio repositorio que sirva de modelo de estilo y enlázalo.',
+      'Quita todo lo que no sea operativo hasta que quepa en una pantalla o dos.',
+    ],
+    rubric: [
+      'Los comandos se pueden copiar y ejecutar tal cual, sin adivinar el gestor de paquetes.',
+      'Cada prohibición nombra la ruta y el motivo de por qué no se toca.',
+      'Las convenciones se muestran con un ejemplo del repositorio, no solo se describen.',
+      'El documento no repite reglas que ya están en la integración continua.',
+      'Alguien ajeno al proyecto puede trabajar siguiendo solo el documento.',
+    ],
+  },
+  'context-engineering-for-agents': {
+    title: 'Prepara el contexto de una tarea antes de delegarla',
+    steps: [
+      'Escribe en una frase qué necesita el agente para no inventar nada.',
+      'Reúne solo los ficheros que el cambio toca y el contrato del repositorio.',
+      'Pide primero un plan sin escribir código y revísalo.',
+      'Divide la tarea en pasos con su propia verificación.',
+    ],
+    rubric: [
+      'El contexto incluye lo que se va a modificar y las restricciones que no puede violar.',
+      'Hay un plan revisado antes de que exista cualquier cambio en el código.',
+      'Cada paso se puede verificar por separado y el fallo se localiza en el paso que lo causó.',
+      'Lo que no aplica a la tarea se ha dejado fuera a propósito, no por olvido.',
+      'Está previsto qué hacer si otra persona o proceso cambia los ficheros durante el trabajo.',
+    ],
+  },
+  'tdd-with-agents': {
+    title: 'Delega un cambio con la red de pruebas puesta',
+    steps: [
+      'Escribe la prueba del caso que falla o del comportamiento nuevo, y ejecútala para verla fallar.',
+      'Delega la implementación indicando explícitamente que las pruebas no se modifican.',
+      'Revisa el diff de las pruebas antes que el del código.',
+      'Comprueba cuánto tarda la suite y qué pasaría si tardara el doble.',
+    ],
+    rubric: [
+      'La prueba existía y fallaba antes de que el agente empezara.',
+      'El diff no borra ni afloja ninguna comprobación existente.',
+      'Las pruebas describen comportamiento observable, no llamadas internas.',
+      'La suite se ejecuta completa en un tiempo que un agente iterando no abandonaría.',
+      'Si el agente tocó las pruebas, hay una justificación escrita del cambio.',
+    ],
+  },
+  'ticket-to-pr-workflow': {
+    title: 'Recorre el flujo completo con un cambio real',
+    steps: [
+      'Parte de una petición con criterio de aceptación escrito.',
+      'Revisa el plan técnico antes de que nadie escriba código.',
+      'Implementa en una rama con las pruebas primero.',
+      'Deja que la integración continua decida y revisa el diff completo, pruebas incluidas.',
+      'Escribe la descripción del cambio con qué se probó y qué no.',
+    ],
+    rubric: [
+      'El criterio de aceptación existía antes de crear la rama.',
+      'El plan se revisó por una persona y esa revisión cambió algo o lo aprobó con criterio.',
+      'La integración continua es la que declara que las pruebas pasan, no el autor del cambio.',
+      'El diff se puede revisar en menos de diez minutos o se partió en varios.',
+      'La descripción dice qué queda sin cubrir, no solo qué funciona.',
+    ],
+  },
+  'ai-code-review': {
+    title: 'Revisa un diff generado y justifica cada objeción',
+    steps: [
+      'Elige un cambio real producido por un agente, cuanto más plausible mejor.',
+      'Lee primero las pruebas y la configuración, después el código.',
+      'Anota tres cosas que podrían estar mal aunque todo pase.',
+      'Clasifícalas por consecuencia: lo que no se deshace primero.',
+    ],
+    rubric: [
+      'La revisión empezó por lo irreversible: datos, permisos, secretos, dependencias.',
+      'El diff de las pruebas se leyó con la misma atención que el del código.',
+      'Alguna objeción se refiere a algo que las pruebas no pueden detectar.',
+      'Cada objeción explica la consecuencia, no solo la preferencia.',
+      'El estilo se ha dejado para el final y no ha consumido la revisión.',
+    ],
+  },
+  'ai-governance-policy': {
+    title: 'Escribe la política mínima de uso de agentes de tu equipo',
+    steps: [
+      'Enumera las herramientas que el equipo usa hoy, aprobadas o no.',
+      'Clasifica los datos del proyecto en públicos, internos y sensibles, con un ejemplo de cada uno.',
+      'Escribe las cuatro partes: herramientas, datos, prohibiciones y quién aprueba excepciones.',
+      'Decide en qué control técnico se aplica cada prohibición.',
+    ],
+    rubric: [
+      'La política cabe en una página y enumera las cuatro partes.',
+      'Cada prohibición tiene un control automático asociado o se reconoce que no lo tiene.',
+      'El valor por defecto es denegar y se puede aplicar sin preguntar a nadie.',
+      'Existe un camino de aprobación con plazo razonable, no solo un muro.',
+      'Las excepciones tienen dueño, motivo y fecha de caducidad.',
+    ],
+  },
+  'team-adoption': {
+    title: 'Mide una adopción antes de extenderla',
+    steps: [
+      'Elige una tarea concreta y frequente del equipo.',
+      'Mide el estado actual: tiempo, retrabajo y tiempo de revisión.',
+      'Introduce el agente solo en esa tarea durante dos semanas.',
+      'Vuelve a medir lo mismo y calcula el retrabajo, no el ahorro bruto.',
+    ],
+    rubric: [
+      'Hay una medición antes y otra después, de la misma tarea y con el mismo criterio.',
+      'El cálculo incluye el tiempo de revisión y lo que hubo que rehacer.',
+      'La conclusión se puede discutir con datos, no con impresiones.',
+      'Está identificado el caso en el que la herramienta falló, no solo el que funcionó.',
+      'La decisión de extender o no se toma con esa medición delante.',
+    ],
+  },
+};

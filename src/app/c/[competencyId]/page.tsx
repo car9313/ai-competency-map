@@ -5,6 +5,7 @@ import { contentIndex } from '@/content';
 import { CompetencyProgress } from '@/features/assessment/presentation/CompetencyProgress';
 import { CompetencyChecklist } from '@/features/assessment/presentation/CompetencyChecklist';
 import { NotesPanel } from '@/features/assessment/presentation/NotesPanel';
+import { PracticePanel } from '@/features/assessment/presentation/PracticePanel';
 
 export const dynamicParams = false;
 
@@ -143,6 +144,10 @@ export default async function CompetencyPage({ params }: { params: Promise<Param
             <p className="rounded-xl border border-border bg-surface p-4 text-sm text-muted">
               Esta competencia todavía no tiene lección escrita.
             </p>
+          )}
+
+          {lesson?.practice && (
+            <PracticePanel competencyId={competency.id} practice={lesson.practice} />
           )}
 
           <NotesPanel competencyId={competency.id} title={competency.title} />

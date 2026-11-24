@@ -21,7 +21,7 @@ import { ITEMS_AREA_05, LESSONS_AREA_05 } from './area-05-agentic-engineering';
 import { ITEMS_AREA_06, LESSONS_AREA_06 } from './area-06-harness-engineering';
 import { ITEMS_AREA_07, LESSONS_AREA_07 } from './area-07-ai-software-architecture';
 import { ITEMS_AREA_08, LESSONS_AREA_08 } from './area-08-quality-production';
-import { ITEMS_AREA_09, LESSONS_AREA_09 } from './area-09-workflow-methodology';
+import { ITEMS_AREA_09, LESSONS_AREA_09, PRACTICES_AREA_09 } from './area-09-workflow-methodology';
 import { ITEMS } from './items';
 import { LESSONS } from './lessons';
 import { REFERENCES } from './references';
@@ -53,7 +53,13 @@ const AREA_ITEMS = [
 export const CATALOG: Catalog = {
   areas: AREAS,
   competencies: COMPETENCIES,
-  lessons: [...LESSONS, ...AREA_LESSONS.flat()],
+  lessons: [...LESSONS, ...AREA_LESSONS.flat()].map((lesson) => {
+    // La práctica vive en un mapa aparte y se fusiona aquí: es un bloque largo que
+    // rompería la lectura de la lección si estuviera dentro.
+    const practice = PRACTICES_AREA_09[lesson.competencyId];
+
+    return practice ? { ...lesson, practice } : lesson;
+  }),
   items: [...ITEMS, ...AREA_ITEMS.flat()],
   references: REFERENCES,
 };

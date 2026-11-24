@@ -3,7 +3,7 @@ import { CATALOG } from '@/content';
 import type { Item, Option } from '@/shared/types/domain';
 import { lintCatalog, type Catalog, type RuleId } from './linter';
 import { parseCatalog } from './schema';
-import type { Area, CompetencyRecord, Lesson, Reference } from './types';
+import type { Area, CompetencyRecord, Lesson, Practice, Reference } from './types';
 
 /**
  * Fixture propio, no el contenido real.
@@ -443,5 +443,57 @@ describe('R8 · bloques de código', () => {
     const ancha = `const x = ${'a'.repeat(120)};`;
 
     expect(rulesOf(conCodigo({ label: 'typescript', content: ancha }))).toContain('R8');
+  });
+});
+
+describe('R9 · práctica con rúbrica', () => {
+  const conPractica = (practice: Practice): Catalog => {
+    const catalog = validCatalog();
+    const [primera] = catalog.lessons;
+
+    return {
+      ...catalog,
+      lessons: [{ ...primera!, practice }, ...catalog.lessons.slice(1)],
+    };
+  };
+
+  it('una práctica razonable no produce avisos', () => {
+    const catalogo = conPractica({
+      title: 'Escribe el contrato del repositorio',
+      steps: ['Copia los comandos reales del proyecto.'],
+      rubric: ['Los comandos se pueden ejecutar tal cual.', 'Las prohibiciones nombran rutas.'],
+    });
+
+    expect(rulesOf(catalogo)).not.toContain('R9');
+  });
+
+  it('exige al menos dos criterios', () => {
+    const catalogo = conPractica({
+      title: 'Escribe el contrato del repositorio',
+      steps: ['Copia los comandos reales del proyecto.'],
+      rubric: ['Los comandos se pueden ejecutar tal cual.'],
+    });
+
+    expect(rulesOf(catalogo)).toContain('R9');
+  });
+
+  it('avisa si el criterio está en forma de pregunta', () => {
+    const catalogo = conPractica({
+      title: 'Escribe el contrato del repositorio',
+      steps: ['Copia los comandos reales del proyecto.'],
+      rubric: ['¿Has copiado los comandos?', 'Las prohibiciones nombran rutas.'],
+    });
+
+    expect(rulesOf(catalogo)).toContain('R9');
+  });
+
+  it('avisa si la práctica tiene demasiados pasos', () => {
+    const catalogo = conPractica({
+      title: 'Escribe el contrato del repositorio',
+      steps: Array.from({ length: 9 }, (_, i) => `Paso número ${i + 1} del ejercicio.`),
+      rubric: ['Los comandos se pueden ejecutar tal cual.', 'Las prohibiciones nombran rutas.'],
+    });
+
+    expect(rulesOf(catalogo)).toContain('R9');
   });
 });

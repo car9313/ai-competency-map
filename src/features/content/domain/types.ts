@@ -53,6 +53,22 @@ export interface Reference {
  * La estructura es fija a propósito. Si un campo no aplica, se deja corto; no se omite
  * ni se convierte la lección en prosa libre.
  */
+/**
+ * Práctica con rúbrica: un ejercicio sin corrección automática.
+ *
+ * Existe porque el resto del producto mide reconocimiento, y reconocer no es producir. La
+ * rúbrica no puntúa: da criterios para que el alumno se evalúe, que es lo único honesto que
+ * se puede hacer sin un evaluador. Por eso no genera evidencia ni mueve el planificador.
+ */
+export interface Practice {
+  /** Qué hay que producir, en una línea. */
+  title: string;
+  /** Pasos del ejercicio. */
+  steps: readonly string[];
+  /** Criterios de autoevaluación: se marcan a mano. */
+  rubric: readonly string[];
+}
+
 export interface Lesson {
   competencyId: string;
   whatIs: string;
@@ -61,6 +77,7 @@ export interface Lesson {
   whenToUse: readonly string[];
   whenNotToUse: readonly string[];
   pitfalls: ReadonlyArray<{ title: string; detail: string }>;
+  practice?: Practice;
   referenceIds: readonly string[];
 }
 
