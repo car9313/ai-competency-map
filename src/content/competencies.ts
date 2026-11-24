@@ -516,7 +516,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'De la petición al merge',
     claim: 'Recorrer el flujo completo de un cambio asistido sin saltarse los puntos de control.',
     prerequisites: ['tdd-with-agents', 'agents-md-context-files'],
-    published: false,
+    published: true,
   },
   {
     id: 'ai-code-review',
@@ -527,7 +527,7 @@ export const COMPETENCIES: readonly CompetencyRecord[] = [
     title: 'Revisión de código generado',
     claim: 'Detectar en un diff automático lo que un revisor con prisa no vería.',
     prerequisites: ['ticket-to-pr-workflow'],
-    published: false,
+    published: true,
   },
   {
     id: 'ai-governance-policy',

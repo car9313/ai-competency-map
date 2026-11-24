@@ -152,6 +152,76 @@ export const LESSONS_AREA_09: readonly Lesson[] = [
     ],
     referenceIds: ['ref-rules-ml'],
   },
+  {
+    competencyId: 'ticket-to-pr-workflow',
+    whatIs:
+      'El recorrido completo de un cambio asistido: la petición con su criterio de aceptación, el plan técnico revisado por una persona, la rama, los tests escritos primero, la integración continua como puerta, la revisión del diff y el merge. Cada paso existe porque corrige un tipo de error concreto, y el orden importa: se colocan donde el error todavía es barato.',
+    problem:
+      'Se salta el plan y se revisa al final, cuando el cambio ya está entero. El resultado es un diff de dos mil líneas que nadie lee de verdad: se aprueba porque las pruebas están en verde y porque hay prisa. Y como nadie sabe qué decidió el agente por el camino, tampoco se puede explicar mañana por qué el sistema hace lo que hace.',
+    internals: [
+      'La petición trae el criterio de aceptación antes de que exista una rama: sin eso, el flujo solo produce código más rápido hacia el sitio equivocado.',
+      'El plan se revisa antes de escribir. Es el único punto donde decir «no por ahí» cuesta minutos.',
+      'Las ramas y los diffs se mantienen pequeños por una razón práctica: un cambio que no cabe en diez minutos de revisión se aprueba por cansancio.',
+      'La integración continua decide con hechos: pruebas, lint, secretos, dependencias. Lo que el agente afirma sobre su propio trabajo no es evidencia.',
+      'La revisión la firma una persona. Un agente puede hacer el primer pase, y la responsabilidad del merge no se delega.',
+    ],
+    whenToUse: [
+      'En cualquier cambio que llegue a una rama compartida, también en los pequeños: el coste del flujo es proporcional al tamaño.',
+      'Cuando varias personas u otros agentes van a leer el cambio después.',
+    ],
+    whenNotToUse: [
+      'No conviertas el flujo en una ceremonia obligatoria para corregir una errata: la gente aprende a rellenar formularios sin leerlos.',
+      'No añadas puntos de control que nadie ejerce: una aprobación automática es peor que ninguna, porque simula supervisión.',
+    ],
+    pitfalls: [
+      {
+        title: 'El diff que nadie lee',
+        detail:
+          'Un cambio enorme con pruebas en verde se aprueba por inercia. El tamaño es la primera señal de alarma, antes que el contenido.',
+      },
+      {
+        title: 'Tratar la rama como un estorbo',
+        detail:
+          'Cuando el agente tiene permiso para integrar sin revisión, el flujo desaparece y con él la posibilidad de explicar qué pasó.',
+      },
+    ],
+    referenceIds: ['ref-rules-ml'],
+  },
+  {
+    competencyId: 'ai-code-review',
+    whatIs:
+      'Revisar el diff de un cambio generado buscando lo que un revisor con prisa no vería: coherencia con el resto del proyecto, casos límite inventados, dependencias nuevas, secretos, pruebas debilitadas y código que ya no se usa. La revisión se ordena por riesgo —datos y seguridad primero— y la firma una persona.',
+    problem:
+      'El código generado es plausible. Compila, las pruebas pasan, los nombres son razonables y el estilo encaja. Justo por eso se revisa por encima: parece escrito por alguien que sabía lo que hacía. Y en esa plausibilidad se esconden la función que no existe, el apagado del caso límite y la clave de ejemplo que alguien copió de la documentación.',
+    internals: [
+      'Se revisa el diff completo, incluidas las pruebas, la configuración y las dependencias: lo que no está en el código también cambia el comportamiento.',
+      'Lo primero es el riesgo: datos personales, permisos, secretos, dependencias nuevas. El estilo, al final y con moderación.',
+      'Una dependencia nueva es una decisión de arquitectura disfrazada de línea en un fichero.',
+      'El diff de las pruebas se lee con la misma atención: borrar un caso o aflojar una comprobación no cambia el número de pruebas.',
+      'Un agente revisor sirve como primer pase y no como aprobación: dos modelos de acuerdo no son una firma.',
+    ],
+    whenToUse: [
+      'Siempre que el cambio lo haya producido un agente, aunque el diff sea pequeño: la plausibilidad no es proporcional al tamaño.',
+      'Cuando el cambio toca pruebas o configuración de despliegue.',
+    ],
+    whenNotToUse: [
+      'No reescribas el estilo del cambio solo porque no es tu forma de escribirlo: eso es ruido y desgasta al autor de la próxima revisión.',
+      'No sustituyas la revisión humana por dos revisiones automáticas: coincide el mismo punto ciego en los dos.',
+    ],
+    pitfalls: [
+      {
+        title: 'Revisión de cortesía',
+        detail:
+          'Mirar que las pruebas estén en verde y aprobar. Es la revisión que el código plausible invita a hacer, y la que deja pasar lo que nadie más va a mirar.',
+      },
+      {
+        title: 'Discutir estilo durante una hora',
+        detail:
+          'El tiempo de revisión es finito: gastarlo en comas significa no gastarlo en el caso límite que falta.',
+      },
+    ],
+    referenceIds: ['ref-anthropic-system'],
+  },
 ];
 
 export const ITEMS_AREA_09: readonly Item[] = [
@@ -1205,5 +1275,524 @@ export const ITEMS_AREA_09: readonly Item[] = [
     explanation:
       'La cobertura dice cuánto código se ejecutó, no cuánto se verificó. Como objetivo se puede inflar con tests que pasan por todas las líneas sin comprobar nada. Como diagnóstico, sirve para encontrar lo que no se ejecuta nunca.',
     referenceId: 'ref-rules-ml',
+  },
+  // ── ticket-to-pr-workflow ───────────────────────────────────────────────────
+
+  {
+    id: 't2p-before-branch',
+    competencyId: 'ticket-to-pr-workflow',
+    difficulty: 1,
+    prompt: 'Antes de crear la rama, ¿qué debería existir?',
+    options: [
+      {
+        id: 'a',
+        text: 'El criterio de aceptación del cambio',
+        correct: true,
+        rationale:
+          'Correcto: sin él, el flujo solo produce código más rápido hacia un sitio sin definir.',
+      },
+      {
+        id: 'b',
+        text: 'El nombre definitivo de la rama',
+        correct: false,
+        rationale:
+          'Es trámite. Se decide en segundos y no cambia si el resultado es el correcto.',
+      },
+      {
+        id: 'c',
+        text: 'La estimación de horas del cambio',
+        correct: false,
+        rationale:
+          'La estimación gestiona expectativas, no corrige nada del trabajo. No es un punto de control.',
+      },
+    ],
+    explanation:
+      'El primer control del flujo es saber qué significa que el cambio esté bien. Todo lo demás —plan, pruebas, revisión— compara contra eso. Si falta, los puntos de control se convierten en opiniones.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 't2p-pr-size',
+    competencyId: 'ticket-to-pr-workflow',
+    difficulty: 1,
+    prompt: 'El cambio llega como un diff de dos mil líneas con las pruebas en verde. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Partirlo en cambios revisables por separado',
+        correct: true,
+        rationale:
+          'Correcto: si no cabe en una revisión real, la aprobación será por cansancio y no por criterio.',
+      },
+      {
+        id: 'b',
+        text: 'Aprobarlo: las pruebas pasan, que es la garantía',
+        correct: false,
+        rationale:
+          'Las pruebas cubren lo que alguien pensó probar. Lo que falta está justo fuera de eso.',
+      },
+      {
+        id: 'c',
+        text: 'Pedir un resumen en lenguaje natural para revisar eso',
+        correct: false,
+        rationale:
+          'El resumen lo escribe quien implementó. Aprobarías su descripción del cambio, no el cambio.',
+      },
+    ],
+    explanation:
+      'El tamaño del diff decide si la revisión puede existir. Es la señal de alarma más fiable y la más fácil de detectar, antes de mirar una sola línea.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 't2p-merge-permission',
+    competencyId: 'ticket-to-pr-workflow',
+    difficulty: 2,
+    prompt: 'El agente tiene permiso para integrar sus propios cambios sin revisión. ¿Qué se pierde?',
+    options: [
+      {
+        id: 'a',
+        text: 'La firma: alguien que responda del cambio',
+        correct: true,
+        rationale:
+          'Correcto: sin firma, nadie puede explicar mañana quién decidió que esto entrara.',
+      },
+      {
+        id: 'b',
+        text: 'Velocidad de entrega del equipo',
+        correct: false,
+        rationale:
+          'Al contrario, se gana velocidad. Lo que se pierde es el control y la trazabilidad.',
+      },
+      {
+        id: 'c',
+        text: 'Nada, si las pruebas pasan siempre',
+        correct: false,
+        rationale:
+          'Las pruebas comprueban lo previsto. Lo imprevisto es justo lo que la revisión busca.',
+      },
+    ],
+    explanation:
+      'La revisión es donde una persona asume el cambio. Delegar la integración a quien lo escribió elimina la única defensa frente a lo que las pruebas no cubren.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 't2p-ci-not-claim',
+    competencyId: 'ticket-to-pr-workflow',
+    difficulty: 2,
+    prompt: 'El agente informa de que las pruebas pasan. ¿Qué haces con esa afirmación?',
+    options: [
+      {
+        id: 'a',
+        text: 'Comprobarlo en la integración continua',
+        correct: true,
+        rationale:
+          'Correcto: la afirmación de quien hizo el trabajo no es evidencia. El resultado del script sí.',
+      },
+      {
+        id: 'b',
+        text: 'Aceptarla: si lo dice, lo habrá ejecutado',
+        correct: false,
+        rationale:
+          'Puede haber ejecutado otra cosa, en otro entorno, o haber leído la salida de forma optimista.',
+      },
+      {
+        id: 'c',
+        text: 'Pedirle que lo repita para confirmarlo',
+        correct: false,
+        rationale:
+          'Sigue siendo su palabra. Cambia el punto de verificación a algo que no depende de su criterio.',
+      },
+    ],
+    explanation:
+      'La puerta la abre un hecho verificable, no un testimonio. Por eso el flujo pone la integración continua entre el trabajo y el merge: sustituye la confianza por una ejecución reproducible.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 't2p-direct-to-main',
+    competencyId: 'ticket-to-pr-workflow',
+    difficulty: 2,
+    prompt:
+      'Un cambio pequeño y urgente: ¿se puede saltar la rama y tocar la línea principal?',
+    options: [
+      {
+        id: 'a',
+        text: 'No: sin rama no hay revisión ni registro de qué entró',
+        correct: true,
+        rationale:
+          'Correcto: la urgencia acorta el flujo, no lo anula. El registro de por qué se cambió algo vale igual.',
+      },
+      {
+        id: 'b',
+        text: 'Sí, si el cambio ocupa menos de diez líneas',
+        correct: false,
+        rationale:
+          'El tamaño no mide el riesgo. Una línea puede cambiar un permiso o un cálculo de facturación.',
+      },
+      {
+        id: 'c',
+        text: 'Sí, avisando después en el canal del equipo',
+        correct: false,
+        rationale:
+          'El aviso llega cuando ya ocurrió. El canal no es un punto de control y nadie lo usará para reconstruirlo.',
+      },
+    ],
+    explanation:
+      'El flujo protege sobre todo el registro y la revisión, y esos dos no dependen del tamaño. Saltarlo por urgencia es aceptar no poder explicar el cambio después.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 't2p-fix-or-regenerate',
+    competencyId: 'ticket-to-pr-workflow',
+    difficulty: 3,
+    prompt: 'La revisión pide dos correcciones. ¿Se arreglan en la misma rama o se regenera el cambio?',
+    options: [
+      {
+        id: 'a',
+        text: 'En la misma rama, con correcciones acotadas',
+        correct: true,
+        rationale:
+          'Correcto: el diff sigue siendo revisable y el hilo conserva por qué se pidió cada ajuste.',
+      },
+      {
+        id: 'b',
+        text: 'Regenerar todo con las indicaciones nuevas',
+        correct: false,
+        rationale:
+          'Se pierde lo que ya estaba bien y aparecen cambios no revisados en zonas que nadie miró.',
+      },
+      {
+        id: 'c',
+        text: 'Cerrar el cambio y abrir otro desde cero',
+        correct: false,
+        rationale:
+          'Reinicia la revisión entera por dos detalles. El coste de revisar no se reutiliza.',
+      },
+    ],
+    explanation:
+      'Regenerar sustituye un problema conocido y acotado por un diff nuevo sin revisar. La corrección incremental mantiene el trabajo ya validado y el motivo de cada cambio.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 't2p-pr-description',
+    competencyId: 'ticket-to-pr-workflow',
+    difficulty: 3,
+    prompt: '¿Qué debe contar la descripción de un cambio generado?',
+    options: [
+      {
+        id: 'a',
+        text: 'Qué cambia, por qué, qué se probó y qué no',
+        correct: true,
+        rationale:
+          'Correcto: lo que el revisor necesita para decidir, incluida la parte que quedó sin cubrir.',
+      },
+      {
+        id: 'b',
+        text: 'Que el cambio lo ha generado un agente',
+        correct: false,
+        rationale:
+          'Cómo se escribió no cambia cómo se revisa. Lo que importa es el efecto y la evidencia.',
+      },
+      {
+        id: 'c',
+        text: 'Un resumen del proceso de conversación',
+        correct: false,
+        rationale:
+          'El recorrido interesa poco. El revisor necesita el resultado y sus límites, no la transcripción.',
+      },
+    ],
+    explanation:
+      'Una descripción útil permite revisar sin arqueología: qué se pretendía, qué se hizo, qué se comprobó y qué se dejó fuera a sabiendas. El «qué no» es lo que suele faltar y lo que más ayuda.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 't2p-disable-check',
+    competencyId: 'ticket-to-pr-workflow',
+    difficulty: 3,
+    prompt:
+      'Una comprobación de la integración continua bloquea el cambio y no está claro por qué. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Investigar el fallo antes de tocar la comprobación',
+        correct: true,
+        rationale:
+          'Correcto: la comprobación existe porque algo se rompió antes. Desactivarla borra la lección.',
+      },
+      {
+        id: 'b',
+        text: 'Desactivarla temporalmente y seguir',
+        correct: false,
+        rationale:
+          'Lo temporal se queda. Y desactivar la puerta es exactamente lo que el flujo intentaba evitar.',
+      },
+      {
+        id: 'c',
+        text: 'Añadir una excepción para este caso concreto',
+        correct: false,
+        rationale:
+          'Las excepciones se acumulan y la comprobación acaba siendo opcional en la práctica.',
+      },
+    ],
+    explanation:
+      'Cuando la puerta estorba, casi siempre es porque está diciendo algo. Desactivarla convierte un fallo detectado en un fallo latente, y el siguiente que llegue tendrá menos red.',
+    referenceId: 'ref-rules-ml',
+  },
+
+  // ── ai-code-review ──────────────────────────────────────────────────────────
+
+  {
+    id: 'rv-where-to-start',
+    competencyId: 'ai-code-review',
+    difficulty: 1,
+    prompt: 'Abres el diff de un cambio generado. ¿Por dónde empiezas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Por lo que puede hacer daño: datos, permisos, secretos',
+        correct: true,
+        rationale:
+          'Correcto: el tiempo de revisión es finito y se gasta mejor en lo irreversible.',
+      },
+      {
+        id: 'b',
+        text: 'Por el estilo, para dejarlo coherente',
+        correct: false,
+        rationale:
+          'Se arregla después y suele tener arreglo automático. Ocupa el tiempo de lo que no lo tiene.',
+      },
+      {
+        id: 'c',
+        text: 'Por el final, que es donde suelen estar los errores',
+        correct: false,
+        rationale:
+          'No hay razón para suponer eso. El orden se decide por riesgo, no por posición en el fichero.',
+      },
+    ],
+    explanation:
+      'La revisión se prioriza por consecuencia: primero lo que no se deshace —un secreto expuesto, un permiso abierto, un dato de más—, después la corrección y al final la forma.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'rv-plausible-danger',
+    competencyId: 'ai-code-review',
+    difficulty: 1,
+    prompt: 'El código compila, pasa las pruebas y los nombres son razonables. ¿Qué implica?',
+    options: [
+      {
+        id: 'a',
+        text: 'Nada sobre su corrección: la plausibilidad es el riesgo',
+        correct: true,
+        rationale:
+          'Correcto: lo generado suele leerse como si lo hubiera escrito alguien que sabía, y por eso se revisa menos.',
+      },
+      {
+        id: 'b',
+        text: 'Que está bien: tres señales coinciden',
+        correct: false,
+        rationale:
+          'Las tres miden forma. Una función correcta para el problema equivocado pasa las tres.',
+      },
+      {
+        id: 'c',
+        text: 'Que solo hay que revisar la lógica de negocio',
+        correct: false,
+        rationale:
+          'La lógica de negocio es justo donde la plausibilidad engaña: suena a lo que se pedía.',
+      },
+    ],
+    explanation:
+      'Lo peligroso del código automático no es que sea obviamente malo, sino que es coherente. La revisión tiene que buscar activamente lo plausible pero incorrecto.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'rv-review-the-tests',
+    competencyId: 'ai-code-review',
+    difficulty: 2,
+    prompt: 'El cambio incluye modificaciones en las pruebas. ¿Se revisan?',
+    options: [
+      {
+        id: 'a',
+        text: 'Sí, con la misma atención que el código',
+        correct: true,
+        rationale:
+          'Correcto: borrar un caso o aflojar una comprobación deja el mismo número de pruebas y menos cobertura real.',
+      },
+      {
+        id: 'b',
+        text: 'No: las pruebas son andamiaje del cambio',
+        correct: false,
+        rationale:
+          'Son el criterio de aceptación. Si se relajan, el cambio se aprueba contra un listón más bajo.',
+      },
+      {
+        id: 'c',
+        text: 'Solo si falla algo en la integración continua',
+        correct: false,
+        rationale:
+          'Si se aflojó lo justo para que pasara, no fallará nunca. Es el fallo que no produce señal.',
+      },
+    ],
+    explanation:
+      'El diff de las pruebas es donde se ve si el criterio se mantuvo o se adaptó a la solución. Es la parte del cambio que menos se mira y más dice.',
+    referenceId: 'ref-rules-ml',
+  },
+  {
+    id: 'rv-new-dependency',
+    competencyId: 'ai-code-review',
+    difficulty: 2,
+    prompt: 'El cambio añade una dependencia nueva para resolver un caso. ¿Cómo lo tratas?',
+    options: [
+      {
+        id: 'a',
+        text: 'Como una decisión de arquitectura, no como un detalle',
+        correct: true,
+        rationale:
+          'Correcto: una dependencia nueva entra en producción, se mantiene y hay que actualizarla durante años.',
+      },
+      {
+        id: 'b',
+        text: 'Como un detalle: resuelve el caso y es pequeña',
+        correct: false,
+        rationale:
+          'El tamaño del paquete no mide el coste de mantenerlo, auditarlo y actualizarlo.',
+      },
+      {
+        id: 'c',
+        text: 'Como algo que decide el autor del cambio',
+        correct: false,
+        rationale:
+          'Quien implementa optimiza su tarea. La decisión afecta a todo el proyecto y la toma quien lo mantiene.',
+      },
+    ],
+    explanation:
+      'Una línea en el fichero de dependencias es la decisión con más alcance de un cambio pequeño: introduce código ajeno, obligaciones de seguridad y mantenimiento futuro.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'rv-secret-in-example',
+    competencyId: 'ai-code-review',
+    difficulty: 2,
+    prompt: 'El diff incluye una clave de ejemplo en el código. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Quitarla y revisar si la clave real existe',
+        correct: true,
+        rationale:
+          'Correcto: los secretos de ejemplo suelen ser reales copiados de un entorno. Hay que comprobar y rotar.',
+      },
+      {
+        id: 'b',
+        text: 'Dejarla: es solo un ejemplo en un comentario',
+        correct: false,
+        rationale:
+          'El ejemplo queda en el historial del repositorio, que es donde se buscan claves.',
+      },
+      {
+        id: 'c',
+        text: 'Sustituirla por una cadena vacía',
+        correct: false,
+        rationale:
+          'Tapa el síntoma en el código y no comprueba si la clave estuvo expuesta o sigue siendo válida.',
+      },
+    ],
+    explanation:
+      'Un secreto en el historial ya está comprometido, aunque el fichero se corrija después. La respuesta es quitarlo, comprobar si era válido y rotarlo si lo era.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'rv-dead-code',
+    competencyId: 'ai-code-review',
+    difficulty: 3,
+    prompt: 'El cambio deja una función nueva que nadie llama y una rama que nunca se ejecuta. ¿Qué haces?',
+    options: [
+      {
+        id: 'a',
+        text: 'Pedir que se quite: no hay razón para dejarla',
+        correct: true,
+        rationale:
+          'Correcto: el código sin usar se lee, se mantiene y se cree vivo. Es deuda desde el primer día.',
+      },
+      {
+        id: 'b',
+        text: 'Dejarlo: puede servir más adelante',
+        correct: false,
+        rationale:
+          'Lo que no se usa hoy se escribe cuando haga falta, con el contexto de entonces. Guardarlo es apostar.',
+      },
+      {
+        id: 'c',
+        text: 'Dejarlo con un comentario que explique para qué es',
+        correct: false,
+        rationale:
+          'El comentario no lo ejecuta ni lo prueba. Sigue siendo código que nadie valida.',
+      },
+    ],
+    explanation:
+      'Las sobras son típicas de un agente que explora: prueba caminos y no limpia. Revisarlas es parte de la revisión, porque lo que no se usa no está verificado por nada.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'rv-two-agents-approve',
+    competencyId: 'ai-code-review',
+    difficulty: 3,
+    prompt: 'Dos agentes revisores dan el visto bueno. ¿Puede integrarse?',
+    options: [
+      {
+        id: 'a',
+        text: 'No: falta la firma de una persona',
+        correct: true,
+        rationale:
+          'Correcto: los revisores automáticos comparten puntos ciegos y no asumen responsabilidad.',
+      },
+      {
+        id: 'b',
+        text: 'Sí: dos revisiones independientes son más que una humana',
+        correct: false,
+        rationale:
+          'No son independientes: miran lo mismo con criterios parecidos. Y no responden del resultado.',
+      },
+      {
+        id: 'c',
+        text: 'Sí, si el cambio es pequeño y las pruebas pasan',
+        correct: false,
+        rationale:
+          'El tamaño no sustituye a la responsabilidad. Un cambio pequeño puede abrir un permiso.',
+      },
+    ],
+    explanation:
+      'Los agentes revisores son un buen primer pase: leen rápido y son constantes. No firman, no responden de lo que aprueban y comparten el sesgo de haber sido entrenados igual.',
+    referenceId: 'ref-anthropic-system',
+  },
+  {
+    id: 'rv-priority-order',
+    competencyId: 'ai-code-review',
+    difficulty: 3,
+    prompt: 'Quedan cinco minutos de revisión y hay tres cosas pendientes. ¿Cuál miras?',
+    options: [
+      {
+        id: 'a',
+        text: 'El cambio de permisos y el acceso a datos',
+        correct: true,
+        rationale:
+          'Correcto: es lo único que no se arregla después. El estilo tiene arreglo automático.',
+      },
+      {
+        id: 'b',
+        text: 'Los nombres de variables y la longitud de las funciones',
+        correct: false,
+        rationale:
+          'Se corrige con herramientas y en otra iteración. No deja consecuencias fuera del código.',
+      },
+      {
+        id: 'c',
+        text: 'Los comentarios, para que quede documentado',
+        correct: false,
+        rationale:
+          'Útil y aplazable. Ningún incidente se produce por un comentario que falta.',
+      },
+    ],
+    explanation:
+      'Revisar con prisa es la situación normal, así que el orden tiene que estar decidido de antemano: primero lo irreversible, después lo corregible y al final lo estético.',
+    referenceId: 'ref-anthropic-system',
   },
 ];
